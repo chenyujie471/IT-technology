@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: IT-technology
+  mvc:
+    async:
+      request-timeout: 660000   # 660s，覆盖图像生成最长 600s
+
+server:
+  port: 8080
+
+ai:
+  upstream: https://ai-api.kkidc.com
+
+logging:
+  level:
+    com.example.ittechnology: DEBUG

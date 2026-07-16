@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Studio — 多模态快速AI聚合测试平台</title>
+<style>
+:root {
+  --bg:          #09090b;
+  --bg2:         #111113;
+  --bg3:         #18181b;
+  --bg4:         #27272a;
+  --border:      #27272a;
+  --border2:     #3f3f46;
+  --primary:     #8b5cf6;
+  --primary-d:   #7c3aed;
+  --pri-glow:    rgba(139,92,246,.35);
+  --pri-dim:     rgba(139,92,246,.12);
+  --pri-grad:    linear-gradient(135deg,#7c3aed 0%,#6366f1 100%);
+  --text:        #fafafa;
+  --text2:       #d4d4d8;
+  --muted:       #a1a1aa;
+  --muted2:      #71717a;
+  --green:       #22c55e;
+  --red:         #ef4444;
+  --yellow:      #f59e0b;
+  --r:  10px;
+  --rs: 7px;
+  --chat-bar-bg: rgba(17,17,19,.9);
+}
+[data-theme="light"] {
+  --bg:          #ffffff;
+  --bg2:         #f4f4f5;
+  --bg3:         #fafafa;
+  --bg4:         #e4e4e7;
+  --border:      #e4e4e7;
+  --border2:     #d4d4d8;
+  --pri-glow:    rgba(139,92,246,.2);
+  --pri-dim:     rgba(139,92,246,.08);
+  --text:        #09090b;
+  --text2:       #27272a;
+  --muted:       #52525b;
+  --muted2:      #71717a;
+  --green:       #16a34a;
+  --red:         #dc2626;
+  --yellow:      #d97706;
+  --chat-bar-bg: rgba(244,244,245,.92);
+}
+[data-theme="light"] select option{background:#fafafa}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;font-size:14px;display:flex}
+
+/* ========== SIDEBAR ========== */
+.sidebar{
+  width:216px;min-width:216px;
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+}
+.logo{
+  padding:18px 16px 14px;
+  display:flex;align-items:center;gap:11px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.logo-gem{
+  width:34px;height:34px;border-radius:9px;
+  background:var(--pri-grad);
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;flex-shrink:0;
+  box-shadow:0 0 14px var(--pri-glow);
+}
+.logo-name{font-size:14px;font-weight:700;letter-spacing:.1px;color:var(--text);line-height:1.2}
+.logo-tag{font-size:10px;color:var(--muted2);letter-spacing:.8px;text-transform:uppercase}
+
+nav{flex:1;padding:8px}
+.nav-btn{
+  display:flex;align-items:center;gap:10px;
+  width:100%;padding:9px 10px;
+  background:none;border:none;border-radius:var(--rs);
+  color:var(--muted);font-size:13px;cursor:pointer;
+  text-align:left;transition:all .15s;font-family:inherit;
+  position:relative;margin-bottom:2px;
+}
+.nav-btn:hover{background:var(--bg4);color:var(--text2)}
+.nav-btn.active{background:var(--pri-dim);color:var(--primary);font-weight:500}
+.nav-btn.active::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:18px;background:var(--primary);border-radius:0 3px 3px 0;
+}
+.nav-btn .nb-ic{
+  width:28px;height:28px;border-radius:6px;
+  background:var(--bg4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;transition:background .15s;
+}
+.nav-btn.active .nb-ic{background:var(--pri-dim)}
+.nav-btn .nb-lbl{font-size:12.5px}
+
+.sidebar-foot{padding:10px;border-top:1px solid var(--border);flex-shrink:0}
+.tok-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--rs);padding:10px 12px;
+  display:flex;flex-direction:column;gap:9px;
+}
+.token-row{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted2);flex-shrink:0;transition:all .3s}
+.dot.ok {background:var(--green);box-shadow:0 0 6px rgba(34,197,94,.5)}
+.dot.err{background:var(--red)  ;box-shadow:0 0 6px rgba(239,68,68,.5)}
+
+/* ========== MAIN ========== */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.tab{display:none;flex:1;flex-direction:column;overflow:hidden}
+.tab.active{display:flex}
+
+/* ========== FORM ========== */
+label{
+  font-size:10.5px;color:var(--muted);display:block;
+  margin-bottom:6px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.6px;
+}
+input,textarea,select{
+  width:100%;
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  border-radius:var(--rs);
+  color:var(--text);padding:9px 12px;
+  font-size:13px;font-family:inherit;outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+input:focus,textarea:focus,select:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(139,92,246,.18);
+}
+textarea{resize:vertical;line-height:1.7}
+select option{background:var(--bg3)}
+input[type=range]{padding:0;border:none;background:none;accent-color:var(--primary);cursor:pointer}
+input[type=range]:focus{box-shadow:none}
+
+/* Buttons */
+.btn{
+  border:none;border-radius:var(--rs);
+  padding:9px 18px;cursor:pointer;
+  font-size:13px;font-family:inherit;font-weight:500;
+  transition:all .15s;
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:6px;white-space:nowrap;letter-spacing:.1px;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.btn-p{
+  background:var(--pri-grad);color:#fff;
+  box-shadow:0 2px 10px var(--pri-glow);
+}
+.btn-p:hover:not(:disabled){filter:brightness(1.08);box-shadow:0 4px 16px var(--pri-glow);transform:translateY(-1px)}
+.btn-p:active:not(:disabled){transform:translateY(0);filter:brightness(.98)}
+.btn-g{background:var(--bg4);color:var(--text2);border:1px solid var(--border2)}
+.btn-g:hover:not(:disabled){border-color:var(--primary);color:var(--primary);background:var(--pri-dim)}
+.btn-full{width:100%}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+.fg{display:flex;flex-direction:column;gap:6px}
+.row{display:flex;gap:8px;align-items:center}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{
+  padding:4px 11px;
+  border:1px solid var(--border2);
+  border-radius:20px;cursor:pointer;
+  font-size:11.5px;color:var(--muted2);
+  transition:all .15s;user-select:none;
+  background:var(--bg3);
+}
+.chip:hover{border-color:var(--primary);color:var(--text2)}
+.chip.on{background:var(--pri-dim);border-color:var(--primary);color:var(--primary);font-weight:500}
+
+/* Toggle */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:3px 0}
+.tog-lbl{font-size:13px;color:var(--text2)}
+.tog{position:relative;width:40px;height:22px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0;position:absolute}
+.tog-s{position:absolute;inset:0;background:var(--bg4);border:1px solid var(--border2);border-radius:20px;cursor:pointer;transition:.2s}
+.tog-s::before{content:'';position:absolute;left:3px;top:3px;width:14px;height:14px;background:var(--muted2);border-radius:50%;transition:.2s}
+.tog input:checked+.tog-s{background:var(--primary);border-color:var(--primary)}
+.tog input:checked+.tog-s::before{transform:translateX(18px);background:#fff}
+
+/* ========== CHAT ========== */
+.chat-bar{
+  padding:10px 18px;
+  border-bottom:1px solid var(--border);
+  background:var(--chat-bar-bg);
+  backdrop-filter:blur(8px);
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+  position:relative;z-index:5;
+}
+.chat-bar label{margin:0}
+.bar-sep{width:1px;height:18px;background:var(--border2);flex-shrink:0}
+.msgs{
+  flex:1;overflow-y:auto;
+  padding:24px 20px;
+  display:flex;flex-direction:column;gap:16px;
+  background:var(--bg);
+}
+.msg{display:flex;gap:10px;max-width:840px;animation:msgIn .2s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.msg.user{flex-direction:row-reverse;align-self:flex-end}
+.ava{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.msg.user .ava{background:var(--pri-grad);box-shadow:0 2px 8px var(--pri-glow)}
+.msg.ai   .ava{background:var(--bg4);border:1px solid var(--border2)}
+.bubble{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:14px;padding:11px 16px;
+  line-height:1.78;white-space:pre-wrap;word-break:break-word;
+  font-size:13.5px;color:var(--text2);
+}
+.msg.user .bubble{background:var(--pri-dim);border-color:rgba(139,92,246,.3);color:var(--text)}
+.chat-foot{
+  padding:16px 20px;border-top:1px solid var(--border);
+  background:var(--bg2);display:flex;gap:12px;align-items:flex-end;flex-shrink:0;
+}
+#ci{min-height:110px;font-size:14px;line-height:1.75}
+#csend{min-height:110px;width:88px;font-size:15px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.cur{display:inline-block;width:2px;height:13px;background:var(--primary);animation:blink 1s infinite;vertical-align:middle;margin-left:1px;border-radius:1px}
+
+/* ========== SPLIT LAYOUT ========== */
+.split{
+  display:flex;flex-direction:row;
+  flex:1;min-height:0;overflow:hidden;
+}
+.ctrl{
+  width:310px;min-width:310px;max-width:310px;flex-shrink:0;
+  padding:14px 14px 16px;
+  border-right:1px solid var(--border);
+  overflow-y:auto;overflow-x:hidden;
+  display:flex;flex-direction:column;gap:13px;
+  background:var(--bg2);
+  min-height:0;
+}
+.ctrl.wide{width:340px;min-width:340px;max-width:340px}
+.result{
+  flex:1 1 0;min-width:0;min-height:0;
+  overflow-y:auto;
+  display:flex;flex-direction:column;align-items:center;
+  padding:28px;background:var(--bg);
+}
+
+/* Progress */
+.prog-wrap{background:var(--bg4);border-radius:20px;height:6px;overflow:hidden}
+.prog-bar{height:100%;background:linear-gradient(90deg,#7c3aed,#6366f1,#a855f7);border-radius:20px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.b-g{background:rgba(34,197,94,.1) ;color:var(--green) ;border:1px solid rgba(34,197,94,.2)}
+.b-y{background:rgba(245,158,11,.1);color:var(--yellow);border:1px solid rgba(245,158,11,.2)}
+.b-r{background:rgba(239,68,68,.1) ;color:var(--red)   ;border:1px solid rgba(239,68,68,.2)}
+.b-b{background:var(--pri-dim)     ;color:var(--primary);border:1px solid rgba(139,92,246,.25)}
+
+/* Info card */
+.info-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px}
+.info-row{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.info-k{color:var(--muted);font-weight:500}
+
+/* Placeholder */
+.ph{display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--muted);text-align:center;padding:24px 16px}
+.ph-ic{font-size:52px;opacity:.15;margin-bottom:4px;line-height:1}
+.ph-sub{font-size:11.5px;color:var(--muted2);line-height:1.6}
+
+img.r-img{max-width:100%;max-height:calc(100vh - 130px);border-radius:12px;border:1px solid var(--border);display:block;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);display:block;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:200}
+.overlay.show{display:flex}
+.modal{
+  background:var(--bg2);border:1px solid var(--border2);
+  border-radius:18px;padding:28px;width:460px;
+  display:flex;flex-direction:column;gap:18px;
+  box-shadow:0 32px 64px rgba(0,0,0,.7);
+  position:relative;overflow:hidden;
+}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--pri-grad)}
+.modal-title{font-size:17px;font-weight:700}
+.modal-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.res-msg{font-size:12px;min-height:18px;text-align:center}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted2)}
+
+.divider{height:1px;background:var(--border)}
+.sec-lbl{
+  font-size:10px;font-weight:700;color:var(--muted2);
+  letter-spacing:.8px;text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;
+}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Mode tabs */
+.mode-tabs{display:flex;padding:3px;background:var(--bg4);border-radius:var(--rs);gap:2px}
+.mode-tab{
+  flex:1;padding:7px 4px;background:none;border:none;
+  color:var(--muted2);font-size:12px;cursor:pointer;
+  font-family:inherit;transition:all .15s;
+  text-align:center;white-space:nowrap;border-radius:5px;font-weight:500;
+}
+.mode-tab:hover{color:var(--text2)}
+.mode-tab.active{background:var(--bg2);color:var(--primary);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+
+/* Upload zone */
+.upload-zone{
+  border:1.5px dashed var(--border2);
+  border-radius:var(--rs);
+  padding:14px 10px;text-align:center;cursor:pointer;
+  transition:all .2s;background:transparent;user-select:none;
+}
+.upload-zone:hover{border-color:var(--primary);background:var(--pri-dim)}
+.upload-zone .up-ico{font-size:22px;line-height:1;margin-bottom:6px;opacity:.6}
+.upload-zone .up-txt{font-size:11px;color:var(--muted);line-height:1.6}
+
+/* Ref grid */
+.ref-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+.ref-thumb{position:relative;width:76px;height:76px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);flex-shrink:0}
+.ref-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.ref-thumb .rm-btn{
+  position:absolute;top:3px;right:3px;
+  background:rgba(0,0,0,.75);color:#fff;border:none;
+  border-radius:50%;width:18px;height:18px;font-size:9px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit;transition:background .15s;
+}
+.ref-thumb .rm-btn:hover{background:var(--red)}
+
+/* Gen button */
+.gen-btn{
+  width:100%;padding:13px;font-size:14px;font-weight:600;
+  border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit;
+  background:var(--pri-grad);color:#fff;
+  box-shadow:0 4px 16px var(--pri-glow);
+  transition:all .15s;letter-spacing:.2px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.gen-btn:hover:not(:disabled){filter:brightness(1.1);box-shadow:0 6px 20px var(--pri-glow);transform:translateY(-1px)}
+.gen-btn:active:not(:disabled){transform:translateY(0)}
+.gen-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+/* Theme toggle */
+.theme-sw{
+  display:flex;background:var(--bg4);border-radius:20px;padding:2px;gap:1px;
+  border:1px solid var(--border2);
+}
+.tt-opt{
+  padding:3px 10px;border-radius:16px;font-size:11px;cursor:pointer;
+  color:var(--muted2);transition:all .15s;user-select:none;
+}
+.tt-opt.on{background:var(--bg2);color:var(--text);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+</style>
+<script>
+(function(){var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t)})();
+</script>
+</head>
+<body>
+
+<!-- ========== SIDEBAR ========== -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-gem">✦</div>
+    <div>
+      <div class="logo-name">AI聚合平台快速测试平台-AI售后</div>
+      <div class="logo-tag">IT技术中心</div>
+    </div>
+  </div>
+  <nav>
+    <button class="nav-btn active" id="nav-chat" onclick="go('chat')">
+      <span class="nb-ic">💬</span><span class="nb-lbl">文字对话</span>
+    </button>
+    <button class="nav-btn" id="nav-image" onclick="go('image')">
+      <span class="nb-ic">🎨</span><span class="nb-lbl">图像生成</span>
+    </button>
+    <button class="nav-btn" id="nav-video" onclick="go('video')">
+      <span class="nb-ic">🎬</span><span class="nb-lbl">视频生成</span>
+    </button>
+  </nav>
+  <div class="sidebar-foot">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 2px">
+      <span style="font-size:10.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px">外观</span>
+      <div class="theme-sw" id="theme-sw">
+        <span class="tt-opt" id="tt-dark" onclick="setTheme('dark')">🌙 深色</span>
+        <span class="tt-opt" id="tt-light" onclick="setTheme('light')">☀ 亮色</span>
+      </div>
+    </div>
+    <div class="tok-card">
+      <div class="token-row">
+        <span class="dot" id="tdot"></span>
+        <span id="tlabel" style="flex:1">未配置 Token</span>
+      </div>
+      <button class="btn btn-g btn-sm btn-full" onclick="openModal()">⚙ 配置 API</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ========== MAIN ========== -->
+<main class="main">
+
+  <!-- ===== CHAT ===== -->
+  <section class="tab active" id="tab-chat">
+    <div class="chat-bar">
+      <label>模型</label>
+      <select id="cm" style="width:220px"><option value="">加载中...</option></select>
+      <button class="btn btn-g btn-sm" onclick="loadModels()" title="刷新模型列表" style="padding:7px 10px">↻</button>
+      <div class="bar-sep"></div>
+      <label style="margin:0">Max Tokens</label>
+      <input type="number" id="cmt" value="2000" style="width:86px">
+      <div style="flex:1"></div>
+      <button class="btn btn-g btn-sm" onclick="clearChat()">🗑 清空</button>
+    </div>
+    <div class="msgs" id="msgs">
+      <div class="ph" style="margin:auto">
+        <div class="ph-ic">💬</div>
+        <div style="font-size:16px;color:var(--text2);font-weight:600">开始对话</div>
+        <div class="ph-sub">选择模型，输入消息<br>Ctrl + Enter 快速发送</div>
+      </div>
+    </div>
+    <div class="chat-foot">
+      <textarea id="ci" rows="5" style="flex:1" placeholder="输入消息... (Ctrl+Enter 发送)" onkeydown="ck(event)"></textarea>
+      <button class="btn btn-p" id="csend" onclick="sendChat()"
+        style="flex-direction:column;gap:4px;align-self:stretch">
+        <span>发送</span>
+        <span style="font-size:10px;opacity:.65;font-weight:400">Ctrl+↵</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== IMAGE ===== -->
+  <section class="tab" id="tab-image">
+    <div class="split">
+      <div class="ctrl">
+        <div class="mode-tabs" id="img-mode-tabs">
+          <button class="mode-tab active" onclick="setImgMode('t2i')">✍ 文生图</button>
+          <button class="mode-tab" onclick="setImgMode('i2i')">🖼 图生图</button>
+        </div>
+
+        <div class="fg"><label>模型</label>
+          <select id="im"><option value="">加载中...</option></select>
+        </div>
+
+        <div class="fg"><label>提示词</label>
+          <textarea id="ip" rows="4" placeholder="描述你想要的图像，越详细效果越好..."></textarea>
+        </div>
+
+        <!-- 参考图（图生图，最多 3 张） -->
+        <div id="img-ref-zone" class="fg" style="display:none">
+          <label>参考图 <span id="img-ref-cnt"
+            style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">(0/3)</span></label>
+          <div class="ref-grid" id="img-ref-grid"></div>
+          <div class="upload-zone" id="img-ref-drop"
+               onclick="document.getElementById('img-ref-inp').click()"
+               ondragover="event.preventDefault()"
+               ondrop="dropImgRef(event)">
+            <div class="up-ico">📎</div>
+            <div class="up-txt">点击或拖拽添加参考图<br>PNG · JPG · WEBP · 最多 3 张</div>
+          </div>
+          <input type="file" id="img-ref-inp" accept="image/*" multiple style="display:none" onchange="pickImgRef(event)">
+        </div>
+
+        <div class="sec-lbl">参数设置</div>
+
+        <div class="fg"><label>尺寸</label>
+          <div class="chips" id="sz-g">
+            <span class="chip on" data-v="1024x1024">1024²</span>
+            <span class="chip" data-v="1536x1024">1536×1024</span>
+            <span class="chip" data-v="1024x1536">1024×1536</span>
+            <span class="chip" data-v="2048x2048">2048²</span>
+            <span class="chip" data-v="2048x1152">2048×1152</span>
+            <span class="chip" data-v="3840x2160">4K 横</span>
+            <span class="chip" data-v="2160x3840">4K 竖</span>
+            <span class="chip" data-v="auto">auto</span>
+          </div>
+        </div>
+
+        <div class="fg"><label>质量</label>
+          <div class="chips" id="iq-g">
+            <span class="chip" data-v="low">low</span>
+            <span class="chip" data-v="medium">medium</span>
+            <span class="chip on" data-v="high">high</span>
+            <span class="chip" data-v="auto">auto</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <button class="gen-btn" id="ib" onclick="genImg()">✨ 生成图像</button>
+        <div id="ist" class="ph-sub" style="text-align:center;min-height:14px"></div>
+      </div>
+
+      <div class="result" id="ir">
+        <div class="ph" style="margin:auto">
+          <div class="ph-ic">🎨</div>
+          <div style="font-size:16px;color:var(--text2);font-weight:600">图像将在此处显示</div>
+          <div class="ph-sub">生成约需 30 ~ 120 秒，请耐心等待</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== VIDEO ===== -->
+  <section class="tab" id="tab-video">
+    <div class="split">
+      <div class="ctrl wide">
+        <div class="mode-tabs" id="vid-mode-tabs">
+          <button class="mode-tab active" onclick="setVidMode('t2v')">✍ 文生视频</button>
+          <button class="mode-tab" onclick="setVidMode('i2v')">🖼 图生视频</button>
+          <button class="mode-tab" onclick="setVidMode('v2v')">🎞 视频参考</button>
+        </div>
+
+        <div class="fg"><label>模型</label>
+          <select id="vm"><option value="">加载中...</option></select>
+        </div>
+
+        <div class="fg"><label>提示词</label>
+          <textarea id="vp" rows="4" placeholder='写实风格，晴朗的蓝天之下... 对话内容用"双引号"以优化音频效果'></textarea>
+        </div>
+
+        <!-- 参考图（图生视频，最多 3 张） -->
+        <div id="vid-img-zone" class="fg" style="display:none">
+          <label>参考图 <span id="vid-img-cnt"
+            style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">(0/3)</span></label>
+          <div class="ref-grid" id="vid-img-grid"></div>
+          <div class="upload-zone" id="vid-img-drop"
+               onclick="document.getElementById('vid-img-inp').click()"
+               ondragover="event.preventDefault()"
+               ondrop="dropVidImg(event)">
+            <div class="up-ico">📎</div>
+            <div class="up-txt">点击或拖拽添加参考图（最多 3 张）</div>
+          </div>
+          <input type="file" id="vid-img-inp" accept="image/*" multiple style="display:none" onchange="pickVidImg(event)">
+        </div>
+
+        <!-- 参考视频 URL（视频参考模式） -->
+        <div id="vid-ref-zone" class="fg" style="display:none">
+          <label>参考视频 URL</label>
+          <input type="url" id="vid-ref-url" placeholder="https://example.com/reference.mp4">
+          <div class="ph-sub" style="margin-top:2px">粘贴参考视频的可公开访问 URL</div>
+        </div>
+
+        <div class="sec-lbl">生成参数</div>
+
+        <div class="fg"><label>画面比例</label>
+          <div class="chips" id="vr-g">
+            <span class="chip on" data-v="16:9">16:9</span>
+            <span class="chip" data-v="4:3">4:3</span>
+            <span class="chip" data-v="1:1">1:1</span>
+            <span class="chip" data-v="3:4">3:4</span>
+            <span class="chip" data-v="9:16">9:16</span>
+            <span class="chip" data-v="21:9">21:9</span>
+            <span class="chip" data-v="adaptive">adaptive</span>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>
+            时长
+            <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--primary);margin-left:4px">
+              <span id="vd-lbl">5</span>s
+            </span>
+          </label>
+          <input type="range" id="vd" min="4" max="15" value="5"
+            oninput="document.getElementById('vd-lbl').textContent=this.value">
+          <div class="row" style="justify-content:space-between;font-size:11px;color:var(--muted2)">
+            <span>4s</span><span>15s</span>
+          </div>
+        </div>
+
+        <div class="fg"><label>分辨率</label>
+          <div class="chips" id="vres-g">
+            <span class="chip" data-v="480p">480p</span>
+            <span class="chip on" data-v="720p">720p</span>
+            <span class="chip" data-v="1080p">1080p</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="toggle-row">
+          <span class="tog-lbl">🔊 生成音频</span>
+          <label class="tog"><input type="checkbox" id="vau" checked><span class="tog-s"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span class="tog-lbl">💧 添加水印</span>
+          <label class="tog"><input type="checkbox" id="vwm"><span class="tog-s"></span></label>
+        </div>
+
+        <div class="divider"></div>
+        <button class="gen-btn" id="vsub" onclick="submitVid()">🎬 生成视频</button>
+      </div>
+
+      <div class="result" id="vr">
+        <div class="ph" style="margin:auto">
+          <div class="ph-ic">🎬</div>
+          <div style="font-size:16px;color:var(--text2);font-weight:600">视频将在此处显示</div>
+          <div class="ph-sub">提交后自动轮询进度，约 1 ~ 3 分钟</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ========== SETTINGS MODAL ========== -->
+<div class="overlay" id="ov" onclick="bgClose(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div>
+      <div class="modal-title">⚙ API 配置</div>
+      <div class="modal-sub">配置后端地址和 Bearer Token 以开始使用</div>
+    </div>
+    <div class="fg">
+      <label>后端地址（留空则使用当前域名）</label>
+      <input type="text" id="s-url" placeholder="http://localhost:8080">
+    </div>
+    <div class="fg">
+      <label>Bearer Token</label>
+      <input type="password" id="s-tok" placeholder="sk-...">
+    </div>
+    <div class="row">
+      <button class="btn btn-g" style="flex:1" onclick="testConn()">🔌 测试连接</button>
+      <button class="btn btn-p" style="flex:1" onclick="saveSettings()">💾 保存设置</button>
+    </div>
+    <div class="res-msg" id="s-res"></div>
+    <div style="display:flex;justify-content:flex-end">
+      <button class="btn btn-g btn-sm" onclick="closeModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ STATE ============
+const S = {
+  url: localStorage.getItem('ai_url') || '',
+  tok: localStorage.getItem('ai_tok') || '',
+  chatMsgs: [],
+  chatBusy: false,
+  vidTimer: null,
+};
+
+// ============ INIT ============
+window.onload = () => {
+  document.getElementById('s-url').value = S.url;
+  document.getElementById('s-tok').value = S.tok;
+  updateDot();
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  setTheme(savedTheme);
+  if (!S.tok) { openModal(); return; }
+  initChips();
+  loadModels();
+};
+
+// ============ CHIPS ============
+function initChips() {
+  ['sz-g','iq-g','vr-g','vres-g'].forEach(id => {
+    document.getElementById(id).querySelectorAll('.chip').forEach(c => {
+      c.onclick = () => {
+        c.closest('.chips').querySelectorAll('.chip').forEach(x => x.classList.remove('on'));
+        c.classList.add('on');
+      };
+    });
+  });
+}
+function chipVal(groupId) {
+  const el = document.querySelector('#'+groupId+' .chip.on');
+  return el ? el.dataset.v : '';
+}
+
+// ============ NAVIGATION ============
+function go(name) {
+  document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+}
+
+// ============ SETTINGS ============
+function openModal()  { document.getElementById('ov').classList.add('show'); }
+function closeModal() { document.getElementById('ov').classList.remove('show'); }
+function bgClose(e)   { if (e.target === document.getElementById('ov')) closeModal(); }
+
+function saveSettings() {
+  S.url = document.getElementById('s-url').value.trim();
+  S.tok = document.getElementById('s-tok').value.trim();
+  localStorage.setItem('ai_url', S.url);
+  localStorage.setItem('ai_tok', S.tok);
+  updateDot();
+  initChips();
+  setRes('✅ 已保存，正在加载模型...', 'var(--green)');
+  loadModels().then(() => setTimeout(closeModal, 500));
+}
+
+async function testConn() {
+  setRes('🔄 测试中...', 'var(--yellow)');
+  const url = document.getElementById('s-url').value.trim();
+  const tok = document.getElementById('s-tok').value.trim();
+  try {
+    const r = await fetch(api('/api/verify', url), {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer '+tok },
+    });
+    if (r.ok) {
+      const j = await r.json().catch(() => ({}));
+      const cnt = (j.data || []).length;
+      setRes('✅ Token 有效，共 '+cnt+' 个可用模型', 'var(--green)');
+    } else {
+      const body = await r.text().catch(() => '');
+      setRes('❌ Token 无效 ('+r.status+')', 'var(--red)');
+      console.warn('verify failed:', body);
+    }
+  } catch(e) { setRes('❌ 无法连接后端: '+e.message, 'var(--red)'); }
+}
+
+function setRes(msg, color) {
+  const el = document.getElementById('s-res');
+  el.textContent = msg; el.style.color = color;
+}
+
+function updateDot() {
+  document.getElementById('tdot').className = 'dot '+(S.tok ? 'ok' : 'err');
+  document.getElementById('tlabel').textContent = S.tok ? 'Token 已配置' : '未配置 Token';
+}
+
+function api(path, base) {
+  return (base !== undefined ? base : S.url) + path;
+}
+function hdrs() {
+  return { 'Authorization': 'Bearer '+S.tok, 'Content-Type': 'application/json' };
+}
+
+// ============ MODELS ============
+const DEFAULTS = {
+  chat:  ['claude-sonnet-4-6','claude-haiku-4-5-20251001','claude-opus-4-6','claude-opus-4-7'],
+  image: ['gpt-image-2'],
+  video: ['doubao-seedance-2-0-260128'],
+};
+
+function populateSel(selId, ids, prefer) {
+  const sel = document.getElementById(selId);
+  if (!ids.length) { sel.innerHTML = '<option value="">暂无可用模型</option>'; return; }
+  sel.innerHTML = ids.map(id =>
+    `<option value="${esc(id)}"${id===prefer?' selected':''}>${esc(id)}</option>`
+  ).join('');
+  if (!ids.includes(prefer)) sel.selectedIndex = 0;
+}
+
+async function loadModels() {
+  if (!S.tok) return;
+  ['cm','im','vm'].forEach(id => {
+    document.getElementById(id).innerHTML = '<option value="">加载中...</option>';
+  });
+  try {
+    const res = await fetch(api('/api/models'), {
+      headers: { 'Authorization': 'Bearer '+S.tok },
+    });
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const j = await res.json();
+    const all = (j.data || [])
+      .map(m => (typeof m === 'string' ? m : m.id) || '')
+      .filter(Boolean);
+    if (!all.length) throw new Error('模型列表为空');
+    populateSel('cm', all, 'claude-sonnet-4-6');
+    populateSel('im', all, 'gpt-image-2');
+    populateSel('vm', all, 'doubao-seedance-2-0-260128');
+    console.log(`Models loaded: ${all.length} total →`, all);
+  } catch(e) {
+    console.warn('loadModels failed, using defaults:', e.message);
+    const fallback = [...new Set([...DEFAULTS.chat, ...DEFAULTS.image, ...DEFAULTS.video])];
+    populateSel('cm', fallback, 'claude-sonnet-4-6');
+    populateSel('im', fallback, 'gpt-image-2');
+    populateSel('vm', fallback, 'doubao-seedance-2-0-260128');
+  }
+}
+
+function ck(e) { if (e.key==='Enter' && e.ctrlKey) { e.preventDefault(); sendChat(); } }
+
+function clearChat() {
+  S.chatMsgs = [];
+  document.getElementById('msgs').innerHTML =
+    '<div class="ph" style="margin:auto"><div class="ph-ic">💬</div><div style="font-size:16px;color:var(--text2);font-weight:600">开始对话</div><div class="ph-sub">选择模型，输入消息</div></div>';
+}
+
+function addBubble(role, text) {
+  const box = document.getElementById('msgs');
+  const ph = box.querySelector('.ph');
+  if (ph) ph.remove();
+  const d = document.createElement('div');
+  d.className = 'msg '+(role==='user' ? 'user' : 'ai');
+  d.innerHTML = `<div class="ava">${role==='user'?'👤':'🤖'}</div><div class="bubble">${esc(text)}</div>`;
+  box.appendChild(d);
+  box.scrollTop = 99999;
+  return d.querySelector('.bubble');
+}
+
+let aiBubble = null, aiText = '';
+
+async function sendChat() {
+  if (S.chatBusy) return;
+  if (!S.tok) { openModal(); return; }
+  const ci = document.getElementById('ci');
+  const txt = ci.value.trim(); if (!txt) return;
+  const model = document.getElementById('cm').value;
+  const maxTok = parseInt(document.getElementById('cmt').value) || 2000;
+  ci.value = '';
+  S.chatMsgs.push({ role:'user', content:txt });
+  addBubble('user', txt);
+  aiText = '';
+  aiBubble = addBubble('ai', '');
+  aiBubble.innerHTML = '<span class="cur"></span>';
+  S.chatBusy = true;
+  const btn = document.getElementById('csend');
+  btn.disabled = true;
+  btn.innerHTML = '<span>生成中</span>';
+  try {
+    const res = await fetch(api('/api/chat'), {
+      method: 'POST', headers: hdrs(),
+      body: JSON.stringify({ model, messages: S.chatMsgs, max_tokens: maxTok, stream: true }),
+    });
+    if (!res.ok) {
+      const raw = await res.text();
+      aiBubble.innerHTML = errCard(res.status, fmtErr(raw), raw);
+      return;
+    }
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const d = line.slice(6).trim();
+        if (d === '[DONE]') break;
+        try {
+          const j = JSON.parse(d);
+          // 上游在流中返回错误事件（Anthropic type:error 或 OpenAI/网关 error:{} 格式）
+          if (j.type === 'error' || j.error) {
+            aiBubble.innerHTML = errCard(null, fmtErr(j), d);
+            return;
+          }
+          if (j.type === 'content_block_delta' && j.delta?.type === 'text_delta') {
+            aiText += j.delta.text;
+          } else if (j.choices?.[0]?.delta?.content) {
+            aiText += j.choices[0].delta.content;
+          }
+          aiBubble.innerHTML = esc(aiText) + '<span class="cur"></span>';
+          document.getElementById('msgs').scrollTop = 99999;
+        } catch {}
+      }
+    }
+    if (aiText) {
+      aiBubble.innerHTML = esc(aiText);
+      S.chatMsgs.push({ role:'assistant', content: aiText });
+    } else {
+      aiBubble.innerHTML = errCard(null, '模型未返回任何内容，请检查模型名称或 Token 权限', '');
+    }
+  } catch(e) {
+    aiBubble.innerHTML = errCard(null, e.message, '');
+  } finally {
+    S.chatBusy = false;
+    btn.disabled = false;
+    btn.innerHTML = '<span>发送</span><span style="font-size:10px;opacity:.65;font-weight:400">Ctrl+↵</span>';
+  }
+}
+
+// ============ IMAGE MODE ============
+let imgMode = 't2i';
+let imgRefB64s = [];
+const MAX_REF = 3;
+
+function setImgMode(mode) {
+  imgMode = mode;
+  document.querySelectorAll('#img-mode-tabs .mode-tab').forEach(t => {
+    t.classList.toggle('active', t.textContent.includes(mode==='t2i' ? '文生图' : '图生图'));
+  });
+  document.getElementById('img-ref-zone').style.display = mode==='i2i' ? '' : 'none';
+}
+
+function pickImgRef(e) {
+  Array.from(e.target.files).forEach(f => addImgRef(f, 'img'));
+  e.target.value = '';
+}
+function dropImgRef(e) {
+  e.preventDefault();
+  Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')).forEach(f => addImgRef(f, 'img'));
+}
+function addImgRef(file, ns) {
+  const arr = ns==='img' ? imgRefB64s : vidImgB64s;
+  if (arr.length >= MAX_REF) return;
+  loadFileAsB64(file, b64 => {
+    arr.push(b64);
+    renderRefGrid(ns);
+  });
+}
+function removeRef(ns, idx) {
+  const arr = ns==='img' ? imgRefB64s : vidImgB64s;
+  arr.splice(idx, 1);
+  renderRefGrid(ns);
+}
+function renderRefGrid(ns) {
+  const arr    = ns==='img' ? imgRefB64s : vidImgB64s;
+  const gridId = ns==='img' ? 'img-ref-grid' : 'vid-img-grid';
+  const cntId  = ns==='img' ? 'img-ref-cnt'  : 'vid-img-cnt';
+  const dropId = ns==='img' ? 'img-ref-drop'  : 'vid-img-drop';
+  document.getElementById(gridId).innerHTML = arr.map((b64, i) => `
+    <div class="ref-thumb">
+      <img src="${b64}" alt="参考图${i+1}">
+      <button class="rm-btn" onclick="removeRef('${ns}',${i})" title="移除">✕</button>
+    </div>`).join('');
+  document.getElementById(cntId).textContent = `(${arr.length}/${MAX_REF})`;
+  document.getElementById(dropId).style.display = arr.length >= MAX_REF ? 'none' : '';
+}
+
+// ============ VIDEO MODE ============
+let vidMode = 't2v';
+let vidImgB64s = [];
+
+function setVidMode(mode) {
+  vidMode = mode;
+  const labels = { t2v:'文生视频', i2v:'图生视频', v2v:'视频参考' };
+  document.querySelectorAll('#vid-mode-tabs .mode-tab').forEach(t => {
+    const key = Object.keys(labels).find(k => t.textContent.includes(labels[k]));
+    t.classList.toggle('active', key === mode);
+  });
+  document.getElementById('vid-img-zone').style.display = mode==='i2v' ? '' : 'none';
+  document.getElementById('vid-ref-zone').style.display = mode==='v2v' ? '' : 'none';
+}
+
+function pickVidImg(e) {
+  Array.from(e.target.files).forEach(f => addImgRef(f, 'vid'));
+  e.target.value = '';
+}
+function dropVidImg(e) {
+  e.preventDefault();
+  Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')).forEach(f => addImgRef(f, 'vid'));
+}
+
+function loadFileAsB64(file, cb) {
+  const r = new FileReader();
+  r.onload = e => cb(e.target.result);
+  r.readAsDataURL(file);
+}
+
+// ============ IMAGE ============
+function detectMime(b64) {
+  if (b64.startsWith('iVBORw0')) return 'image/png';
+  if (b64.startsWith('/9j/'))    return 'image/jpeg';
+  if (b64.startsWith('UklGR'))   return 'image/webp';
+  return 'image/png';
+}
+
+async function genImg() {
+  if (!S.tok) { openModal(); return; }
+  const prompt = document.getElementById('ip').value.trim();
+  if (!prompt) { alert('请输入提示词'); return; }
+  if (imgMode === 'i2i' && imgRefB64s.length === 0) { alert('图生图模式请至少上传 1 张参考图'); return; }
+  const model   = document.getElementById('im').value;
+  const size    = chipVal('sz-g') || '1024x1024';
+  const quality = chipVal('iq-g') || 'high';
+  const btn = document.getElementById('ib');
+  const ist = document.getElementById('ist');
+  btn.disabled = true; btn.textContent = '⏳ 生成中...';
+  const modeLabel = imgMode === 'i2i' ? '图生图' : '文生图';
+  setImgResult(`<div class="ph" style="margin:auto"><div style="font-size:48px;opacity:.5">⏳</div>
+    <div style="font-size:15px;color:var(--text2);font-weight:600">正在${modeLabel}生成...</div>
+    <div class="ph-sub">约 30 ~ 120 秒，请勿关闭页面</div></div>`);
+  const t0 = Date.now();
+  const timer = setInterval(() => {
+    ist.textContent = '已等待 '+Math.floor((Date.now()-t0)/1000)+'s...';
+  }, 1000);
+  try {
+    const payload = { model, prompt, size, n:1, quality, response_format:'b64_json', stream:true };
+    if (imgMode === 'i2i') {
+      payload.images = imgRefB64s;
+      if (imgRefB64s.length === 1) payload.image = imgRefB64s[0];
+    }
+    const res = await fetch(api('/api/image'), {
+      method:'POST', headers: hdrs(),
+      body: JSON.stringify(payload),
+    });
+    const raw = await res.text();
+    clearInterval(timer);
+    if (!res.ok) {
+      setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(res.status, fmtErr(raw), raw)+'</div>');
+      ist.textContent = '❌ HTTP ' + res.status;
+      return;
+    }
+    let j;
+    try { j = JSON.parse(raw); } catch { throw new Error('响应解析失败: '+raw.slice(0,300)); }
+    if (!j.data?.[0]?.b64_json) {
+      setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, fmtErr(j), raw)+'</div>');
+      ist.textContent = '❌ 生成失败';
+      return;
+    }
+    const b64 = j.data[0].b64_json;
+    const mime = detectMime(b64);
+    const ext  = mime.split('/')[1];
+    const src  = `data:${mime};base64,${b64}`;
+    const rev  = j.data[0].revised_prompt || '';
+    const elapsed = Math.floor((Date.now()-t0)/1000);
+    setImgResult(`
+      <div style="display:flex;flex-direction:column;gap:14px;align-items:center;width:100%">
+        <img class="r-img" src="${src}" alt="Generated">
+        ${rev ? `<div class="ph-sub" style="max-width:640px;line-height:1.7">${esc(rev)}</div>` : ''}
+        <div class="row" style="gap:10px">
+          <a href="${src}" download="ai-${Date.now()}.${ext}" class="btn btn-g btn-sm">⬇ 下载图像</a>
+          <span class="ph-sub">耗时 ${elapsed}s · ${size} · ${quality} · ${modeLabel}</span>
+        </div>
+      </div>`);
+    ist.textContent = '✅ 生成完成，耗时 '+elapsed+'s';
+  } catch(e) {
+    clearInterval(timer);
+    setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, e.message, '')+'</div>');
+    ist.textContent = '❌ 生成失败';
+  } finally {
+    btn.disabled = false; btn.textContent = '✨ 生成图像';
+  }
+}
+
+function setImgResult(html) { document.getElementById('ir').innerHTML = html; }
+
+// ============ VIDEO ============
+async function submitVid() {
+  if (!S.tok) { openModal(); return; }
+  const prompt = document.getElementById('vp').value.trim();
+  if (!prompt) { alert('请输入提示词'); return; }
+  if (vidMode === 'i2v' && vidImgB64s.length === 0) { alert('图生视频模式请至少上传 1 张参考图'); return; }
+  const vidRefUrl = (document.getElementById('vid-ref-url')?.value || '').trim();
+  if (vidMode === 'v2v' && !vidRefUrl) { alert('视频参考模式需要输入参考视频 URL'); return; }
+  if (S.vidTimer) { clearInterval(S.vidTimer); S.vidTimer = null; }
+  const model    = document.getElementById('vm').value;
+  const ratio    = chipVal('vr-g') || '16:9';
+  const duration = parseInt(document.getElementById('vd').value);
+  const res_val  = chipVal('vres-g') || '720p';
+  const audio    = document.getElementById('vau').checked;
+  const wm       = document.getElementById('vwm').checked;
+  const btn      = document.getElementById('vsub');
+  btn.disabled = true; btn.textContent = '⏳ 提交中...';
+  const modeLabel = {t2v:'文生视频',i2v:'图生视频',v2v:'视频参考'}[vidMode];
+  setVidResult(`<div class="ph" style="margin:auto"><div style="font-size:48px;opacity:.5">📤</div>
+    <div style="font-size:15px;color:var(--text2);font-weight:600">正在提交${modeLabel}任务...</div></div>`);
+  try {
+    const payload = { model, prompt, generate_audio:audio, ratio, duration, resolution:res_val, watermark:wm };
+    if (vidMode === 'i2v') {
+      payload.images = vidImgB64s;
+      if (vidImgB64s.length === 1) payload.image = vidImgB64s[0];
+    }
+    if (vidMode === 'v2v') payload.video_url = vidRefUrl;
+    const r = await fetch(api('/api/video/submit'), {
+      method:'POST', headers: hdrs(),
+      body: JSON.stringify(payload),
+    });
+    const raw = await r.text();
+    if (!r.ok) {
+      setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(r.status, fmtErr(raw), raw)+'</div>');
+      return;
+    }
+    const j = JSON.parse(raw);
+    if (!j.task_id) {
+      setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, fmtErr(j), raw)+'</div>');
+      return;
+    }
+    showVidProgress(j.task_id, 'SUBMITTED', '0%');
+    pollVid(j.task_id);
+  } catch(e) {
+    setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, e.message, '')+'</div>');
+  } finally {
+    btn.disabled = false; btn.textContent = '🎬 生成视频';
+  }
+}
+
+function pollVid(taskId) {
+  let n = 0;
+  S.vidTimer = setInterval(async () => {
+    if (++n > 200) { clearInterval(S.vidTimer); showVidProgress(taskId,'TIMEOUT','超时'); return; }
+    try {
+      const r = await fetch(api('/api/video/poll/'+taskId), { headers:{ 'Authorization':'Bearer '+S.tok } });
+      const j = JSON.parse(await r.text());
+      const d = j.data || {};
+      const st = d.status || 'UNKNOWN';
+      const pg = d.progress || '0%';
+      showVidProgress(taskId, st, pg);
+      if (st === 'SUCCESS') {
+        clearInterval(S.vidTimer);
+        showVidDone(taskId, d?.data?.content?.video_url, d.data);
+      } else if (st === 'FAILURE') {
+        clearInterval(S.vidTimer);
+        showVidFail(taskId, d.fail_reason || '未知原因');
+      }
+    } catch(e) {
+      clearInterval(S.vidTimer);
+      setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, '轮询出错: '+e.message, '')+'</div>');
+    }
+  }, 3000);
+}
+
+function statusBadge(st) {
+  const m = {
+    NOT_START:{cls:'b-b',lbl:'未开始'}, SUBMITTED:{cls:'b-b',lbl:'已提交'},
+    QUEUED:{cls:'b-y',lbl:'排队中'}, IN_PROGRESS:{cls:'b-y',lbl:'生成中'},
+    SUCCESS:{cls:'b-g',lbl:'✅ 已完成'}, FAILURE:{cls:'b-r',lbl:'❌ 失败'},
+    UNKNOWN:{cls:'b-b',lbl:'未知'}, TIMEOUT:{cls:'b-r',lbl:'⏱ 超时'},
+  };
+  const s = m[st] || {cls:'b-b',lbl:st};
+  return `<span class="badge ${s.cls}">${s.lbl}</span>`;
+}
+
+function showVidProgress(taskId, st, pg) {
+  const pct = parseInt(pg) || 0;
+  setVidResult(`
+    <div style="width:100%;max-width:460px;display:flex;flex-direction:column;gap:16px">
+      <div class="info-card">
+        <div class="info-row"><span class="info-k">Task ID</span><code style="font-size:11px;color:var(--muted)">${esc(taskId)}</code></div>
+        <div class="info-row"><span class="info-k">状态</span>${statusBadge(st)}</div>
+        <div class="info-row"><span class="info-k">进度</span><span style="color:var(--primary);font-weight:500">${esc(pg)}</span></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:8px">
+          <span>生成进度</span><span style="color:var(--primary)">${esc(pg)}</span>
+        </div>
+        <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
+      </div>
+      <div class="ph-sub" style="text-align:center">每 3 秒自动刷新 · 约 1 ~ 3 分钟完成</div>
+    </div>`);
+}
+
+function showVidDone(taskId, videoUrl, data) {
+  data = data || {};
+  setVidResult(`
+    <div style="width:100%;max-width:660px;display:flex;flex-direction:column;gap:16px">
+      <div class="info-card">
+        <div class="info-row"><span class="info-k">Task ID</span><code style="font-size:11px;color:var(--muted)">${esc(taskId)}</code></div>
+        <div class="info-row"><span class="info-k">状态</span>${statusBadge('SUCCESS')}</div>
+        <div class="info-row"><span class="info-k">分辨率</span><span>${esc(data.resolution||'—')}</span></div>
+        <div class="info-row"><span class="info-k">时长</span><span>${data.duration||'—'}s</span></div>
+        <div class="info-row"><span class="info-k">帧率</span><span>${data.framespersecond||'—'}fps</span></div>
+        <div class="info-row"><span class="info-k">含音频</span><span>${data.generate_audio ? '是' : '否'}</span></div>
+      </div>
+      ${videoUrl ? `
+        <video class="r-vid" controls autoplay muted playsinline style="width:100%">
+          <source src="${esc(videoUrl)}" type="video/mp4">
+        </video>
+        <div class="row" style="justify-content:center;gap:10px">
+          <a href="${esc(videoUrl)}" target="_blank" class="btn btn-g btn-sm">🔗 新标签打开</a>
+          <a href="${esc(videoUrl)}" download class="btn btn-g btn-sm">⬇ 下载视频</a>
+        </div>` : '<div style="color:var(--red);text-align:center">⚠️ 视频 URL 为空</div>'}
+    </div>`);
+}
+
+function showVidFail(taskId, reason) {
+  setVidResult(`
+    <div style="width:100%;max-width:460px;display:flex;flex-direction:column;gap:16px">
+      <div class="info-card">
+        <div class="info-row"><span class="info-k">Task ID</span><code style="font-size:11px;color:var(--muted)">${esc(taskId)}</code></div>
+        <div class="info-row"><span class="info-k">状态</span>${statusBadge('FAILURE')}</div>
+      </div>
+      <div style="color:var(--red);font-size:13px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:var(--r);padding:14px;line-height:1.7">${esc(reason)}</div>
+    </div>`);
+}
+
+function setVidResult(html) { document.getElementById('vr').innerHTML = html; }
+
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('theme', t);
+  document.getElementById('tt-dark').classList.toggle('on', t === 'dark');
+  document.getElementById('tt-light').classList.toggle('on', t === 'light');
+}
+
+// ============ UTILS ============
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// 从各种 API 错误格式中提取可读信息
+function fmtErr(raw) {
+  try {
+    const j = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    if (j?.error?.message)  return j.error.message;   // OpenAI / Anthropic
+    if (j?.error?.msg)      return j.error.msg;
+    if (typeof j?.error === 'string') return j.error;
+    if (j?.message)         return j.message;
+    if (j?.msg)             return j.msg;
+    return JSON.stringify(j, null, 2);
+  } catch { return String(raw || '未知错误').slice(0, 500); }
+}
+
+// 渲染统一的错误卡片（支持展开原始响应）
+function errCard(status, msg, raw) {
+  const badge = status ? `<span style="background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700;margin-right:6px">HTTP ${status}</span>` : '';
+  const detail = raw ? `<details style="margin-top:10px"><summary style="cursor:pointer;font-size:11px;color:var(--muted2);user-select:none;list-style:none">▸ 查看原始响应</summary><pre style="margin-top:8px;font-size:11px;color:var(--muted);white-space:pre-wrap;word-break:break-all;line-height:1.6;max-height:200px;overflow:auto;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px">${esc(raw)}</pre></details>` : '';
+  return `<div style="white-space:normal;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-left:3px solid var(--red);border-radius:var(--r);padding:14px 16px;font-size:13px;line-height:1.7;width:100%;max-width:660px">${badge}<span style="color:var(--red);font-weight:600">请求失败</span><div style="color:var(--text2);margin-top:8px">${esc(msg)}</div>${detail}</div>`;
+}
+</script>
+</body>
+</html>
