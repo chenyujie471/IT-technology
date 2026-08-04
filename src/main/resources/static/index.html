@@ -271,7 +271,7 @@ input[type=range]:focus{box-shadow:none}
 .ph-ic{font-size:52px;opacity:.15;margin-bottom:4px;line-height:1}
 .ph-sub{font-size:11.5px;color:var(--muted2);line-height:1.6}
 
-img.r-img{max-width:100%;max-height:calc(100vh - 130px);border-radius:12px;border:1px solid var(--border);display:block;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+img.r-img{max-width:100%;max-height:min(480px, calc(100vh - 280px));border-radius:12px;border:1px solid var(--border);display:block;box-shadow:0 20px 40px rgba(0,0,0,.5)}
 video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);display:block;box-shadow:0 20px 40px rgba(0,0,0,.5)}
 
 /* Modal */
@@ -324,6 +324,27 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
 .upload-zone:hover{border-color:var(--primary);background:var(--pri-dim)}
 .upload-zone .up-ico{font-size:22px;line-height:1;margin-bottom:6px;opacity:.6}
 .upload-zone .up-txt{font-size:11px;color:var(--muted);line-height:1.6}
+
+/* Asset list */
+.asset-list{display:flex;flex-direction:column;gap:12px;width:100%;max-width:800px}
+.asset-item{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);padding:14px;
+  display:flex;gap:12px;align-items:center;
+  transition:all .15s;
+}
+.asset-item:hover{border-color:var(--primary);background:var(--bg4)}
+.asset-thumb{
+  width:80px;height:80px;border-radius:8px;
+  overflow:hidden;flex-shrink:0;
+  background:var(--bg4);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+}
+.asset-thumb img{width:100%;height:100%;object-fit:cover}
+.asset-info{flex:1;display:flex;flex-direction:column;gap:6px}
+.asset-id{font-family:monospace;font-size:11px;color:var(--muted2)}
+.asset-purpose{font-size:13px;color:var(--text2);font-weight:500}
+.asset-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
 
 /* Ref grid */
 .ref-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
@@ -384,6 +405,9 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
     </button>
     <button class="nav-btn" id="nav-video" onclick="go('video')">
       <span class="nb-ic">🎬</span><span class="nb-lbl">视频生成</span>
+    </button>
+    <button class="nav-btn" id="nav-assets" onclick="go('assets')">
+      <span class="nb-ic">📦</span><span class="nb-lbl">素材库</span>
     </button>
   </nav>
   <div class="sidebar-foot">
@@ -494,6 +518,13 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
 
         <div class="divider"></div>
         <button class="gen-btn" id="ib" onclick="genImg()">✨ 生成图像</button>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-g btn-sm" style="flex:1" onclick="copyImgPayload()">📋 复制请求体</button>
+          <button class="btn btn-g btn-sm" style="flex:1" id="img-preview-toggle" onclick="toggleImgPayloadPreview()">👁 查看请求体</button>
+        </div>
+        <div id="img-payload-preview" style="display:none;margin-top:8px">
+          <pre id="img-payload-json" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-size:11px;line-height:1.6;color:var(--text2);white-space:pre-wrap;word-break:break-all;max-height:400px;overflow:auto;margin:0"></pre>
+        </div>
         <div id="ist" class="ph-sub" style="text-align:center;min-height:14px"></div>
       </div>
 
@@ -515,6 +546,7 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
           <button class="mode-tab active" onclick="setVidMode('t2v')">✍ 文生视频</button>
           <button class="mode-tab" onclick="setVidMode('i2v')">🖼 图生视频</button>
           <button class="mode-tab" onclick="setVidMode('v2v')">🎞 视频参考</button>
+          <button class="mode-tab" onclick="setVidMode('a2v')">📦 素材生成</button>
         </div>
 
         <div class="fg"><label>模型</label>
@@ -545,6 +577,21 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
           <label>参考视频 URL</label>
           <input type="url" id="vid-ref-url" placeholder="https://example.com/reference.mp4">
           <div class="ph-sub" style="margin-top:2px">粘贴参考视频的可公开访问 URL</div>
+        </div>
+
+        <!-- 素材选择（素材生成模式） -->
+        <div id="vid-asset-zone" class="fg" style="display:none">
+          <label>选择素材</label>
+          <select id="vid-asset-sel">
+            <option value="">点击加载素材库...</option>
+          </select>
+          <button class="btn btn-g btn-sm btn-full" onclick="loadAssets()">🔄 刷新素材</button>
+          <div id="asset-preview" style="display:none;margin-top:10px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px">预览</div>
+            <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
+              <img id="asset-preview-img" style="width:100%;display:block" alt="素材预览">
+            </div>
+          </div>
         </div>
 
         <div class="sec-lbl">生成参数</div>
@@ -608,6 +655,60 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
     </div>
   </section>
 
+  <!-- ===== ASSETS ===== -->
+  <section class="tab" id="tab-assets">
+    <div class="split">
+      <div class="ctrl wide">
+        <div style="font-size:16px;font-weight:700;margin-bottom:4px">📦 素材库管理</div>
+        <div class="ph-sub" style="margin-bottom:12px">上传素材到云端，用于生成视频</div>
+
+        <div class="sec-lbl">上传素材</div>
+
+        <div class="fg"><label>素材 URL</label>
+          <input type="url" id="asset-url" placeholder="https://example.com/image.jpg">
+          <div class="ph-sub" style="margin-top:2px">必须是公网可访问的 http(s) 地址</div>
+        </div>
+
+        <div class="fg"><label>素材类型</label>
+          <div class="chips" id="asset-type-g">
+            <span class="chip on" data-v="image">🖼 图片</span>
+            <span class="chip" data-v="video">🎬 视频</span>
+            <span class="chip" data-v="audio">🎵 音频</span>
+          </div>
+        </div>
+
+        <div class="fg"><label>用途描述</label>
+          <input type="text" id="asset-purpose" placeholder="例如：数字人形象、背景素材等">
+        </div>
+
+        <div class="fg"><label>分组密钥（可选）</label>
+          <input type="text" id="asset-group" placeholder="留空则自动分组">
+          <div class="ph-sub" style="margin-top:2px">与视频生成使用相同的 Token</div>
+        </div>
+
+        <div class="divider"></div>
+        <button class="gen-btn" id="asset-upload-btn" onclick="uploadAsset()">📤 上传素材</button>
+        <div id="asset-upload-status" class="ph-sub" style="text-align:center;min-height:14px"></div>
+
+        <div class="divider" style="margin-top:16px"></div>
+        <div class="sec-lbl">我的素材</div>
+        <div class="ph-sub" style="margin-bottom:8px;line-height:1.6">
+          💡 列表只显示状态为 <span class="badge b-g" style="display:inline-flex;padding:2px 8px">ready</span> 的素材<br>
+          刚上传的素材需要审核通过后才会出现
+        </div>
+        <button class="btn btn-g btn-sm btn-full" onclick="loadAssetList()">🔄 刷新列表</button>
+      </div>
+
+      <div class="result" id="asset-result">
+        <div class="ph" style="margin:auto">
+          <div class="ph-ic">📦</div>
+          <div style="font-size:16px;color:var(--text2);font-weight:600">素材列表</div>
+          <div class="ph-sub">点击"刷新列表"查看已上传的素材</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <!-- ========== SETTINGS MODAL ========== -->
@@ -658,10 +759,18 @@ window.onload = () => {
   loadModels();
 };
 
+// 素材库全局状态
+const ASSETS = {
+  list: [],
+  selectedAssetId: null,
+};
+
 // ============ CHIPS ============
 function initChips() {
-  ['sz-g','iq-g','vr-g','vres-g'].forEach(id => {
-    document.getElementById(id).querySelectorAll('.chip').forEach(c => {
+  ['sz-g','iq-g','vr-g','vres-g','asset-type-g'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.querySelectorAll('.chip').forEach(c => {
       c.onclick = () => {
         c.closest('.chips').querySelectorAll('.chip').forEach(x => x.classList.remove('on'));
         c.classList.add('on');
@@ -928,13 +1037,19 @@ let vidImgB64s = [];
 
 function setVidMode(mode) {
   vidMode = mode;
-  const labels = { t2v:'文生视频', i2v:'图生视频', v2v:'视频参考' };
+  const labels = { t2v:'文生视频', i2v:'图生视频', v2v:'视频参考', a2v:'素材生成' };
   document.querySelectorAll('#vid-mode-tabs .mode-tab').forEach(t => {
     const key = Object.keys(labels).find(k => t.textContent.includes(labels[k]));
     t.classList.toggle('active', key === mode);
   });
   document.getElementById('vid-img-zone').style.display = mode==='i2v' ? '' : 'none';
   document.getElementById('vid-ref-zone').style.display = mode==='v2v' ? '' : 'none';
+  document.getElementById('vid-asset-zone').style.display = mode==='a2v' ? '' : 'none';
+
+  // 如果切换到素材模式且素材列表为空，自动加载
+  if (mode === 'a2v' && ASSETS.list.length === 0) {
+    loadAssets();
+  }
 }
 
 function pickVidImg(e) {
@@ -960,14 +1075,166 @@ function detectMime(b64) {
   return 'image/png';
 }
 
+function buildImgPayload() {
+  const model   = document.getElementById('im').value;
+  const prompt  = document.getElementById('ip').value.trim();
+  const size    = chipVal('sz-g') || '1024x1024';
+  const quality = chipVal('iq-g') || 'high';
+
+  // 检测是否为 Gemini 图像生成模型
+  const isGemini = model.toLowerCase().includes('gemini') &&
+                   (model.toLowerCase().includes('image') || model.toLowerCase().includes('flash-preview'));
+
+  if (isGemini) {
+    // Gemini 格式
+    const aspectRatio = size === '1024x1024' ? '1:1' :
+                       size === '1536x1024' ? '3:2' :
+                       size === '1024x1536' ? '2:3' :
+                       size === '2048x2048' ? '1:1' :
+                       size === '2048x1152' ? '16:9' :
+                       size === '3840x2160' ? '16:9' :
+                       size === '2160x3840' ? '9:16' : '1:1';
+    const imageSize = (size.includes('3840') || size.includes('2048')) ? '2K' : '1K';
+
+    const payload = {
+      model: model,
+      generationConfig: {
+        responseModalities: ['IMAGE'],
+        imageConfig: {
+          aspectRatio: aspectRatio,
+          imageSize: imageSize
+        }
+      },
+      contents: [{
+        role: 'user',
+        parts: [{ text: prompt }]
+      }]
+    };
+
+    if (imgMode === 'i2i' && imgRefB64s.length > 0) {
+      // Gemini 图生图：添加图片到 parts
+      imgRefB64s.forEach(dataUrl => {
+        const match = dataUrl.match(/^data:(image\/\w+);base64,(.+)$/);
+        if (match) {
+          payload.contents[0].parts.push({
+            inlineData: {
+              mimeType: match[1],
+              data: match[2]
+            }
+          });
+        }
+      });
+    }
+    return payload;
+  } else {
+    // OpenAI 格式
+    const payload = { model, prompt, size, n:1, quality, response_format:'b64_json', stream:true };
+    if (imgMode === 'i2i') {
+      payload.images = imgRefB64s;
+      if (imgRefB64s.length === 1) payload.image = imgRefB64s[0];
+    }
+    return payload;
+  }
+}
+
+function buildImgCurlBlock() {
+  const payload = buildImgPayload();
+  const model = payload.model || '';
+  const isGemini = model.toLowerCase().includes('gemini') &&
+                   (model.toLowerCase().includes('image') || model.toLowerCase().includes('flash-preview'));
+  const display = JSON.parse(JSON.stringify(payload));
+
+  // 截断 base64 用于预览
+  if (display.image) display.image = display.image.slice(0, 60) + '...(base64)';
+  if (display.images) display.images = display.images.map(s => s.slice(0, 60) + '...(base64)');
+  if (display.contents) {
+    display.contents.forEach(c => {
+      if (c.parts) c.parts.forEach(p => {
+        if (p.inlineData?.data) p.inlineData.data = p.inlineData.data.slice(0, 60) + '...(base64)';
+      });
+    });
+  }
+
+  const request = {
+    method: 'POST',
+    url: isGemini
+      ? `https://ai-api.kkidc.com/v1beta/models/${model}:generateContent`
+      : 'https://ai-api.kkidc.com/v1/images/generations',
+    headers: {
+      'Authorization': 'Bearer ' + (S.tok ? S.tok.slice(0,8) + '****' : '<your-token>'),
+      'Content-Type': 'application/json'
+    },
+    body: display
+  };
+
+  const response = isGemini ? {
+    candidates: [{
+      content: {
+        role: 'model',
+        parts: [{
+          inlineData: {
+            mimeType: 'image/png',
+            data: '<base64 encoded image>'
+          }
+        }]
+      },
+      finishReason: 'STOP',
+      index: 0
+    }],
+    usageMetadata: {
+      promptTokenCount: 20,
+      candidatesTokenCount: 50,
+      totalTokenCount: 70
+    }
+  } : {
+    data: [{
+      url: '',
+      b64_json: '<base64 encoded image>',
+      revised_prompt: '<optimized prompt or empty>'
+    }],
+    created: '<timestamp>'
+  };
+
+  return { request, response };
+}
+
+function copyImgPayload() {
+  const prompt = document.getElementById('ip').value.trim();
+  if (!prompt) { alert('请先输入提示词'); return; }
+  if (imgMode === 'i2i' && imgRefB64s.length === 0) { alert('图生图模式请至少上传 1 张参考图'); return; }
+  const payload = buildImgPayload();
+  const full = JSON.stringify(payload, null, 2);
+  navigator.clipboard.writeText(full).then(() => {
+    const ist = document.getElementById('ist');
+    ist.textContent = '✅ 请求体已复制到剪贴板';
+    setTimeout(() => { if (ist.textContent === '✅ 请求体已复制到剪贴板') ist.textContent = ''; }, 2000);
+  }).catch(() => alert('复制失败，请手动复制'));
+}
+
+function toggleImgPayloadPreview() {
+  const box = document.getElementById('img-payload-preview');
+  const btn = document.getElementById('img-preview-toggle');
+  if (box.style.display === 'none') {
+    const info = buildImgCurlBlock();
+    const lbl = 'font-size:11px;font-weight:700;color:var(--muted2);margin:0 0 4px;text-transform:uppercase;letter-spacing:.5px';
+    document.getElementById('img-payload-json').innerHTML =
+      `<div style="${lbl}">Request</div>` +
+      esc(JSON.stringify(info.request, null, 2)) +
+      `<div style="${lbl};margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">Response Format</div>` +
+      esc(JSON.stringify(info.response, null, 2));
+    box.style.display = 'block';
+    btn.textContent = '👁 隐藏请求体';
+  } else {
+    box.style.display = 'none';
+    btn.textContent = '👁 查看请求体';
+  }
+}
+
 async function genImg() {
   if (!S.tok) { openModal(); return; }
   const prompt = document.getElementById('ip').value.trim();
   if (!prompt) { alert('请输入提示词'); return; }
   if (imgMode === 'i2i' && imgRefB64s.length === 0) { alert('图生图模式请至少上传 1 张参考图'); return; }
-  const model   = document.getElementById('im').value;
-  const size    = chipVal('sz-g') || '1024x1024';
-  const quality = chipVal('iq-g') || 'high';
   const btn = document.getElementById('ib');
   const ist = document.getElementById('ist');
   btn.disabled = true; btn.textContent = '⏳ 生成中...';
@@ -980,11 +1247,12 @@ async function genImg() {
     ist.textContent = '已等待 '+Math.floor((Date.now()-t0)/1000)+'s...';
   }, 1000);
   try {
-    const payload = { model, prompt, size, n:1, quality, response_format:'b64_json', stream:true };
-    if (imgMode === 'i2i') {
-      payload.images = imgRefB64s;
-      if (imgRefB64s.length === 1) payload.image = imgRefB64s[0];
-    }
+    const payload = buildImgPayload();
+    const model = payload.model || '';
+    const isGemini = model.toLowerCase().includes('gemini') &&
+                     (model.toLowerCase().includes('image') || model.toLowerCase().includes('flash-preview'));
+    const size = payload.size || payload.generationConfig?.imageConfig?.aspectRatio || '1024x1024';
+    const quality = payload.quality || 'high';
     const res = await fetch(api('/api/image'), {
       method:'POST', headers: hdrs(),
       body: JSON.stringify(payload),
@@ -998,17 +1266,42 @@ async function genImg() {
     }
     let j;
     try { j = JSON.parse(raw); } catch { throw new Error('响应解析失败: '+raw.slice(0,300)); }
-    if (!j.data?.[0]?.b64_json) {
-      setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, fmtErr(j), raw)+'</div>');
-      ist.textContent = '❌ 生成失败';
-      return;
+
+    // 统一处理 OpenAI 和 Gemini 两种响应格式
+    let b64, mime, rev;
+    if (isGemini) {
+      // Gemini 格式: candidates[0].content.parts[0].inlineData
+      if (!j.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data) {
+        setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, fmtErr(j), raw)+'</div>');
+        ist.textContent = '❌ 生成失败';
+        return;
+      }
+      b64 = j.candidates[0].content.parts[0].inlineData.data;
+      mime = j.candidates[0].content.parts[0].inlineData.mimeType || 'image/png';
+      rev = '';
+    } else {
+      // OpenAI 格式: data[0].b64_json
+      if (!j.data?.[0]?.b64_json) {
+        setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, fmtErr(j), raw)+'</div>');
+        ist.textContent = '❌ 生成失败';
+        return;
+      }
+      b64 = j.data[0].b64_json;
+      mime = detectMime(b64);
+      rev = j.data[0].revised_prompt || '';
     }
-    const b64 = j.data[0].b64_json;
-    const mime = detectMime(b64);
+
     const ext  = mime.split('/')[1];
     const src  = `data:${mime};base64,${b64}`;
-    const rev  = j.data[0].revised_prompt || '';
     const elapsed = Math.floor((Date.now()-t0)/1000);
+    const respDisplay = JSON.parse(JSON.stringify(j));
+    if (respDisplay.data) respDisplay.data.forEach(d => { if (d.b64_json) d.b64_json = d.b64_json.slice(0, 80) + '...(truncated)'; });
+    if (respDisplay.candidates) respDisplay.candidates.forEach(c => {
+      if (c.content?.parts) c.content.parts.forEach(p => {
+        if (p.inlineData?.data) p.inlineData.data = p.inlineData.data.slice(0, 80) + '...(truncated)';
+      });
+    });
+    const respJson = JSON.stringify(respDisplay, null, 2);
     setImgResult(`
       <div style="display:flex;flex-direction:column;gap:14px;align-items:center;width:100%">
         <img class="r-img" src="${src}" alt="Generated">
@@ -1017,6 +1310,13 @@ async function genImg() {
           <a href="${src}" download="ai-${Date.now()}.${ext}" class="btn btn-g btn-sm">⬇ 下载图像</a>
           <span class="ph-sub">耗时 ${elapsed}s · ${size} · ${quality} · ${modeLabel}</span>
         </div>
+        <details style="width:100%;max-width:660px;margin-top:4px">
+          <summary style="cursor:pointer;font-size:11px;color:var(--muted2);user-select:none;font-weight:600">▸ 查看响应 JSON</summary>
+          <div style="position:relative;margin-top:6px">
+            <button onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent).then(()=>{this.textContent='✅ 已复制';setTimeout(()=>this.textContent='📋 复制',1500)})" style="position:absolute;top:6px;right:6px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;cursor:pointer;color:var(--text2);z-index:1">📋 复制</button>
+            <pre style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-size:11px;line-height:1.6;color:var(--text2);white-space:pre-wrap;word-break:break-all;max-height:300px;overflow:auto;margin:0">${esc(respJson)}</pre>
+          </div>
+        </details>
       </div>`);
     ist.textContent = '✅ 生成完成，耗时 '+elapsed+'s';
   } catch(e) {
@@ -1038,6 +1338,10 @@ async function submitVid() {
   if (vidMode === 'i2v' && vidImgB64s.length === 0) { alert('图生视频模式请至少上传 1 张参考图'); return; }
   const vidRefUrl = (document.getElementById('vid-ref-url')?.value || '').trim();
   if (vidMode === 'v2v' && !vidRefUrl) { alert('视频参考模式需要输入参考视频 URL'); return; }
+  if (vidMode === 'a2v') {
+    const assetId = document.getElementById('vid-asset-sel')?.value;
+    if (!assetId) { alert('素材生成模式请先选择一个素材'); return; }
+  }
   if (S.vidTimer) { clearInterval(S.vidTimer); S.vidTimer = null; }
   const model    = document.getElementById('vm').value;
   const ratio    = chipVal('vr-g') || '16:9';
@@ -1047,7 +1351,7 @@ async function submitVid() {
   const wm       = document.getElementById('vwm').checked;
   const btn      = document.getElementById('vsub');
   btn.disabled = true; btn.textContent = '⏳ 提交中...';
-  const modeLabel = {t2v:'文生视频',i2v:'图生视频',v2v:'视频参考'}[vidMode];
+  const modeLabel = {t2v:'文生视频',i2v:'图生视频',v2v:'视频参考',a2v:'素材生成'}[vidMode];
   setVidResult(`<div class="ph" style="margin:auto"><div style="font-size:48px;opacity:.5">📤</div>
     <div style="font-size:15px;color:var(--text2);font-weight:600">正在提交${modeLabel}任务...</div></div>`);
   try {
@@ -1057,6 +1361,10 @@ async function submitVid() {
       if (vidImgB64s.length === 1) payload.image = vidImgB64s[0];
     }
     if (vidMode === 'v2v') payload.video_url = vidRefUrl;
+    if (vidMode === 'a2v') {
+      const assetId = document.getElementById('vid-asset-sel').value;
+      payload.asset_id = assetId;
+    }
     const r = await fetch(api('/api/video/submit'), {
       method:'POST', headers: hdrs(),
       body: JSON.stringify(payload),
@@ -1176,6 +1484,208 @@ function setTheme(t) {
   localStorage.setItem('theme', t);
   document.getElementById('tt-dark').classList.toggle('on', t === 'dark');
   document.getElementById('tt-light').classList.toggle('on', t === 'light');
+}
+
+// ============ ASSETS ============
+async function uploadAsset() {
+  if (!S.tok) { openModal(); return; }
+  const url = document.getElementById('asset-url').value.trim();
+  const purpose = document.getElementById('asset-purpose').value.trim();
+  const type = chipVal('asset-type-g') || 'image';
+  const groupId = document.getElementById('asset-group').value.trim();
+
+  if (!url) { alert('请输入素材 URL'); return; }
+  if (!purpose) { alert('请输入用途描述'); return; }
+
+  const btn = document.getElementById('asset-upload-btn');
+  const status = document.getElementById('asset-upload-status');
+  btn.disabled = true;
+  btn.textContent = '⏳ 上传中...';
+  status.textContent = '正在上传...';
+  status.style.color = 'var(--yellow)';
+
+  try {
+    const payload = { url, purpose, type };
+    if (groupId) payload.group_id = groupId;
+
+    const res = await fetch('https://ai-api.kkidc.com/v1/assets/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + S.tok,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const raw = await res.text();
+    if (!res.ok) {
+      status.textContent = '❌ 上传失败: HTTP ' + res.status;
+      status.style.color = 'var(--red)';
+      console.error('Upload failed:', raw);
+      return;
+    }
+
+    const j = JSON.parse(raw);
+    if (!j.success) {
+      status.textContent = '❌ ' + (j.message || '上传失败');
+      status.style.color = 'var(--red)';
+      return;
+    }
+
+    const assetId = j.data?.asset_id;
+    const assetStatus = j.data?.status || 'unknown';
+
+    if (assetStatus === 'ready') {
+      status.innerHTML = '✅ 上传成功！素材已就绪<br><span style="font-size:10px">ID: ' + assetId + '</span>';
+      status.style.color = 'var(--green)';
+    } else {
+      status.innerHTML = '📤 上传成功，正在审核/处理中...<br><span style="font-size:10px">ID: ' + assetId + ' | 状态: ' + assetStatus + '</span><br><span style="font-size:10px;color:var(--muted)">审核通过后会出现在列表中，请稍后刷新</span>';
+      status.style.color = 'var(--yellow)';
+    }
+
+    // 清空表单
+    document.getElementById('asset-url').value = '';
+    document.getElementById('asset-purpose').value = '';
+
+    // 如果已就绪，刷新素材列表
+    if (assetStatus === 'ready') {
+      setTimeout(() => loadAssetList(), 1000);
+    }
+  } catch(e) {
+    status.textContent = '❌ 上传出错: ' + e.message;
+    status.style.color = 'var(--red)';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📤 上传素材';
+  }
+}
+
+async function loadAssetList() {
+  if (!S.tok) { openModal(); return; }
+
+  const result = document.getElementById('asset-result');
+  result.innerHTML = `<div class="ph" style="margin:auto"><div style="font-size:48px;opacity:.5">⏳</div>
+    <div style="font-size:15px;color:var(--text2);font-weight:600">正在加载素材列表...</div></div>`;
+
+  try {
+    const res = await fetch('https://ai-api.kkidc.com/v1/assets?page=1&page_size=50&sort_order=Desc', {
+      headers: { 'Authorization': 'Bearer ' + S.tok }
+    });
+
+    const raw = await res.text();
+    if (!res.ok) {
+      result.innerHTML = '<div style="display:flex;justify-content:center;padding:20px">'+errCard(res.status, fmtErr(raw), raw)+'</div>';
+      return;
+    }
+
+    const j = JSON.parse(raw);
+    if (!j.success || !j.data) {
+      result.innerHTML = '<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, fmtErr(j), raw)+'</div>';
+      return;
+    }
+
+    ASSETS.list = j.data.items || [];
+
+    if (ASSETS.list.length === 0) {
+      result.innerHTML = `<div class="ph" style="margin:auto">
+        <div class="ph-ic">📦</div>
+        <div style="font-size:16px;color:var(--text2);font-weight:600">暂无可用素材</div>
+        <div class="ph-sub">列表只显示已审核通过的素材<br>刚上传的素材需要等待审核</div>
+      </div>`;
+      return;
+    }
+
+    result.innerHTML = `
+      <div style="width:100%;max-width:800px;padding:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-size:15px;font-weight:600;color:var(--text)">共 ${j.data.total} 个可用素材</div>
+          <div style="font-size:12px;color:var(--muted)">第 ${j.data.page} 页 · 每页 ${j.data.page_size} 条</div>
+        </div>
+        <div class="asset-list">
+          ${ASSETS.list.map(asset => renderAssetItem(asset)).join('')}
+        </div>
+      </div>`;
+  } catch(e) {
+    result.innerHTML = '<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, e.message, '')+'</div>';
+  }
+}
+
+function renderAssetItem(asset) {
+  const typeIcon = { image: '🖼', video: '🎬', audio: '🎵' }[asset.type] || '📄';
+  const date = new Date(asset.created_at * 1000).toLocaleString('zh-CN');
+  const thumbHtml = asset.type === 'image'
+    ? `<img src="${esc(asset.original_url)}" alt="${esc(asset.purpose)}">`
+    : `<div style="font-size:32px">${typeIcon}</div>`;
+
+  return `
+    <div class="asset-item">
+      <div class="asset-thumb">${thumbHtml}</div>
+      <div class="asset-info">
+        <div class="asset-purpose">${typeIcon} ${esc(asset.purpose)}</div>
+        <div class="asset-id">ID: ${esc(asset.asset_id)}</div>
+        <div class="asset-meta">
+          <span class="badge b-g">${esc(asset.status)}</span>
+          <span>${esc(asset.type)}</span>
+          <span>${date}</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function loadAssets() {
+  if (!S.tok) { openModal(); return; }
+
+  const sel = document.getElementById('vid-asset-sel');
+  sel.innerHTML = '<option value="">加载中...</option>';
+
+  try {
+    const res = await fetch('https://ai-api.kkidc.com/v1/assets?page=1&page_size=100&sort_order=Desc', {
+      headers: { 'Authorization': 'Bearer ' + S.tok }
+    });
+
+    if (!res.ok) {
+      sel.innerHTML = '<option value="">加载失败</option>';
+      return;
+    }
+
+    const j = await res.json();
+    if (!j.success || !j.data?.items) {
+      sel.innerHTML = '<option value="">暂无素材</option>';
+      return;
+    }
+
+    ASSETS.list = j.data.items;
+
+    if (ASSETS.list.length === 0) {
+      sel.innerHTML = '<option value="">暂无可用素材（只显示已审核通过的）</option>';
+      return;
+    }
+
+    sel.innerHTML = '<option value="">请选择素材...</option>' +
+      ASSETS.list.map(a => {
+        const label = `${a.purpose} (${a.type}) - ${a.asset_id}`;
+        return `<option value="${esc(a.asset_id)}">${esc(label)}</option>`;
+      }).join('');
+
+    // 添加选择事件
+    sel.onchange = () => {
+      const assetId = sel.value;
+      const asset = ASSETS.list.find(a => a.asset_id === assetId);
+      const preview = document.getElementById('asset-preview');
+      const previewImg = document.getElementById('asset-preview-img');
+
+      if (asset && asset.type === 'image') {
+        previewImg.src = asset.original_url;
+        preview.style.display = '';
+      } else {
+        preview.style.display = 'none';
+      }
+    };
+
+  } catch(e) {
+    sel.innerHTML = '<option value="">加载出错</option>';
+    console.error('Load assets error:', e);
+  }
 }
 
 // ============ UTILS ============
