@@ -3,22 +3,26 @@ package com.example.ittechnology.controller;
 import com.example.ittechnology.service.AiProxyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.time.Duration;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 视频生成代理 — 对接 doubao-seedance-2-0-260128（火山豆包格式）
  *
- * 提交任务：POST /api/video/submit
- *   上游：POST https://ai-api.kkidc.com/api/v3/contents/generations/tasks
+ * 提交任务：POST /api/video/submit（X-Site 头选站，默认国内站）
+ *   国内站上游：POST /api/v3/contents/generations/tasks（扁平参数格式）
+ *   国际站上游：POST /v1/video/generations（参数包在 metadata 中，前端按站组装）
  *   返回：{ task_id: "cgt-xxx" }
  *
  * 轮询状态：GET /api/video/poll/{taskId}
- *   上游：GET https://ai-api.kkidc.com/api/v3/contents/generations/tasks/{task_id}
+ *   国内站上游：GET /api/v3/contents/generations/tasks/{task_id}
+ *   国际站上游：GET /v1/video/generations/{task_id}
  *   状态：NOT_START / SUBMITTED / QUEUED / IN_PROGRESS / SUCCESS / FAILURE
  *   完成后在 data.data.content.video_url 取视频地址
  *
@@ -48,13 +52,67 @@ public class VideoController {
     @PostMapping(value = "/submit", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StreamingResponseBody> submitTask(
             @RequestHeader("Authorization") String auth,
-            @RequestBody String body) {
+            @RequestHeader(name = "X-Site", required = false, defaultValue = "cn") String site,
+            @RequestBody String body,
+            HttpServletResponse response) {
 
-        log.info("Video task submit received");
+        log.info("Video task submit received [site={}]", site);
+
+        // 国内站与国际站的创建路径不同：
+        //   cn:   POST /api/v3/contents/generations/tasks（扁平参数格式）
+        //   intl: POST /v1/video/generations（参数包在 metadata 中）
+        String path = "intl".equalsIgnoreCase(site)
+                ? "/v1/video/generations"
+                : "/api/v3/contents/generations/tasks";
 
         StreamingResponseBody stream = out ->
                 proxyService.proxyPostStream(
-                        "/api/v3/contents/generations/tasks", auth, body, Duration.ofSeconds(60), out);
+                        site, path, auth, body, Duration.ofSeconds(60), out, response);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(stream);
+    }
+
+    /**
+     * 提交视频生成任务（国际站多模态-参考生视频），返回 task_id。
+     *
+     * 上游：POST /v1/video/generations（火山豆包 seed-2.0 多模态格式）
+     * 与 /submit 的区别：参考素材（图/视频/音频 URL）放在 metadata.content 数组中，
+     * 不支持 resolution 参数。
+     *
+     * 请求体示例（submit-intl）：
+     * {
+     *   "model": "doubao-seedance-2-0-fast-260128",
+     *   "prompt": "...",
+     *   "metadata": {
+     *     "content": [
+     *       {"type":"image_url","image_url":{"url":"https://..."},"role":"reference_image"},
+     *       {"type":"video_url","video_url":{"url":"https://..."},"role":"reference_video"},
+     *       {"type":"audio_url","audio_url":{"url":"https://..."},"role":"reference_audio"}
+     *     ],
+     *     "generate_audio": true,
+     *     "ratio": "16:9",
+     *     "duration": 10,
+     *     "watermark": false
+     *   }
+     * }
+     *
+     * 注意：涉及人脸/虚拟人图片需先走素材库接口过审，否则生成会失败。
+     * 返回的 task_id（cgt-xxx）与 /submit 同属一套任务系统，可直接用 /poll/{taskId} 轮询。
+     */
+    @PostMapping(value = "/submit-intl", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StreamingResponseBody> submitIntlTask(
+            @RequestHeader("Authorization") String auth,
+            @RequestHeader(name = "X-Site", required = false, defaultValue = "intl") String site,
+            @RequestBody String body,
+            HttpServletResponse response) {
+
+        log.info("Intl video task submit received [site={}]", site);
+
+        StreamingResponseBody stream = out ->
+                proxyService.proxyPostStream(
+                        site, "/v1/video/generations", auth, body, Duration.ofSeconds(60), out, response);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -69,11 +127,21 @@ public class VideoController {
     @GetMapping(value = "/poll/{taskId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> pollTask(
             @RequestHeader("Authorization") String auth,
-            @PathVariable String taskId) {
+            @RequestHeader(name = "X-Site", required = false, defaultValue = "cn") String site,
+            @PathVariable String taskId,
+            HttpServletResponse response) {
 
-        log.debug("Polling video task: {}", taskId);
+        log.debug("Polling video task: {} [site={}]", taskId, site);
+        // 国内站与国际站的轮询路径不同：
+        //   cn:   GET /api/v3/contents/generations/tasks/{task_id}
+        //   intl: GET /v1/video/generations/{task_id}
+        String base = "intl".equalsIgnoreCase(site)
+                ? "/v1/video/generations/"
+                : "/api/v3/contents/generations/tasks/";
+        AtomicInteger status = new AtomicInteger(200);
         String result = proxyService.proxyGet(
-                "/api/v3/contents/generations/tasks/" + taskId, auth, Duration.ofSeconds(30));
+                site, base + taskId, auth, Duration.ofSeconds(30), status);
+        response.setHeader("X-Upstream-Status", String.valueOf(status.get()));
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)

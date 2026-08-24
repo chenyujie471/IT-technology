@@ -4,12 +4,22 @@ spring:
   mvc:
     async:
       request-timeout: 660000   # 660s，覆盖图像生成最长 600s
+  servlet:
+    multipart:
+      max-file-size: 20MB       # 图像编辑参考图单文件上限
+      max-request-size: 80MB    # 4 张参考图的总上限
 
 server:
   port: 8080
 
 ai:
-  upstream: https://ai-api.kkidc.com
+  upstream: https://ai-api.kkidc.com        # 国内站
+  upstream-intl: https://www.aiide.com      # 国际站
+  # 访问密钥（安全开关）：填写后所有 /api/** 请求必须在 X-Access-Key 头带上相同值，
+  # 否则返回 403。留空则关闭校验（默认开放，适合内网自测）。
+  access-key: ""
+  # 允许的跨域来源；留空则仅允许同源访问，如需外部前端可填列表，如 ["https://a.com"]
+  cors-allowed-origins: []
 
 logging:
   level:

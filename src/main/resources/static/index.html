@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Studio — 多模态快速AI聚合测试平台</title>
@@ -159,7 +162,7 @@ input[type=range]:focus{box-shadow:none}
 .btn-full{width:100%}
 .btn-sm{padding:6px 12px;font-size:12px}
 
-.fg{display:flex;flex-direction:column;gap:6px}
+.fg{display:flex;flex-direction:column;gap:6px;position:relative}
 .row{display:flex;gap:8px;align-items:center}
 
 /* Chips */
@@ -380,7 +383,151 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
   color:var(--muted2);transition:all .15s;user-select:none;
 }
 .tt-opt.on{background:var(--bg2);color:var(--text);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+/* ========== UI ENHANCEMENT PACK（增强层，仅叠加不破坏功能）========== */
+body{
+  font-family:'Plus Jakarta Sans','Noto Sans SC',-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;
+  letter-spacing:.15px;
+}
+/* 背景氛围光 */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(640px 420px at 12% -2%, rgba(139,92,246,.18), transparent 60%),
+    radial-gradient(720px 520px at 100% 6%, rgba(99,102,241,.12), transparent 55%),
+    radial-gradient(680px 420px at 45% 108%, rgba(217,70,239,.10), transparent 60%);
+}
+[data-theme="light"] body::before{
+  background:
+    radial-gradient(640px 420px at 12% -2%, rgba(139,92,246,.10), transparent 60%),
+    radial-gradient(720px 520px at 100% 6%, rgba(99,102,241,.08), transparent 55%);
+}
+
+/* 侧边栏玻璃拟态 */
+.sidebar{
+  background:rgba(17,17,19,.82);
+  background:color-mix(in srgb, var(--bg2) 80%, transparent);
+  backdrop-filter:blur(16px) saturate(150%);
+  -webkit-backdrop-filter:blur(16px) saturate(150%);
+  border-right:1px solid color-mix(in srgb, var(--border2) 55%, transparent);
+}
+[data-theme="light"] .sidebar{background:rgba(244,244,245,.85)}
+
+/* 品牌 Logo */
+.logo{padding:20px 16px 16px}
+.logo-gem{
+  background:linear-gradient(135deg,#8b5cf6,#6366f1,#d946ef,#8b5cf6);
+  background-size:300% 300%;
+  animation:gradFlow 8s ease infinite;
+  box-shadow:0 6px 22px var(--pri-glow), inset 0 1px 0 rgba(255,255,255,.25);
+}
+@keyframes gradFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.logo-name{font-weight:800;background:linear-gradient(90deg,var(--text),var(--primary));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* 侧边栏导航 */
+.nav-btn{border-radius:10px;transition:color .15s,background .15s,transform .12s}
+.nav-btn:hover{transform:translateX(3px)}
+.nav-btn.active{background:linear-gradient(90deg,var(--pri-dim),transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.nav-btn.active .nb-ic{box-shadow:0 0 0 1px rgba(139,92,246,.35),0 2px 8px var(--pri-glow)}
+.nav-btn.active .nb-lbl{color:var(--primary)}
+
+/* 按钮流光 */
+.btn,.gen-btn{position:relative;overflow:hidden;transition:transform .15s,box-shadow .2s,filter .15s}
+.btn-p,.gen-btn{
+  background:linear-gradient(135deg,#7c3aed 0%,#6366f1 50%,#8b5cf6 100%);
+  background-size:180% 180%;
+  transition:background-position .4s,transform .15s,box-shadow .2s;
+}
+.btn-p:hover,.gen-btn:hover{background-position:100% 50%}
+.btn-p::after,.gen-btn::after{
+  content:'';position:absolute;top:0;left:-160%;width:60%;height:100%;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,.35),transparent);
+  transform:skewX(-20deg);transition:left .55s ease;pointer-events:none;
+}
+.btn-p:hover::after,.gen-btn:hover::after{left:160%}
+.btn:disabled,.gen-btn:disabled{transform:none!important}
+
+/* 输入框聚焦 */
+input:focus,textarea:focus,select:focus{
+  box-shadow:0 0 0 3px var(--pri-glow),0 0 0 1px var(--primary);
+}
+
+/* Chips 分组切换 */
+.chip{border-radius:999px;transition:all .16s;font-weight:500}
+.chip:hover{transform:translateY(-1px)}
+.chip.on{background:var(--pri-grad);color:#fff;border-color:transparent;box-shadow:0 4px 14px var(--pri-glow)}
+
+/* 分段切换器 */
+.mode-tabs{border-radius:10px;padding:4px}
+.mode-tab{transition:color .15s,background .15s,box-shadow .2s;font-weight:600}
+.mode-tab:hover{color:var(--text)}
+.mode-tab.active{background:var(--pri-grad);color:#fff;box-shadow:0 4px 14px var(--pri-glow)}
+
+/* 上传区 */
+.upload-zone{border-radius:12px;transition:transform .18s,box-shadow .25s,border-color .18s,background .18s}
+.upload-zone:hover{transform:translateY(-2px);box-shadow:0 10px 26px var(--pri-glow)}
+
+/* 卡片悬浮 */
+.info-card,.asset-item{transition:transform .2s,box-shadow .25s,border-color .2s}
+.asset-item:hover,.info-card:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(0,0,0,.35)}
+.asset-thumb{border-radius:10px}
+
+/* 参考图缩略 */
+.ref-thumb{transition:transform .16s,box-shadow .2s}
+.ref-thumb:hover{transform:scale(1.07);box-shadow:0 6px 18px var(--pri-glow)}
+.rm-btn{background:rgba(0,0,0,.6);backdrop-filter:blur(2px);transition:transform .15s,background .15s}
+.rm-btn:hover{transform:scale(1.12)}
+
+/* 进度条流光 */
+.prog-bar{
+  background:linear-gradient(90deg,#7c3aed,#6366f1,#a855f7,#6366f1,#7c3aed);
+  background-size:220% 100%;
+  animation:progMove 1.8s linear infinite;
+}
+@keyframes progMove{0%{background-position:0% 0}100%{background-position:220% 0}}
+
+/* 消息气泡 */
+.bubble{box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 8px 24px rgba(0,0,0,.18)}
+.msg.user .bubble{background:linear-gradient(135deg,var(--pri-dim),rgba(139,92,246,.05))}
+
+/* 弹窗毛玻璃 + 滑入 */
+.overlay{background:rgba(0,0,0,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.modal{
+  background:rgba(24,24,27,.92);
+  background:color-mix(in srgb, var(--bg2) 90%, transparent);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  animation:mslide .3s cubic-bezier(.22,1,.36,1);
+}
+[data-theme="light"] .modal{background:rgba(250,250,250,.94)}
+@keyframes mslide{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+
+/* 标签页切换淡入 */
+.tab{animation:tabFade .22s ease}
+@keyframes tabFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* 滚动条 */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--primary)}
+
+/* 分隔线渐变 + 选中文字 */
+.divider{background:linear-gradient(90deg,transparent,var(--border2),transparent)}
+::selection{background:rgba(139,92,246,.35)}
+
+/* @ 引用参考图菜单 */
+.at-menu{
+  position:absolute;z-index:100;background:var(--bg3);border:1px solid var(--border2);
+  border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.4);
+  padding:6px;display:flex;flex-direction:column;gap:4px;max-height:220px;overflow:auto;
+  min-width:160px;
+}
+.at-item{
+  display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;
+  font-size:12.5px;cursor:pointer;color:var(--text2);
+}
+.at-item:hover{background:var(--bg4);color:var(--text)}
+.at-item img{width:32px;height:32px;object-fit:cover;border-radius:6px;border:1px solid var(--border2)}
 </style>
+
 <script>
 (function(){var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t)})();
 </script>
@@ -438,6 +585,14 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
       <select id="cm" style="width:220px"><option value="">加载中...</option></select>
       <button class="btn btn-g btn-sm" onclick="loadModels()" title="刷新模型列表" style="padding:7px 10px">↻</button>
       <div class="bar-sep"></div>
+      <label style="margin:0" title="上游对话接口格式">格式</label>
+      <select id="cf" style="width:170px" title="auto：claude 系走 /v1/messages，其余走 /v1/chat/completions">
+        <option value="auto">Auto 自动</option>
+        <option value="messages">Anthropic /v1/messages</option>
+        <option value="chat">OpenAI /v1/chat/completions</option>
+        <option value="responses">OpenAI /v1/responses</option>
+      </select>
+      <div class="bar-sep"></div>
       <label style="margin:0">Max Tokens</label>
       <input type="number" id="cmt" value="2000" style="width:86px">
       <div style="flex:1"></div>
@@ -467,34 +622,67 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
         <div class="mode-tabs" id="img-mode-tabs">
           <button class="mode-tab active" onclick="setImgMode('t2i')">✍ 文生图</button>
           <button class="mode-tab" onclick="setImgMode('i2i')">🖼 图生图</button>
+          <button class="mode-tab" onclick="setImgMode('edit')">✏️ 图像编辑</button>
+          <button class="mode-tab" onclick="setImgMode('json')">📄 JSON 直发</button>
+        </div>
+
+        <div class="fg"><label>站点</label>
+          <div class="chips site-g">
+            <span class="chip" data-v="cn">🇨🇳 国内站</span>
+            <span class="chip" data-v="intl">🌍 国际站</span>
+          </div>
+          <div class="ph-sub" style="margin-top:2px">上游：<span class="site-url"></span></div>
         </div>
 
         <div class="fg"><label>模型</label>
           <select id="im"><option value="">加载中...</option></select>
         </div>
 
-        <div class="fg"><label>提示词</label>
-          <textarea id="ip" rows="4" placeholder="描述你想要的图像，越详细效果越好..."></textarea>
+        <div class="fg" id="img-prompt-zone"><label>提示词</label>
+          <textarea id="ip" rows="4" placeholder="描述你想要的图像，越详细效果越好..." oninput="onPromptInput(event)" onblur="setTimeout(hideAtMenu, 200)"></textarea>
+          <div class="ph-sub" style="margin-top:2px">上传参考图后，输入 <b>@</b> 可引用（如 @图2 / @2，发送时自动规范为 图2）</div>
+          <div class="at-menu" id="at-menu" style="display:none"></div>
         </div>
 
-        <!-- 参考图（图生图，最多 3 张） -->
+        <!-- JSON 直发模式 -->
+        <div id="img-json-zone" style="display:none">
+          <div class="fg">
+            <label>目标接口</label>
+            <select id="ij-path">
+              <option value="/v1/images/generations">图像生成 · /v1/images/generations</option>
+              <option value="/v1/images/edits">图像编辑 · /v1/images/edits（multipart 接口，需上传文件请用「✏️ 图像编辑」模式）</option>
+              <option value="/v1beta/models/{model}:generateContent">Gemini 生图 · /v1beta/models/{model}:generateContent</option>
+            </select>
+            <div class="ph-sub" style="margin-top:2px">实际请求 <span id="ij-url"></span> + 路径（按当前站点；Gemini 路径中的 {model} 自动取 JSON 里的 model 字段）</div>
+          </div>
+          <div class="fg">
+            <label>请求 JSON（完整请求体，粘贴后可直接发送）</label>
+            <textarea id="ij" rows="12" style="font-family:monospace;font-size:11.5px" placeholder='{ "model": "gpt-image-2", "prompt": "...", "size": "1024x1024", "n": 1, "response_format": "b64_json", "stream": true }'></textarea>
+          </div>
+          <div class="row" style="gap:8px">
+            <button class="btn btn-g btn-sm" style="flex:1" onclick="fillJsonFromCurrent()">📋 填入当前图像请求</button>
+            <button class="btn btn-g btn-sm" style="flex:1" onclick="navigator.clipboard.writeText(document.getElementById('ij').value).then(()=>alert('已复制'))">📤 复制文本框内容</button>
+          </div>
+        </div>
+
+        <!-- 参考图（图生图最多 9 张 / 图像编辑最多 4 张） -->
         <div id="img-ref-zone" class="fg" style="display:none">
           <label>参考图 <span id="img-ref-cnt"
-            style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">(0/3)</span></label>
+            style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">(0/9)</span></label>
           <div class="ref-grid" id="img-ref-grid"></div>
           <div class="upload-zone" id="img-ref-drop"
                onclick="document.getElementById('img-ref-inp').click()"
                ondragover="event.preventDefault()"
                ondrop="dropImgRef(event)">
             <div class="up-ico">📎</div>
-            <div class="up-txt">点击或拖拽添加参考图<br>PNG · JPG · WEBP · 最多 3 张</div>
+            <div class="up-txt" id="img-up-txt">点击或拖拽添加参考图<br>PNG · JPG · WEBP · 最多 9 张</div>
           </div>
           <input type="file" id="img-ref-inp" accept="image/*" multiple style="display:none" onchange="pickImgRef(event)">
         </div>
 
         <div class="sec-lbl">参数设置</div>
 
-        <div class="fg"><label>尺寸</label>
+        <div class="fg" id="img-sz-zone"><label>尺寸</label>
           <div class="chips" id="sz-g">
             <span class="chip on" data-v="1024x1024">1024²</span>
             <span class="chip" data-v="1536x1024">1536×1024</span>
@@ -507,7 +695,7 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
           </div>
         </div>
 
-        <div class="fg"><label>质量</label>
+        <div class="fg" id="img-q-zone"><label>质量</label>
           <div class="chips" id="iq-g">
             <span class="chip" data-v="low">low</span>
             <span class="chip" data-v="medium">medium</span>
@@ -547,6 +735,15 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
           <button class="mode-tab" onclick="setVidMode('i2v')">🖼 图生视频</button>
           <button class="mode-tab" onclick="setVidMode('v2v')">🎞 视频参考</button>
           <button class="mode-tab" onclick="setVidMode('a2v')">📦 素材生成</button>
+          <button class="mode-tab" onclick="setVidMode('m2v')">🌐 多模态参考</button>
+        </div>
+
+        <div class="fg"><label>站点</label>
+          <div class="chips site-g">
+            <span class="chip" data-v="cn">🇨🇳 国内站</span>
+            <span class="chip" data-v="intl">🌍 国际站</span>
+          </div>
+          <div class="ph-sub" style="margin-top:2px">上游：<span class="site-url"></span></div>
         </div>
 
         <div class="fg"><label>模型</label>
@@ -594,6 +791,30 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
           </div>
         </div>
 
+        <!-- 多模态参考（国际站 /v1/video/generations） -->
+        <div id="vid-m2v-zone" style="display:none">
+          <div class="fg">
+            <label>参考图 URL <span id="vid-m2v-img-cnt"
+              style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">(0/3)</span></label>
+            <div id="vid-m2v-img-list"></div>
+            <div class="row" style="gap:8px">
+              <input type="url" id="vid-m2v-img-inp" placeholder="https://example.com/image.jpg" style="flex:1">
+              <button class="btn btn-g btn-sm" onclick="addM2vImg()">➕ 添加</button>
+            </div>
+            <div class="ph-sub" style="margin-top:2px">在提示词中用「图片1 / 图片2」引用，人脸/虚拟人图需先过素材库审核</div>
+          </div>
+          <div class="fg">
+            <label>参考视频 URL（可选）</label>
+            <input type="url" id="vid-m2v-video" placeholder="https://example.com/reference.mp4">
+            <div class="ph-sub" style="margin-top:2px">在提示词中用「视频1」引用其构图/运镜</div>
+          </div>
+          <div class="fg">
+            <label>参考音频 URL（可选）</label>
+            <input type="url" id="vid-m2v-audio" placeholder="https://example.com/bgm.mp3">
+            <div class="ph-sub" style="margin-top:2px">在提示词中用「音频1」引用作为背景音乐</div>
+          </div>
+        </div>
+
         <div class="sec-lbl">生成参数</div>
 
         <div class="fg"><label>画面比例</label>
@@ -622,7 +843,7 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
           </div>
         </div>
 
-        <div class="fg"><label>分辨率</label>
+        <div class="fg" id="vid-res-zone"><label>分辨率</label>
           <div class="chips" id="vres-g">
             <span class="chip" data-v="480p">480p</span>
             <span class="chip on" data-v="720p">720p</span>
@@ -661,6 +882,14 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
       <div class="ctrl wide">
         <div style="font-size:16px;font-weight:700;margin-bottom:4px">📦 素材库管理</div>
         <div class="ph-sub" style="margin-bottom:12px">上传素材到云端，用于生成视频</div>
+
+        <div class="fg"><label>站点</label>
+          <div class="chips site-g">
+            <span class="chip" data-v="cn">🇨🇳 国内站</span>
+            <span class="chip" data-v="intl">🌍 国际站</span>
+          </div>
+          <div class="ph-sub" style="margin-top:2px">与视频生成使用相同站点 · 上游：<span class="site-url"></span></div>
+        </div>
 
         <div class="sec-lbl">上传素材</div>
 
@@ -723,8 +952,21 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
       <input type="text" id="s-url" placeholder="http://localhost:8080">
     </div>
     <div class="fg">
-      <label>Bearer Token</label>
+      <label>🇨🇳 国内站 Token</label>
       <input type="password" id="s-tok" placeholder="sk-...">
+    </div>
+    <div class="fg">
+      <label>🌍 国际站 Token</label>
+      <input type="password" id="s-tok-intl" placeholder="sk-...">
+      <div class="ph-sub" style="margin-top:2px">两站 Token 相互独立，图像/视频按当前所选站点自动使用对应 Token</div>
+    </div>
+    <div class="fg">
+      <label>测试站点（测试连接 / 图像 / 视频 / 模型列表使用）</label>
+      <div class="chips site-g">
+        <span class="chip" data-v="cn">🇨🇳 国内站</span>
+        <span class="chip" data-v="intl">🌍 国际站</span>
+      </div>
+      <div class="ph-sub" style="margin-top:2px">当前将请求：<span class="site-url"></span>/v1/models</div>
     </div>
     <div class="row">
       <button class="btn btn-g" style="flex:1" onclick="testConn()">🔌 测试连接</button>
@@ -741,17 +983,28 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
 // ============ STATE ============
 const S = {
   url: localStorage.getItem('ai_url') || '',
-  tok: localStorage.getItem('ai_tok') || '',
+  site: localStorage.getItem('ai_site') || 'cn',   // 'cn' 国内站 | 'intl' 国际站
+  tokCn:   localStorage.getItem('ai_tok')      || '',   // 国内站 Token
+  tokIntl: localStorage.getItem('ai_tok_intl') || '',   // 国际站 Token
   chatMsgs: [],
   chatBusy: false,
   vidTimer: null,
+  // 当前站点的 Token（对话固定国内站，用 tokCn）
+  get tok() { return this.site === 'intl' ? this.tokIntl : this.tokCn; },
 };
+
+// 上游基地址（用于请求预览 / curl 展示）
+const UPSTREAM_BASES = { cn: 'https://ai-api.kkidc.com', intl: 'https://www.aiide.com' };
+function upstreamBase() { return UPSTREAM_BASES[S.site] || UPSTREAM_BASES.cn; }
 
 // ============ INIT ============
 window.onload = () => {
   document.getElementById('s-url').value = S.url;
-  document.getElementById('s-tok').value = S.tok;
+  document.getElementById('s-tok').value = S.tokCn;
+  document.getElementById('s-tok-intl').value = S.tokIntl;
   updateDot();
+  renderSiteToggles();
+  updateVidResZone();
   const savedTheme = localStorage.getItem('theme') || 'dark';
   setTheme(savedTheme);
   if (!S.tok) { openModal(); return; }
@@ -798,9 +1051,11 @@ function bgClose(e)   { if (e.target === document.getElementById('ov')) closeMod
 
 function saveSettings() {
   S.url = document.getElementById('s-url').value.trim();
-  S.tok = document.getElementById('s-tok').value.trim();
+  S.tokCn = document.getElementById('s-tok').value.trim();
+  S.tokIntl = document.getElementById('s-tok-intl').value.trim();
   localStorage.setItem('ai_url', S.url);
-  localStorage.setItem('ai_tok', S.tok);
+  localStorage.setItem('ai_tok', S.tokCn);
+  localStorage.setItem('ai_tok_intl', S.tokIntl);
   updateDot();
   initChips();
   setRes('✅ 已保存，正在加载模型...', 'var(--green)');
@@ -808,21 +1063,25 @@ function saveSettings() {
 }
 
 async function testConn() {
-  setRes('🔄 测试中...', 'var(--yellow)');
+  const siteName = S.site === 'intl' ? '🌍 国际站' : '🇨🇳 国内站';
+  setRes('🔄 正在测试'+siteName+' Token ...', 'var(--yellow)');
   const url = document.getElementById('s-url').value.trim();
-  const tok = document.getElementById('s-tok').value.trim();
+  // 按当前所选站点取对应输入框的 Token 进行验证
+  const tok = (S.site === 'intl'
+    ? document.getElementById('s-tok-intl').value
+    : document.getElementById('s-tok').value).trim();
   try {
     const r = await fetch(api('/api/verify', url), {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer '+tok },
+      headers: { 'Authorization': 'Bearer '+tok, 'X-Site': S.site },
     });
     if (r.ok) {
       const j = await r.json().catch(() => ({}));
       const cnt = (j.data || []).length;
-      setRes('✅ Token 有效，共 '+cnt+' 个可用模型', 'var(--green)');
+      setRes('✅ '+siteName+' Token 有效，共 '+cnt+' 个可用模型（'+(r.headers.get('X-Upstream')||'')+'）', 'var(--green)');
     } else {
       const body = await r.text().catch(() => '');
-      setRes('❌ Token 无效 ('+r.status+')', 'var(--red)');
+      setRes('❌ '+siteName+' Token 无效 ('+r.status+')，实际请求: '+(r.headers.get('X-Upstream')||S.site), 'var(--red)');
       console.warn('verify failed:', body);
     }
   } catch(e) { setRes('❌ 无法连接后端: '+e.message, 'var(--red)'); }
@@ -835,21 +1094,44 @@ function setRes(msg, color) {
 
 function updateDot() {
   document.getElementById('tdot').className = 'dot '+(S.tok ? 'ok' : 'err');
-  document.getElementById('tlabel').textContent = S.tok ? 'Token 已配置' : '未配置 Token';
+  document.getElementById('tlabel').textContent = S.tok
+    ? (S.site === 'intl' ? '🌍 国际站 Token 已配置' : '🇨🇳 国内站 Token 已配置')
+    : '未配置 Token（当前站点）';
 }
 
 function api(path, base) {
   return (base !== undefined ? base : S.url) + path;
 }
-function hdrs() {
-  return { 'Authorization': 'Bearer '+S.tok, 'Content-Type': 'application/json' };
+function hdrs(site) {
+  const s = site || S.site;
+  const tok = s === 'intl' ? S.tokIntl : S.tokCn;
+  return { 'Authorization': 'Bearer '+tok, 'Content-Type': 'application/json', 'X-Site': s };
+}
+
+// ============ SITE SWITCH（国内站 / 国际站）============
+function setSite(site) {
+  if (S.site === site) return;
+  S.site = site;
+  localStorage.setItem('ai_site', site);
+  renderSiteToggles();
+  updateVidResZone();
+  updateDot();
+  // 切站后模型列表可能不同，重新加载
+  if (S.tok) loadModels();
+}
+function renderSiteToggles() {
+  document.querySelectorAll('.site-g .chip').forEach(c => {
+    c.classList.toggle('on', c.dataset.v === S.site);
+    c.onclick = () => setSite(c.dataset.v);
+  });
+  document.querySelectorAll('.site-url').forEach(el => { el.textContent = upstreamBase(); });
 }
 
 // ============ MODELS ============
 const DEFAULTS = {
   chat:  ['claude-sonnet-4-6','claude-haiku-4-5-20251001','claude-opus-4-6','claude-opus-4-7'],
   image: ['gpt-image-2'],
-  video: ['doubao-seedance-2-0-260128'],
+  video: ['doubao-seedance-2-0-260128', 'doubao-seedance-2-0-fast-260128'],
 };
 
 function populateSel(selId, ids, prefer) {
@@ -868,7 +1150,7 @@ async function loadModels() {
   });
   try {
     const res = await fetch(api('/api/models'), {
-      headers: { 'Authorization': 'Bearer '+S.tok },
+      headers: { 'Authorization': 'Bearer '+S.tok, 'X-Site': S.site },
     });
     if (!res.ok) throw new Error('HTTP '+res.status);
     const j = await res.json();
@@ -913,10 +1195,11 @@ let aiBubble = null, aiText = '';
 
 async function sendChat() {
   if (S.chatBusy) return;
-  if (!S.tok) { openModal(); return; }
+  if (!S.tokCn) { openModal(); return; }   // 对话固定走国内站
   const ci = document.getElementById('ci');
   const txt = ci.value.trim(); if (!txt) return;
   const model = document.getElementById('cm').value;
+  const chatApi = document.getElementById('cf').value || 'auto';
   const maxTok = parseInt(document.getElementById('cmt').value) || 2000;
   ci.value = '';
   S.chatMsgs.push({ role:'user', content:txt });
@@ -930,7 +1213,7 @@ async function sendChat() {
   btn.innerHTML = '<span>生成中</span>';
   try {
     const res = await fetch(api('/api/chat'), {
-      method: 'POST', headers: hdrs(),
+      method: 'POST', headers: { ...hdrs('cn'), 'X-Chat-Api': chatApi },
       body: JSON.stringify({ model, messages: S.chatMsgs, max_tokens: maxTok, stream: true }),
     });
     if (!res.ok) {
@@ -959,9 +1242,20 @@ async function sendChat() {
             return;
           }
           if (j.type === 'content_block_delta' && j.delta?.type === 'text_delta') {
+            // Anthropic /v1/messages
             aiText += j.delta.text;
           } else if (j.choices?.[0]?.delta?.content) {
+            // OpenAI /v1/chat/completions
             aiText += j.choices[0].delta.content;
+          } else if (j.type === 'response.output_text.delta' && j.delta) {
+            // OpenAI /v1/responses
+            aiText += j.delta;
+          } else if (j.type === 'response.output_text.done' && j.text && !aiText) {
+            // 兜底：某些网关只发 done 事件
+            aiText += j.text;
+          } else if (j.type === 'response.failed' || j.type === 'error') {
+            aiBubble.innerHTML = errCard(null, fmtErr(j), d);
+            return;
           }
           aiBubble.innerHTML = esc(aiText) + '<span class="cur"></span>';
           document.getElementById('msgs').scrollTop = 99999;
@@ -986,15 +1280,44 @@ async function sendChat() {
 // ============ IMAGE MODE ============
 let imgMode = 't2i';
 let imgRefB64s = [];
-const MAX_REF = 3;
+const MAX_REF = 9;        // 图生图最多 9 张
+const EDIT_MAX_REF = 4;   // 图像编辑最多 4 张（上游建议 1-4 张）
+const VID_MAX_REF = 3;    // 图生视频最多 3 张
+
+function refMax(ns) {
+  if (ns === 'img') return imgMode === 'edit' ? EDIT_MAX_REF : MAX_REF;
+  return VID_MAX_REF;
+}
 
 function setImgMode(mode) {
   imgMode = mode;
+  const labels = { t2i:'文生图', i2i:'图生图', edit:'图像编辑', json:'JSON 直发' };
   document.querySelectorAll('#img-mode-tabs .mode-tab').forEach(t => {
-    t.classList.toggle('active', t.textContent.includes(mode==='t2i' ? '文生图' : '图生图'));
+    const key = Object.keys(labels).find(k => t.textContent.includes(labels[k]));
+    t.classList.toggle('active', key === mode);
   });
-  document.getElementById('img-ref-zone').style.display = mode==='i2i' ? '' : 'none';
+  const isJson = mode === 'json';
+  document.getElementById('img-prompt-zone').style.display = isJson ? 'none' : '';
+  document.getElementById('img-ref-zone').style.display = (mode==='i2i' || mode==='edit') ? '' : 'none';
+  document.getElementById('img-json-zone').style.display  = isJson ? '' : 'none';
+  document.getElementById('img-sz-zone').style.display    = isJson ? 'none' : '';
+  document.getElementById('img-q-zone').style.display     = (mode==='t2i' || mode==='i2i') ? '' : 'none';
+  document.getElementById('img-up-txt').innerHTML = mode === 'edit'
+    ? '点击或拖拽添加参考图<br>PNG · JPG · WEBP · 最多 4 张（提示词中用「图1/图2」引用）'
+    : '点击或拖拽添加参考图<br>PNG · JPG · WEBP · 最多 9 张（提示词中输入 @ 可引用）';
+  document.getElementById('img-ref-cnt').textContent = `(${imgRefB64s.length}/${refMax('img')})`;
+  document.getElementById('ib').textContent = isJson ? '📤 发送请求' : '✨ 生成图像';
+  if (isJson) updateJsonUrl();
 }
+
+function updateJsonUrl() {
+  const el = document.getElementById('ij-url');
+  if (el) el.textContent = upstreamBase();
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('ij-path');
+  if (sel) sel.onchange = updateJsonUrl;
+});
 
 function pickImgRef(e) {
   Array.from(e.target.files).forEach(f => addImgRef(f, 'img'));
@@ -1006,9 +1329,13 @@ function dropImgRef(e) {
 }
 function addImgRef(file, ns) {
   const arr = ns==='img' ? imgRefB64s : vidImgB64s;
-  if (arr.length >= MAX_REF) return;
+  if (arr.length >= refMax(ns)) return;
+  // 先预占位置再异步读取，防止一次框选多张时全部通过长度检查导致超限
+  arr.push(null);
+  const slot = arr.length - 1;
+  renderRefGrid(ns);
   loadFileAsB64(file, b64 => {
-    arr.push(b64);
+    arr[slot] = b64;
     renderRefGrid(ns);
   });
 }
@@ -1022,13 +1349,14 @@ function renderRefGrid(ns) {
   const gridId = ns==='img' ? 'img-ref-grid' : 'vid-img-grid';
   const cntId  = ns==='img' ? 'img-ref-cnt'  : 'vid-img-cnt';
   const dropId = ns==='img' ? 'img-ref-drop'  : 'vid-img-drop';
+  const max    = refMax(ns);
   document.getElementById(gridId).innerHTML = arr.map((b64, i) => `
     <div class="ref-thumb">
-      <img src="${b64}" alt="参考图${i+1}">
+      ${b64 ? `<img src="${b64}" alt="参考图${i+1}">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px;opacity:.5">⏳</div>'}
       <button class="rm-btn" onclick="removeRef('${ns}',${i})" title="移除">✕</button>
     </div>`).join('');
-  document.getElementById(cntId).textContent = `(${arr.length}/${MAX_REF})`;
-  document.getElementById(dropId).style.display = arr.length >= MAX_REF ? 'none' : '';
+  document.getElementById(cntId).textContent = `(${arr.length}/${max})`;
+  document.getElementById(dropId).style.display = arr.length >= max ? 'none' : '';
 }
 
 // ============ VIDEO MODE ============
@@ -1037,7 +1365,7 @@ let vidImgB64s = [];
 
 function setVidMode(mode) {
   vidMode = mode;
-  const labels = { t2v:'文生视频', i2v:'图生视频', v2v:'视频参考', a2v:'素材生成' };
+  const labels = { t2v:'文生视频', i2v:'图生视频', v2v:'视频参考', a2v:'素材生成', m2v:'多模态参考' };
   document.querySelectorAll('#vid-mode-tabs .mode-tab').forEach(t => {
     const key = Object.keys(labels).find(k => t.textContent.includes(labels[k]));
     t.classList.toggle('active', key === mode);
@@ -1045,11 +1373,46 @@ function setVidMode(mode) {
   document.getElementById('vid-img-zone').style.display = mode==='i2v' ? '' : 'none';
   document.getElementById('vid-ref-zone').style.display = mode==='v2v' ? '' : 'none';
   document.getElementById('vid-asset-zone').style.display = mode==='a2v' ? '' : 'none';
+  document.getElementById('vid-m2v-zone').style.display = mode==='m2v' ? '' : 'none';
+  updateVidResZone();
 
   // 如果切换到素材模式且素材列表为空，自动加载
   if (mode === 'a2v' && ASSETS.list.length === 0) {
     loadAssets();
   }
+}
+
+// 国际站接口（多模态格式）不支持 resolution 参数
+function updateVidResZone() {
+  document.getElementById('vid-res-zone').style.display =
+    (vidMode === 'm2v' || S.site === 'intl') ? 'none' : '';
+}
+
+// ============ 多模态参考（国际站）============
+let m2vImgUrls = [];
+
+function addM2vImg() {
+  const inp = document.getElementById('vid-m2v-img-inp');
+  const url = inp.value.trim();
+  if (!url) { alert('请输入参考图 URL'); return; }
+  if (!/^https?:\/\//.test(url)) { alert('参考图 URL 必须以 http(s):// 开头'); return; }
+  if (m2vImgUrls.length >= 3) { alert('参考图最多 3 张'); return; }
+  m2vImgUrls.push(url);
+  inp.value = '';
+  renderM2vImgs();
+}
+function removeM2vImg(idx) {
+  m2vImgUrls.splice(idx, 1);
+  renderM2vImgs();
+}
+function renderM2vImgs() {
+  document.getElementById('vid-m2v-img-list').innerHTML = m2vImgUrls.map((u, i) => `
+    <div class="row" style="gap:8px;margin-bottom:6px;align-items:center">
+      <img src="${esc(u)}" alt="参考图${i+1}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">
+      <code style="flex:1;font-size:10.5px;color:var(--muted);word-break:break-all">${esc(u)}</code>
+      <button class="rm-btn" onclick="removeM2vImg(${i})" title="移除">✕</button>
+    </div>`).join('');
+  document.getElementById('vid-m2v-img-cnt').textContent = `(${m2vImgUrls.length}/3)`;
 }
 
 function pickVidImg(e) {
@@ -1158,8 +1521,8 @@ function buildImgCurlBlock() {
   const request = {
     method: 'POST',
     url: isGemini
-      ? `https://ai-api.kkidc.com/v1beta/models/${model}:generateContent`
-      : 'https://ai-api.kkidc.com/v1/images/generations',
+      ? `${upstreamBase()}/v1beta/models/${model}:generateContent`
+      : `${upstreamBase()}/v1/images/generations`,
     headers: {
       'Authorization': 'Bearer ' + (S.tok ? S.tok.slice(0,8) + '****' : '<your-token>'),
       'Content-Type': 'application/json'
@@ -1232,13 +1595,18 @@ function toggleImgPayloadPreview() {
 
 async function genImg() {
   if (!S.tok) { openModal(); return; }
-  const prompt = document.getElementById('ip').value.trim();
+  if (imgMode === 'json') { sendJsonReq(); return; }
+  const prompt = normalizePromptRefs(document.getElementById('ip').value.trim());
   if (!prompt) { alert('请输入提示词'); return; }
-  if (imgMode === 'i2i' && imgRefB64s.length === 0) { alert('图生图模式请至少上传 1 张参考图'); return; }
+  if ((imgMode === 'i2i' || imgMode === 'edit') && imgRefB64s.length === 0) {
+    alert(imgMode === 'edit' ? '图像编辑模式请至少上传 1 张参考图' : '图生图模式请至少上传 1 张参考图');
+    return;
+  }
+  if (imgRefB64s.some(x => !x)) { alert('参考图还在读取中，请稍候再试'); return; }
   const btn = document.getElementById('ib');
   const ist = document.getElementById('ist');
   btn.disabled = true; btn.textContent = '⏳ 生成中...';
-  const modeLabel = imgMode === 'i2i' ? '图生图' : '文生图';
+  const modeLabel = {t2i:'文生图', i2i:'图生图', edit:'图像编辑'}[imgMode] || '图像';
   setImgResult(`<div class="ph" style="margin:auto"><div style="font-size:48px;opacity:.5">⏳</div>
     <div style="font-size:15px;color:var(--text2);font-weight:600">正在${modeLabel}生成...</div>
     <div class="ph-sub">约 30 ~ 120 秒，请勿关闭页面</div></div>`);
@@ -1247,16 +1615,35 @@ async function genImg() {
     ist.textContent = '已等待 '+Math.floor((Date.now()-t0)/1000)+'s...';
   }, 1000);
   try {
-    const payload = buildImgPayload();
-    const model = payload.model || '';
-    const isGemini = model.toLowerCase().includes('gemini') &&
-                     (model.toLowerCase().includes('image') || model.toLowerCase().includes('flash-preview'));
-    const size = payload.size || payload.generationConfig?.imageConfig?.aspectRatio || '1024x1024';
-    const quality = payload.quality || 'high';
-    const res = await fetch(api('/api/image'), {
-      method:'POST', headers: hdrs(),
-      body: JSON.stringify(payload),
-    });
+    let res;
+    const isGemini = (() => {
+      const m = document.getElementById('im').value.toLowerCase();
+      return m.includes('gemini') && (m.includes('image') || m.includes('flash-preview'));
+    })();
+    const sizeVal = chipVal('sz-g') || '1024x1024';
+    if (imgMode === 'edit') {
+      // 图像编辑：multipart/form-data 上传参考图到 /v1/images/edits
+      const fd = new FormData();
+      fd.append('model', document.getElementById('im').value);
+      fd.append('prompt', prompt);
+      fd.append('n', '1');
+      fd.append('size', sizeVal);
+      fd.append('response_format', 'b64_json');
+      fd.append('stream', 'true');
+      imgRefB64s.forEach((u, i) =>
+        fd.append('file', dataUriToBlob(u), 'ref' + (i + 1) + '.png'));
+      res = await fetch(api('/api/image/edit'), {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + S.tok, 'X-Site': S.site },
+        body: fd,
+      });
+    } else {
+      const payload = buildImgPayload();
+      res = await fetch(api('/api/image'), {
+        method:'POST', headers: hdrs(),
+        body: JSON.stringify(payload),
+      });
+    }
     const raw = await res.text();
     clearInterval(timer);
     if (!res.ok) {
@@ -1293,6 +1680,8 @@ async function genImg() {
 
     const ext  = mime.split('/')[1];
     const src  = `data:${mime};base64,${b64}`;
+    const size = sizeVal;
+    const quality = imgMode === 'edit' ? '—' : (chipVal('iq-g') || 'high');
     const elapsed = Math.floor((Date.now()-t0)/1000);
     const respDisplay = JSON.parse(JSON.stringify(j));
     if (respDisplay.data) respDisplay.data.forEach(d => { if (d.b64_json) d.b64_json = d.b64_json.slice(0, 80) + '...(truncated)'; });
@@ -1330,6 +1719,149 @@ async function genImg() {
 
 function setImgResult(html) { document.getElementById('ir').innerHTML = html; }
 
+// ============ @ 引用参考图 ============
+// 提示词里输入 @ 弹出已上传参考图，点选插入 图N；发送时把 @图N / @N 规范为 图N
+let atRange = null;
+
+function onPromptInput(e) {
+  const ta = e.target;
+  const pos = ta.selectionStart;
+  const m = ta.value.slice(0, pos).match(/@([图\d]*)$/);
+  if (m && (imgMode === 'i2i' || imgMode === 'edit')) {
+    atRange = { start: pos - m[0].length, end: pos };
+    showAtMenu(m[1]);
+  } else {
+    hideAtMenu();
+  }
+}
+
+function showAtMenu(q) {
+  const box = document.getElementById('at-menu');
+  const refs = imgRefB64s.map((b64, i) => ({ b64, n: i + 1 })).filter(r => r.b64);
+  if (!refs.length) { hideAtMenu(); return; }
+  const items = q
+    ? refs.filter(r => ('图' + r.n).includes(q) || String(r.n).includes(q.replace(/^图/, '')))
+    : refs;
+  if (!items.length) { hideAtMenu(); return; }
+  box.innerHTML = items.map(r => `
+    <div class="at-item" onmousedown="event.preventDefault()" onclick="insertAtRef(${r.n})">
+      <img src="${r.b64}" alt="图${r.n}">图${r.n}
+    </div>`).join('');
+  box.style.display = 'flex';
+}
+
+function hideAtMenu() {
+  const box = document.getElementById('at-menu');
+  if (box) box.style.display = 'none';
+  atRange = null;
+}
+
+function insertAtRef(n) {
+  const ta = document.getElementById('ip');
+  if (atRange) {
+    const before = ta.value.slice(0, atRange.start);
+    const after  = ta.value.slice(atRange.end);
+    ta.value = before + '图' + n + ' ' + after;
+    const np = (before + '图' + n + ' ').length;
+    ta.setSelectionRange(np, np);
+  } else {
+    ta.value += '图' + n + ' ';
+  }
+  ta.focus();
+  hideAtMenu();
+}
+
+// @图2 / @2 → 图2（多图引用写法与上游文档一致）
+function normalizePromptRefs(p) {
+  return p.replace(/@图?(\d+)/g, '图$1').replace(/@(?=\s|$)/g, '');
+}
+
+// data URI → Blob（图像编辑接口需要真实文件上传）
+function dataUriToBlob(uri) {
+  const m = uri.match(/^data:(.*?);base64,(.*)$/);
+  const mime = m ? m[1] : 'image/png';
+  const bin = atob(m ? m[2] : uri);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
+// ============ JSON 直发 ============
+// 把文本框里的完整请求 JSON 原样发送到所选上游接口
+async function sendJsonReq() {
+  if (!S.tok) { openModal(); return; }
+  const txt = document.getElementById('ij').value.trim();
+  if (!txt) { alert('请输入请求 JSON'); return; }
+  let body;
+  try { body = JSON.parse(txt); } catch(e) { alert('JSON 格式错误: ' + e.message); return; }
+  // Gemini 路径中的 {model} 占位符自动用 JSON 体里的 model 字段填充
+  let path = document.getElementById('ij-path').value;
+  if (path.includes('{model}')) {
+    if (!body.model) { alert('该接口需要在 JSON 中包含 "model" 字段以填充路径 {model}'); return; }
+    path = path.replace('{model}', encodeURIComponent(body.model));
+  }
+  const btn = document.getElementById('ib');
+  const ist = document.getElementById('ist');
+  btn.disabled = true; btn.textContent = '⏳ 请求中...';
+  setImgResult(`<div class="ph" style="margin:auto"><div style="font-size:48px;opacity:.5">📤</div>
+    <div style="font-size:15px;color:var(--text2);font-weight:600">正在发送 JSON 请求...</div>
+    <div class="ph-sub">${esc(upstreamBase()+path)}</div></div>`);
+  const t0 = Date.now();
+  try {
+    const res = await fetch(api('/api/raw?path=' + encodeURIComponent(path)), {
+      method: 'POST', headers: hdrs(), body: txt,
+    });
+    const raw = await res.text();
+    const elapsed = Math.floor((Date.now()-t0)/1000);
+    let j = null;
+    try { j = JSON.parse(raw); } catch {}
+    // 响应里如果带图像（data[0].b64_json），直接渲染图片
+    const img = j?.data?.[0]?.b64_json;
+    if (img) {
+      const mime = detectMime(img);
+      setImgResult(`
+        <div style="width:100%;max-width:660px;display:flex;flex-direction:column;gap:14px;align-items:center">
+          <img class="r-img" src="data:${mime};base64,${img}" alt="Generated">
+          <span class="ph-sub">JSON 直发 · 耗时 ${elapsed}s</span>
+          <details style="width:100%">
+            <summary style="cursor:pointer;font-size:11px;color:var(--muted2);user-select:none;font-weight:600">▸ 查看响应 JSON</summary>
+            <pre style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-size:11px;line-height:1.6;color:var(--text2);white-space:pre-wrap;word-break:break-all;max-height:300px;overflow:auto;margin-top:6px">${esc(raw.length > 200000 ? raw.slice(0, 200000) + '...(truncated)' : raw)}</pre>
+          </details>
+        </div>`);
+      ist.textContent = '✅ 请求成功，耗时 '+elapsed+'s';
+    } else if (res.ok) {
+      setImgResult(`
+        <div style="width:100%;max-width:660px;padding:20px">
+          <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px">✅ 响应（${esc(upstreamBase()+path)} · ${elapsed}s）</div>
+          <pre style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-size:11px;line-height:1.6;color:var(--text2);white-space:pre-wrap;word-break:break-all;max-height:500px;overflow:auto">${esc(raw || '(空响应)')}</pre>
+        </div>`);
+      ist.textContent = '✅ 请求成功，耗时 '+elapsed+'s';
+    } else {
+      setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(res.status, fmtErr(raw), raw)+'</div>');
+      ist.textContent = '❌ HTTP ' + res.status;
+    }
+  } catch(e) {
+    setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, e.message, '')+'</div>');
+    ist.textContent = '❌ 请求失败';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = imgMode === 'json' ? '📤 发送请求' : '✨ 生成图像';
+  }
+}
+
+// 把当前图像页参数组装成请求 JSON 填入文本框（可编辑后直接发送），
+// 模型为 Gemini 时自动切换到 Gemini 接口与对应格式
+function fillJsonFromCurrent() {
+  const payload = buildImgPayload();
+  const model = (payload.model || '').toLowerCase();
+  const isGemini = model.includes('gemini') &&
+                   (model.includes('image') || model.includes('flash-preview'));
+  document.getElementById('ij').value = JSON.stringify(payload, null, 2);
+  document.getElementById('ij-path').value = isGemini
+    ? '/v1beta/models/{model}:generateContent'
+    : '/v1/images/generations';
+}
+
 // ============ VIDEO ============
 async function submitVid() {
   if (!S.tok) { openModal(); return; }
@@ -1338,6 +1870,7 @@ async function submitVid() {
   if (vidMode === 'i2v' && vidImgB64s.length === 0) { alert('图生视频模式请至少上传 1 张参考图'); return; }
   const vidRefUrl = (document.getElementById('vid-ref-url')?.value || '').trim();
   if (vidMode === 'v2v' && !vidRefUrl) { alert('视频参考模式需要输入参考视频 URL'); return; }
+  if (vidMode === 'm2v' && m2vImgUrls.length === 0) { alert('多模态参考模式请至少添加 1 张参考图 URL'); return; }
   if (vidMode === 'a2v') {
     const assetId = document.getElementById('vid-asset-sel')?.value;
     if (!assetId) { alert('素材生成模式请先选择一个素材'); return; }
@@ -1351,21 +1884,58 @@ async function submitVid() {
   const wm       = document.getElementById('vwm').checked;
   const btn      = document.getElementById('vsub');
   btn.disabled = true; btn.textContent = '⏳ 提交中...';
-  const modeLabel = {t2v:'文生视频',i2v:'图生视频',v2v:'视频参考',a2v:'素材生成'}[vidMode];
+  const modeLabel = {t2v:'文生视频',i2v:'图生视频',v2v:'视频参考',a2v:'素材生成',m2v:'多模态参考'}[vidMode];
   setVidResult(`<div class="ph" style="margin:auto"><div style="font-size:48px;opacity:.5">📤</div>
     <div style="font-size:15px;color:var(--text2);font-weight:600">正在提交${modeLabel}任务...</div></div>`);
   try {
-    const payload = { model, prompt, generate_audio:audio, ratio, duration, resolution:res_val, watermark:wm };
-    if (vidMode === 'i2v') {
-      payload.images = vidImgB64s;
-      if (vidImgB64s.length === 1) payload.image = vidImgB64s[0];
+    const isIntl = S.site === 'intl';
+    let payload, endpoint = '/api/video/submit';
+
+    if (vidMode === 'm2v') {
+      // 多模态参考：仅国际站 /v1/video/generations（metadata.content 数组）
+      const content = [];
+      m2vImgUrls.forEach(u => content.push({ type:'image_url', image_url:{ url:u }, role:'reference_image' }));
+      const m2vVideo = (document.getElementById('vid-m2v-video')?.value || '').trim();
+      if (m2vVideo) content.push({ type:'video_url', video_url:{ url:m2vVideo }, role:'reference_video' });
+      const m2vAudio = (document.getElementById('vid-m2v-audio')?.value || '').trim();
+      if (m2vAudio) content.push({ type:'audio_url', audio_url:{ url:m2vAudio }, role:'reference_audio' });
+      payload = {
+        model, prompt,
+        metadata: { content, generate_audio:audio, ratio, duration, watermark:wm }
+      };
+      endpoint = '/api/video/submit-intl';
+    } else if (isIntl) {
+      // 国际站：参数包在 metadata 中（豆包多模态格式）
+      const content = [];
+      if (vidMode === 'i2v') {
+        vidImgB64s.forEach(u => content.push({ type:'image_url', image_url:{ url:u }, role:'reference_image' }));
+      }
+      if (vidMode === 'v2v') {
+        content.push({ type:'video_url', video_url:{ url:vidRefUrl }, role:'reference_video' });
+      }
+      if (vidMode === 'a2v') {
+        const assetId = document.getElementById('vid-asset-sel').value;
+        content.push({ type:'asset', asset_id: assetId });
+      }
+      payload = {
+        model, prompt,
+        metadata: { content, generate_audio:audio, ratio, duration, watermark:wm }
+      };
+      endpoint = '/api/video/submit-intl';
+    } else {
+      // 国内站：扁平参数格式
+      payload = { model, prompt, generate_audio:audio, ratio, duration, resolution:res_val, watermark:wm };
+      if (vidMode === 'i2v') {
+        payload.images = vidImgB64s;
+        if (vidImgB64s.length === 1) payload.image = vidImgB64s[0];
+      }
+      if (vidMode === 'v2v') payload.video_url = vidRefUrl;
+      if (vidMode === 'a2v') {
+        const assetId = document.getElementById('vid-asset-sel').value;
+        payload.asset_id = assetId;
+      }
     }
-    if (vidMode === 'v2v') payload.video_url = vidRefUrl;
-    if (vidMode === 'a2v') {
-      const assetId = document.getElementById('vid-asset-sel').value;
-      payload.asset_id = assetId;
-    }
-    const r = await fetch(api('/api/video/submit'), {
+    const r = await fetch(api(endpoint), {
       method:'POST', headers: hdrs(),
       body: JSON.stringify(payload),
     });
@@ -1393,7 +1963,7 @@ function pollVid(taskId) {
   S.vidTimer = setInterval(async () => {
     if (++n > 200) { clearInterval(S.vidTimer); showVidProgress(taskId,'TIMEOUT','超时'); return; }
     try {
-      const r = await fetch(api('/api/video/poll/'+taskId), { headers:{ 'Authorization':'Bearer '+S.tok } });
+      const r = await fetch(api('/api/video/poll/'+taskId), { headers: hdrs() });
       const j = JSON.parse(await r.text());
       const d = j.data || {};
       const st = d.status || 'UNKNOWN';
@@ -1508,12 +2078,9 @@ async function uploadAsset() {
     const payload = { url, purpose, type };
     if (groupId) payload.group_id = groupId;
 
-    const res = await fetch('https://ai-api.kkidc.com/v1/assets/upload', {
+    const res = await fetch(api('/api/asset/upload'), {
       method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + S.tok,
-        'Content-Type': 'application/json'
-      },
+      headers: hdrs(),
       body: JSON.stringify(payload)
     });
 
@@ -1568,8 +2135,8 @@ async function loadAssetList() {
     <div style="font-size:15px;color:var(--text2);font-weight:600">正在加载素材列表...</div></div>`;
 
   try {
-    const res = await fetch('https://ai-api.kkidc.com/v1/assets?page=1&page_size=50&sort_order=Desc', {
-      headers: { 'Authorization': 'Bearer ' + S.tok }
+    const res = await fetch(api('/api/asset/list?page=1&page_size=50&sort_order=Desc'), {
+      headers: hdrs()
     });
 
     const raw = await res.text();
@@ -1639,8 +2206,8 @@ async function loadAssets() {
   sel.innerHTML = '<option value="">加载中...</option>';
 
   try {
-    const res = await fetch('https://ai-api.kkidc.com/v1/assets?page=1&page_size=100&sort_order=Desc', {
-      headers: { 'Authorization': 'Bearer ' + S.tok }
+    const res = await fetch(api('/api/asset/list?page=1&page_size=100&sort_order=Desc'), {
+      headers: hdrs()
     });
 
     if (!res.ok) {
