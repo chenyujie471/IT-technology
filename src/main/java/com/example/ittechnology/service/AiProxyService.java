@@ -18,6 +18,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.GZIPInputStream;
 
 @Slf4j
 @Service
@@ -30,6 +31,12 @@ public class AiProxyService {
     /** 国际站上游 */
     @Value("${ai.upstream-intl:https://www.aiide.com}")
     private String upstreamIntl;
+
+    private final RequestLogService requestLog;
+
+    public AiProxyService(RequestLogService requestLog) {
+        this.requestLog = requestLog;
+    }
 
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(30))
@@ -192,6 +199,83 @@ public class AiProxyService {
             return "{\"error\":\"" + e.getMessage().replace("\"", "'") + "\"}";
         }
     }
+
+    /**
+     * 代理 POST 请求并返回完整响应体字符串（非流式）。
+     * 用于工作流引擎等需要拿到完整 JSON 响应的场景（对话 / 图像 / 视频提交）。
+     * 返回上游真实状态码 + 响应体。
+     */
+    public FetchResult postJson(String site, String path, String auth, String body, Duration timeout) {
+        long t0 = System.currentTimeMillis();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(resolveBase(site) + path))
+                .header("Authorization", auth)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
+                .timeout(timeout)
+                .build();
+
+        try {
+            HttpResponse<String> response =
+                    httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            int status = response.statusCode();
+            log.debug("Upstream [POST {}] → {}", path, status);
+            FetchResult r = new FetchResult(status, response.body());
+            requestLog.record(site, path, auth, body, status, System.currentTimeMillis() - t0, r.body());
+            return r;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            requestLog.record(site, path, auth, body, 500, System.currentTimeMillis() - t0, "{\"error\":\"Request interrupted\"}");
+            return new FetchResult(500, "{\"error\":\"Request interrupted\"}");
+        } catch (IOException e) {
+            log.error("Proxy POST error [{}]: {}", path, e.getMessage());
+            requestLog.record(site, path, auth, body, 502, System.currentTimeMillis() - t0, "{\"error\":\"" + e.getMessage().replace("\"", "'") + "\"}");
+            return new FetchResult(502, "{\"error\":\"" + e.getMessage().replace("\"", "'") + "\"}");
+        }
+    }
+
+    /**
+     * 通用 GET 抓取任意 URL（用于模型广场等外部数据源），自动解压 gzip 响应。
+     * auth 非空时以 Authorization 头传递；返回上游真实状态码 + 响应体。
+     */
+    public FetchResult fetch(String url, String auth, Duration timeout) {
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .timeout(timeout);
+        if (auth != null && !auth.isEmpty()) {
+            builder.header("Authorization", auth);
+        }
+        HttpRequest request = builder.build();
+
+        try {
+            HttpResponse<InputStream> response =
+                    httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            int status = response.statusCode();
+            String encoding = response.headers().firstValue("Content-Encoding").orElse("");
+            byte[] bytes;
+            try (InputStream in = response.body()) {
+                if ("gzip".equalsIgnoreCase(encoding)) {
+                    try (GZIPInputStream gz = new GZIPInputStream(in)) {
+                        bytes = gz.readAllBytes();
+                    }
+                } else {
+                    bytes = in.readAllBytes();
+                }
+            }
+            log.debug("Upstream [GET {}] → {}", url, status);
+            return new FetchResult(status, new String(bytes, StandardCharsets.UTF_8));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return new FetchResult(500, "{\"error\":\"Request interrupted\"}");
+        } catch (IOException e) {
+            log.error("Fetch error [{}]: {}", url, e.getMessage());
+            return new FetchResult(502, "{\"error\":\"" + e.getMessage().replace("\"", "'") + "\"}");
+        }
+    }
+
+    /** GET 抓取结果：上游 HTTP 状态码 + 响应体。 */
+    public record FetchResult(int status, String body) {}
 
     /** 把上游状态码写入 X-Upstream-Status 响应头（若 resp 非空且响应未提交）。 */
     private void setStatusHeader(HttpServletResponse resp, int status) {

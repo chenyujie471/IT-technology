@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Multimodal API 文档 & 测试</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f1117;--card:#1a1d27;--border:#2a2d3a;
+  --text:#e4e6f0;--text2:#9ba1b0;--accent:#6c8aff;
+  --green:#34d399;--red:#f87171;--orange:#fbbf24;
+  --input-bg:#12141c;--code-bg:#0d0f16;
+  --radius:10px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#1a1d27 0%,#252838 100%);border-bottom:1px solid var(--border);padding:20px 0}
+.header-inner{max-width:1400px;margin:0 auto;padding:0 30px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:22px;font-weight:700;color:var(--text)}
+.header h1 span{color:var(--accent)}
+.header-links a{color:var(--text2);text-decoration:none;font-size:14px;margin-left:20px;transition:color .2s}
+.header-links a:hover{color:var(--accent)}
+.container{max-width:1400px;margin:0 auto;padding:30px}
+
+.config-bar{display:flex;gap:12px;align-items:center;margin-bottom:30px;padding:16px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius)}
+.config-bar label{color:var(--text2);font-size:13px;white-space:nowrap}
+.config-bar input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:14px;outline:none;transition:border-color .2s}
+.config-bar input:focus{border-color:var(--accent)}
+
+.tabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:2px solid var(--border);padding-bottom:0}
+.tab{padding:10px 22px;font-size:14px;font-weight:600;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;border-radius:var(--radius) var(--radius) 0 0}
+.tab:hover{color:var(--text);background:rgba(108,138,255,.05)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(108,138,255,.08)}
+
+.panel{display:none}
+.panel.active{display:block}
+
+.section{margin-bottom:28px}
+.section-title{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.method-badge{padding:3px 10px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:.5px}
+.method-post{background:rgba(52,211,153,.15);color:var(--green)}
+.method-get{background:rgba(108,138,255,.15);color:var(--accent)}
+.endpoint{color:var(--text2);font-size:14px;font-family:monospace}
+
+.param-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.param-grid.three-col{grid-template-columns:1fr 1fr 1fr}
+.param-group{display:flex;flex-direction:column;gap:5px}
+.param-group label{font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.param-group input,.param-group select,.param-group textarea{
+  background:var(--input-bg);border:1px solid var(--border);border-radius:6px;
+  padding:9px 12px;color:var(--text);font-size:14px;outline:none;transition:border-color .2s;
+  font-family:inherit
+}
+.param-group textarea{min-height:80px;resize:vertical;font-family:monospace;font-size:13px}
+.param-group input:focus,.param-group select:focus,.param-group textarea:focus{border-color:var(--accent)}
+.param-group select{cursor:pointer}
+.param-group select option{background:var(--card)}
+.param-group .hint{font-size:11px;color:var(--text2);margin-top:2px}
+
+.curl-box{position:relative;margin-bottom:18px}
+.curl-box pre{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;font-family:'SF Mono',Consolas,'Courier New',monospace;font-size:13px;color:var(--green);overflow-x:auto;white-space:pre-wrap;word-break:break-all;line-height:1.7;max-height:300px;overflow-y:auto}
+.curl-box .copy-btn{position:absolute;top:8px;right:8px;background:rgba(108,138,255,.15);border:none;color:var(--accent);padding:5px 12px;border-radius:4px;cursor:pointer;font-size:12px;transition:background .2s}
+.curl-box .copy-btn:hover{background:rgba(108,138,255,.3)}
+
+.btn-row{display:flex;gap:10px;margin-bottom:18px}
+.btn{padding:10px 28px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#5a7aff}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-secondary{background:rgba(108,138,255,.1);color:var(--accent);border:1px solid var(--border)}
+.btn-secondary:hover{background:rgba(108,138,255,.2)}
+
+.response-box{position:relative;margin-bottom:20px}
+.response-box .resp-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.response-box .resp-header span{font-size:13px;font-weight:600;color:var(--text2)}
+.status-badge{padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600}
+.status-ok{background:rgba(52,211,153,.15);color:var(--green)}
+.status-err{background:rgba(248,113,113,.15);color:var(--red)}
+.status-loading{background:rgba(251,191,36,.15);color:var(--orange)}
+.response-box pre{
+  background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;font-family:'SF Mono',Consolas,'Courier New',monospace;font-size:13px;
+  color:var(--text);overflow:auto;white-space:pre-wrap;word-break:break-all;
+  min-height:200px;max-height:700px;line-height:1.6
+}
+
+.param-table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px}
+.param-table th{text-align:left;padding:10px 14px;background:var(--code-bg);color:var(--text2);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+.param-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+.param-table tr:last-child td{border-bottom:none}
+.param-table .pname{color:var(--accent);font-family:monospace;font-weight:600}
+.param-table .ptype{color:var(--orange);font-size:12px}
+.param-table .prequired{color:var(--red);font-size:11px;font-weight:700}
+.param-table .poptional{color:var(--text2);font-size:11px}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:20px}
+.card-title{font-size:15px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+
+.toggle-section{cursor:pointer;user-select:none}
+.toggle-section .arrow{display:inline-block;transition:transform .2s;margin-right:6px}
+.toggle-section.open .arrow{transform:rotate(90deg)}
+.toggle-content{display:none;margin-top:14px}
+.toggle-content.open{display:block}
+
+.sse-stream{font-family:monospace;font-size:13px;white-space:pre-wrap}
+
+@media(max-width:768px){
+  .param-grid,.param-grid.three-col{grid-template-columns:1fr}
+  .container{padding:16px}
+  .tabs{overflow-x:auto;flex-wrap:nowrap}
+  .tab{white-space:nowrap;font-size:13px;padding:8px 14px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <h1>AI Multimodal <span>API</span> 文档 & 测试</h1>
+    <div class="header-links">
+      <a href="/">返回主页</a>
+      <a href="/api/health" target="_blank">健康检查</a>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 全局配置 -->
+  <div class="config-bar">
+    <label>Bearer Token：</label>
+    <input id="token" type="password" value="" placeholder="输入你的 API Token">
+    <button class="btn btn-secondary" onclick="toggleTokenVisibility()" style="padding:8px 14px;font-size:12px">显示</button>
+    <button class="btn btn-secondary" onclick="saveConfig()" style="padding:8px 14px;font-size:12px">保存</button>
+    <button class="btn btn-primary" onclick="loadModels()" style="padding:8px 16px;font-size:12px" id="load-models-btn">加载模型</button>
+    <span id="models-load-status" style="font-size:12px;color:var(--text2);margin-left:4px"></span>
+  </div>
+
+  <!-- 选项卡 -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('chat')">文字对话</div>
+    <div class="tab" onclick="switchTab('image')">图像生成</div>
+    <div class="tab" onclick="switchTab('video')">视频生成</div>
+    <div class="tab" onclick="switchTab('asset')">素材管理</div>
+    <div class="tab" onclick="switchTab('system')">系统接口</div>
+  </div>
+
+  <!-- ==================== 文字对话 ==================== -->
+  <div id="panel-chat" class="panel active">
+
+    <div class="card">
+      <div class="card-title">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint" style="margin-left:10px">https://ai-api.kkidc.com/v1/messages</span>
+        <span style="color:var(--text2);font-size:13px;margin-left:16px">文字对话 — Claude (Anthropic Messages API)</span>
+      </div>
+
+      <div class="section">
+        <div class="section-title">请求参数</div>
+        <div class="param-grid">
+          <div class="param-group">
+            <label>model（模型）</label>
+            <select id="chat-model">
+              <option value="">-- 请先加载模型 --</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <label>max_tokens（最大令牌数）</label>
+            <input id="chat-max-tokens" type="number" value="16000" min="1" max="128000">
+            <div class="hint">建议: 4096~128000，空间越大回复越完整</div>
+          </div>
+        </div>
+        <div class="param-grid">
+          <div class="param-group">
+            <label>stream（流式输出）</label>
+            <select id="chat-stream">
+              <option value="true">true（推荐，SSE 实时推送）</option>
+              <option value="false">false（等待完整响应）</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <label>temperature（温度）</label>
+            <input id="chat-temperature" type="number" value="1" min="0" max="2" step="0.1">
+            <div class="hint">0~2，值越高回复越随机</div>
+          </div>
+        </div>
+        <div class="param-group" style="margin-top:14px">
+          <label>messages（消息列表，JSON 数组）</label>
+          <textarea id="chat-messages" rows="6">[
+  {
+    "role": "user",
+    "content": "你好，请介绍一下你自己"
+  }
+]</textarea>
+          <div class="hint">多轮对话请按 user/assistant 交替排列消息</div>
+        </div>
+        <div class="param-group" style="margin-top:14px">
+          <label>system（系统提示词，可选）</label>
+          <textarea id="chat-system" rows="2" placeholder="可选：设置 AI 的角色和行为，例如'你是一个专业翻译'"></textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">curl 命令</div>
+        <div class="curl-box">
+          <pre id="chat-curl"></pre>
+          <button class="copy-btn" onclick="copyText('chat-curl')">复制</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="chat-send-btn" onclick="sendChatRequest()">发送请求</button>
+        <button class="btn btn-secondary" onclick="clearResponse('chat')">清空响应</button>
+      </div>
+
+      <div class="response-box">
+        <div class="resp-header">
+          <span>响应结果</span>
+          <span id="chat-status"></span>
+        </div>
+        <pre id="chat-response" style="min-height:300px">等待发送请求...</pre>
+      </div>
+
+      <!-- 请求参数表 -->
+      <div class="toggle-section" onclick="toggleSection(this)">
+        <span class="arrow">▶</span><strong>请求参数说明</strong>
+      </div>
+      <div class="toggle-content">
+        <table class="param-table">
+          <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="pname">model</td><td class="ptype">string</td><td class="prequired">必需</td><td>模型 ID：claude-haiku-4-5-20251001 / claude-sonnet-4-6 / claude-opus-4-6 / claude-opus-4-7</td></tr>
+            <tr><td class="pname">messages</td><td class="ptype">array</td><td class="prequired">必需</td><td>消息数组，每条含 role (user/assistant) 和 content</td></tr>
+            <tr><td class="pname">max_tokens</td><td class="ptype">integer</td><td class="prequired">必需</td><td>最大生成令牌数，建议 4096~128000</td></tr>
+            <tr><td class="pname">stream</td><td class="ptype">boolean</td><td class="poptional">可选</td><td>是否流式输出，默认 false。推荐 true</td></tr>
+            <tr><td class="pname">system</td><td class="ptype">string</td><td class="poptional">可选</td><td>系统提示词，设定 AI 角色</td></tr>
+            <tr><td class="pname">temperature</td><td class="ptype">number</td><td class="poptional">可选</td><td>采样温度 0~2，默认 1</td></tr>
+            <tr><td class="pname">top_p</td><td class="ptype">number</td><td class="poptional">可选</td><td>核采样概率，0~1</td></tr>
+            <tr><td class="pname">top_k</td><td class="ptype">integer</td><td class="poptional">可选</td><td>Top-K 采样</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 响应参数表 -->
+      <div class="toggle-section" onclick="toggleSection(this)" style="margin-top:16px">
+        <span class="arrow">▶</span><strong>响应参数说明（非流式 stream=false）</strong>
+      </div>
+      <div class="toggle-content">
+        <table class="param-table">
+          <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="pname">id</td><td class="ptype">string</td><td>消息唯一 ID，如 msg_01XFDUDYJgAACzvnptvVoYEL</td></tr>
+            <tr><td class="pname">type</td><td class="ptype">string</td><td>固定 "message"</td></tr>
+            <tr><td class="pname">role</td><td class="ptype">string</td><td>固定 "assistant"</td></tr>
+            <tr><td class="pname">content</td><td class="ptype">array</td><td>内容块数组，每项含 type("text") 和 text(回复文本)</td></tr>
+            <tr><td class="pname">model</td><td class="ptype">string</td><td>实际使用的模型 ID</td></tr>
+            <tr><td class="pname">stop_reason</td><td class="ptype">string</td><td>停止原因：end_turn / max_tokens / stop_sequence</td></tr>
+            <tr><td class="pname">stop_sequence</td><td class="ptype">string|null</td><td>触发停止的序列</td></tr>
+            <tr><td class="pname">usage</td><td class="ptype">object</td><td>Token 用量</td></tr>
+            <tr><td class="pname">usage.input_tokens</td><td class="ptype">integer</td><td>输入消耗的 token 数</td></tr>
+            <tr><td class="pname">usage.output_tokens</td><td class="ptype">integer</td><td>输出消耗的 token 数</td></tr>
+            <tr><td class="pname">usage.cache_creation_input_tokens</td><td class="ptype">integer</td><td>缓存创建消耗 token</td></tr>
+            <tr><td class="pname">usage.cache_read_input_tokens</td><td class="ptype">integer</td><td>缓存读取消耗 token</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="toggle-section" onclick="toggleSection(this)" style="margin-top:16px">
+        <span class="arrow">▶</span><strong>响应参数说明（流式 stream=true，SSE 事件）</strong>
+      </div>
+      <div class="toggle-content">
+        <table class="param-table">
+          <thead><tr><th>事件 type</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="pname">message_start</td><td>消息开始，包含 message 对象（id, model, usage 等）</td></tr>
+            <tr><td class="pname">content_block_start</td><td>内容块开始，含 index 和 content_block（type, text）</td></tr>
+            <tr><td class="pname">ping</td><td>心跳事件</td></tr>
+            <tr><td class="pname">content_block_delta</td><td>增量内容，delta.text 为本次增量文本片段</td></tr>
+            <tr><td class="pname">content_block_stop</td><td>内容块结束</td></tr>
+            <tr><td class="pname">message_delta</td><td>消息级增量，含 stop_reason 和 usage</td></tr>
+            <tr><td class="pname">message_stop</td><td>消息完成</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- OpenAI 格式 -->
+    <div class="card" style="margin-top:20px">
+      <div class="card-title">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint" style="margin-left:10px">https://ai-api.kkidc.com/v1/chat/completions</span>
+        <span style="color:var(--text2);font-size:13px;margin-left:16px">文字对话 — OpenAI 格式 (Chat Completions API)</span>
+      </div>
+
+      <div class="section">
+        <div class="section-title">请求参数</div>
+        <div class="param-grid">
+          <div class="param-group">
+            <label>model（模型）</label>
+            <select id="chatoa-model">
+              <option value="">-- 请先加载模型 --</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <label>max_tokens（最大令牌数）</label>
+            <input id="chatoa-max-tokens" type="number" value="16000" min="1" max="128000">
+            <div class="hint">建议: 4096~128000，空间越大回复越完整</div>
+          </div>
+        </div>
+        <div class="param-grid">
+          <div class="param-group">
+            <label>stream（流式输出）</label>
+            <select id="chatoa-stream">
+              <option value="true">true（推荐，SSE 实时推送）</option>
+              <option value="false">false（等待完整响应）</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <label>temperature（温度）</label>
+            <input id="chatoa-temperature" type="number" value="1" min="0" max="2" step="0.1">
+            <div class="hint">0~2，值越高回复越随机</div>
+          </div>
+        </div>
+        <div class="param-group" style="margin-top:14px">
+          <label>messages（消息列表，JSON 数组）</label>
+          <textarea id="chatoa-messages" rows="7">[
+  {
+    "role": "system",
+    "content": "你是一个专业助手"
+  },
+  {
+    "role": "user",
+    "content": "你好，请介绍一下你自己"
+  }
+]</textarea>
+          <div class="hint">OpenAI 格式支持在数组中直接放 system 角色消息（无需单独的 system 字段）</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">curl 命令</div>
+        <div class="curl-box">
+          <pre id="chatoa-curl"></pre>
+          <button class="copy-btn" onclick="copyText('chatoa-curl')">复制</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="chatoa-send-btn" onclick="sendChatCompletionsRequest()">发送请求</button>
+        <button class="btn btn-secondary" onclick="clearResponse('chatoa')">清空响应</button>
+      </div>
+
+      <div class="response-box">
+        <div class="resp-header">
+          <span>响应结果</span>
+          <span id="chatoa-status"></span>
+        </div>
+        <pre id="chatoa-response" style="min-height:300px">等待发送请求...</pre>
+      </div>
+
+      <!-- 请求参数表 -->
+      <div class="toggle-section" onclick="toggleSection(this)">
+        <span class="arrow">▶</span><strong>请求参数说明</strong>
+      </div>
+      <div class="toggle-content">
+        <table class="param-table">
+          <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="pname">model</td><td class="ptype">string</td><td class="prequired">必需</td><td>模型 ID：claude-haiku-4-5-20251001 / claude-sonnet-4-6 / claude-opus-4-6 / claude-opus-4-7</td></tr>
+            <tr><td class="pname">messages</td><td class="ptype">array</td><td class="prequired">必需</td><td>消息数组，每条含 role (system/user/assistant) 和 content</td></tr>
+            <tr><td class="pname">max_tokens</td><td class="ptype">integer</td><td class="poptional">可选</td><td>最大生成令牌数，建议 4096~128000</td></tr>
+            <tr><td class="pname">stream</td><td class="ptype">boolean</td><td class="poptional">可选</td><td>是否流式输出，默认 false。推荐 true</td></tr>
+            <tr><td class="pname">temperature</td><td class="ptype">number</td><td class="poptional">可选</td><td>采样温度 0~2，默认 1</td></tr>
+            <tr><td class="pname">top_p</td><td class="ptype">number</td><td class="poptional">可选</td><td>核采样概率，0~1</td></tr>
+            <tr><td class="pname">frequency_penalty</td><td class="ptype">number</td><td class="poptional">可选</td><td>频率惩罚，-2~2</td></tr>
+            <tr><td class="pname">presence_penalty</td><td class="ptype">number</td><td class="poptional">可选</td><td>存在惩罚，-2~2</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 响应参数表 -->
+      <div class="toggle-section" onclick="toggleSection(this)" style="margin-top:16px">
+        <span class="arrow">▶</span><strong>响应参数说明（非流式 stream=false）</strong>
+      </div>
+      <div class="toggle-content">
+        <table class="param-table">
+          <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="pname">id</td><td class="ptype">string</td><td>响应唯一 ID，如 chatcmpl-abc123</td></tr>
+            <tr><td class="pname">object</td><td class="ptype">string</td><td>固定 "chat.completion"</td></tr>
+            <tr><td class="pname">created</td><td class="ptype">integer</td><td>Unix 时间戳</td></tr>
+            <tr><td class="pname">model</td><td class="ptype">string</td><td>实际使用的模型 ID</td></tr>
+            <tr><td class="pname">choices</td><td class="ptype">array</td><td>回复选项数组</td></tr>
+            <tr><td class="pname">choices[].message.role</td><td class="ptype">string</td><td>固定 "assistant"</td></tr>
+            <tr><td class="pname">choices[].message.content</td><td class="ptype">string</td><td>回复文本内容</td></tr>
+            <tr><td class="pname">choices[].finish_reason</td><td class="ptype">string</td><td>结束原因：stop / length / content_filter</td></tr>
+            <tr><td class="pname">usage</td><td class="ptype">object</td><td>Token 用量</td></tr>
+            <tr><td class="pname">usage.prompt_tokens</td><td class="ptype">integer</td><td>输入消耗的 token 数</td></tr>
+            <tr><td class="pname">usage.completion_tokens</td><td class="ptype">integer</td><td>输出消耗的 token 数</td></tr>
+            <tr><td class="pname">usage.total_tokens</td><td class="ptype">integer</td><td>总 token 数</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="toggle-section" onclick="toggleSection(this)" style="margin-top:16px">
+        <span class="arrow">▶</span><strong>响应参数说明（流式 stream=true，SSE 事件）</strong>
+      </div>
+      <div class="toggle-content">
+        <table class="param-table">
+          <thead><tr><th>字段</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="pname">data: {...}</td><td>每行一个 JSON chunk，object 为 "chat.completion.chunk"</td></tr>
+            <tr><td class="pname">choices[].delta.content</td><td>本次增量文本片段</td></tr>
+            <tr><td class="pname">choices[].finish_reason</td><td>流结束时给出，中途为 null</td></tr>
+            <tr><td class="pname">data: [DONE]</td><td>流结束标记</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 图像生成 ==================== -->
+  <div id="panel-image" class="panel">
+
+    <!-- OpenAI 格式 -->
+    <div class="card">
+      <div class="card-title">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint" style="margin-left:10px">https://ai-api.kkidc.com/v1/images/generations</span>
+        <span style="color:var(--text2);font-size:13px;margin-left:16px">图像生成 — OpenAI 格式 (gpt-image-2)</span>
+      </div>
+
+      <div class="section">
+        <div class="section-title">请求参数</div>
+        <div class="param-grid three-col">
+          <div class="param-group">
+            <label>model（模型）</label>
+            <select id="img-model">
+              <option value="">-- 请先加载模型 --</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <label>size（尺寸）</label>
+            <select id="img-size">
+              <option value="1024x1024">1024x1024</option>
+              <option value="auto">auto</option>
+              <option value="1536x1024">1536x1024（横版）</option>
+              <option value="1024x1536">1024x1536（竖版）</option>
+              <option value="2048x2048">2048x2048（2K）</option>
+              <option value="2048x1152">2048x1152（2K 横版）</option>
+              <option value="3840x2160">3840x2160（4K 横版）</option>
+              <option value="2160x3840">2160x3840（4K 竖版）</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <label>quality（质量）</label>
+            <select id="img-quality">
+              <option value="high">high</option>
+              <option value="auto">auto</option>
+              <option value="medium">medium</option>
+              <option value="low">low</option>
+            </select>
+          </div>
+        </div>
+        <div class="param-grid three-col">
+          <div class="param-group">
+            <label>n（数量）</label>
+            <input id="img-n" type="number" value="1" min="1" max="1">
+            <div class="hint">仅支持 1 张</div>
+          </div>
+          <div class="param-group">
+            <label>response_format</label>
+            <select id="img-format">
+              <option value="b64_json">b64_json（Base64）</option>
+              <option value="url">url</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <label>stream（流式）</label>
+            <select id="img-stream">
+              <option value="true">true（推荐）</option>
+              <option value="false">false</option>
+            </select>
+          </div>
+        </div>
+        <div class="param-group" style="margin-top:14px">
+          <label>prompt（提示词）</label>
+          <textarea id="img-prompt" rows="4">masterpiece, best quality, ultra detailed, anime style, young cute girl, soft lighting, smooth skin, big expressive eyes, long hair, delicate face, small nose, gentle smile, dynamic pose, looking at viewer</textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">curl 命令</div>
+        <div class="curl-box">
+          <pre id="img-curl"></pre>
+          <button class="copy-btn" onclick="copyText('img-curl')">复制</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="img-send-btn" onclick="sendImageRequest()">发送请求</button>
+        <button class="btn btn-secondary" onclick="clearResponse('img')">清空响应</button>
+      </div>
+
+      <div class="response-box">
+        <div class="resp-header">
+          <span>响应结果</span>
+          <span id="img-status"></span>
+        </div>
+        <pre id="img-response" style="min-height:300px">等待发送请求...
+
+提示：图像生成可能需要 1~10 分钟，请耐心等待</pre>
+      </div>
+      <div id="img-preview" style="display:none;margin-bottom:20px">
+        <strong style="font-size:13px;color:var(--text2)">图像预览：</strong>
+        <div id="img-preview-container" style="margin-top:10px"></div>
+      </div>
+
+      <div class="toggle-section" onclick="toggleSection(this)">
+        <span class="arrow">▶</span><strong>请求参数说明</strong>
+      </div>
+      <div class="toggle-content">
+        <table class="param-table">
+          <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="pname">model</td><td class="ptype">string</td><td class="prequired">必需</td><td>gpt-image-2 / gemini-2.0-flash-preview-image-generation</td></tr>
+            <tr><td class="pname">prompt</td><td class="ptype">string</td><td class="prequired">必需</td><td>图像描述文本，尽量清晰具体</td></tr>
+            <tr><td class="pname">size</td><td class="ptype">string</td><td class="prequired">必需</td><td>auto / 1024x1024 / 1536x1024 / 1024x1536 / 2048x2048 / 3840x2160 等</td></tr>
+            <tr><td class="pname">n</td><td class="ptype">integer</td><td class="prequired">必需</td><td>生成数量，仅支持 1</td></tr>
+            <tr><td class="pname">quality</td><td class="ptype">string</td><td class="prequired">必需</td><td>auto / low / medium / high</td></tr>
+            <tr><td class="pname">response_format</td><td class="ptype">string</td><td class="prequired">必需</td><td>b64_json（返回 Base64）/ url</td></tr>
+            <tr><td class="pname">stream</td><td class="ptype">boolean</td><td class="poptional">可选</td><td>是否流式，默认 false，推荐 true</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="toggle-section" onclick="toggleSection(this)" style="margin-top:16px">
+        <span class="arrow">▶</span><strong>响应参数说明</strong>
+      </div>
+      <div class="toggle-content">
+        <table class="param-table">
+          <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="pname">created</td><td class="ptype">integer</td><td>Unix 时间戳</td></tr>
+            <tr><td class="pname">data</td><td class="ptype">array</td><td>图像数据列表</td></tr>
+            <tr><td class="pname">data[].url</td><td class="ptype">string</td><td>图像 URL（response_format=url 时）</td></tr>
+            <tr><td class="pname">data[].b64_json</td><td class="ptype">string</td><td>Base64 编码图像数据（response_format=b64_json 时）</td></tr>
+            <tr><td class="pname">data[].revised_prompt</td><td class="ptype">string</td><td>模型优化后的提示词</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Gemini 格式 -->
+    <div class="card" style="margin-top:20px">
+      <div class="card-title">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint" style="margin-left:10px">https://ai-api.kkidc.com/v1beta/models/{model}:generateContent</span>
+        <span style="color:var(--text2);font-size:13px;margin-left:16px">图像生成 — Gemini 格式</span>
+      </div>
+
+      <div class="section">
+        <div class="section-title">请求参数</div>
+        <div class="param-grid three-col">
+          <div class="param-group">
+            <label>model（Gemini 模型）</label>
+            <select id="gemini-model">
+              <option value="">-- 请先加载模型 --</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <label>aspectRatio（宽高比）</label>
+            <select id="gemini-ratio">
+              <option value="1:1">1:1</option>
+              <option value="16:9">16:9</option>
+              <option value="9:16">9:16</option>
+              <option value="4:3">4:3</option>
+              <option value="3:4">3:4</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <label>imageSize（分辨率）</label>
+            <select id="gemini-size">
+              <option value="1K">1K</option>
+              <option value="2K">2K</option>
+            </select>
+          </div>
+        </div>
+        <div class="param-group" style="margin-top:14px">
+          <label>prompt（提示词）</label>
+          <textarea id="gemini-prompt" rows="3">一只可爱的橘猫坐在窗台上看夕阳</textarea>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">curl 命令</div>
+        <div class="curl-box">
+          <pre id="gemini-curl"></pre>
+          <button class="copy-btn" onclick="copyText('gemini-curl')">复制</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="gemini-send-btn" onclick="sendGeminiRequest()">发送请求</button>
+        <button class="btn btn-secondary" onclick="clearResponse('gemini')">清空响应</button>
+      </div>
+
+      <div class="response-box">
+        <div class="resp-header">
+          <span>响应结果</span>
+          <span id="gemini-status"></span>
+        </div>
+        <pre id="gemini-response" style="min-height:300px">等待发送请求...</pre>
+      </div>
+
+      <div class="toggle-section" onclick="toggleSection(this)">
+        <span class="arrow">▶</span><strong>Gemini 请求体格式说明</strong>
+      </div>
+      <div class="toggle-content">
+        <table class="param-table">
+          <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="pname">model</td><td class="ptype">string</td><td class="prequired">必需</td><td>含 "gemini" 和 "image" 的模型名</td></tr>
+            <tr><td class="pname">generationConfig.responseModalities</td><td class="ptype">array</td><td class="prequired">必需</td><td>["IMAGE"] 或 ["TEXT", "IMAGE"]</td></tr>
+            <tr><td class="pname">generationConfig.imageConfig.aspectRatio</td><td class="ptype">string</td><td class="poptional">可选</td><td>1:1 / 16:9 / 9:16 / 4:3 / 3:4</td></tr>
+            <tr><td class="pname">generationConfig.imageConfig.imageSize</td><td class="ptype">string</td><td class="poptional">可选</td><td>1K / 2K</td></tr>
+            <tr><td class="pname">contents</td><td class="ptype">array</td><td class="prequired">必需</td><td>消息数组，格式 [{role: "user", parts: [{text: "..."}]}]</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 视频生成 ==================== -->
+  <div id="panel-video" class="panel">
+
+    <!-- 提交任务 -->
+    <div class="card">
+      <div class="card-title">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint" style="margin-left:10px">https://ai-api.kkidc.com/api/v3/contents/generations/tasks</span>
+        <span style="color:var(--text2);font-size:13px;margin-left:16px">提交视频生成任务</span>
+      </div>
+
+      <div class="section">
+        <div class="section-title">请求参数</div>
+        <div class="param-grid three-col">
+          <div class="param-group">
+            <label>model（模型）</label>
+            <select id="video-model">
+              <option value="">-- 请先加载模型 --</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <label>ratio（画面比例）</label>
+            <select id="video-ratio">
+              <option value="16:9">16:9（横版）</option>
+              <option value="9:16">9:16（竖版）</option>
+              <option value="1:1">1:1（正方形）</option>
+              <option value="4:3">4:3</option>
+              <option value="3:4">3:4</option>
+              <option value="21:9">21:9（超宽）</option>
+              <option value="adaptive">adaptive（自适应）</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <label>resolution（分辨率）</label>
+            <select id="video-resolution">
+              <option value="720p">720p</option>
+              <option value="480p">480p</option>
+              <option value="1080p">1080p</option>
+            </select>
+          </div>
+        </div>
+        <div class="param-grid three-col">
+          <div class="param-group">
+            <label>duration（时长/秒）</label>
+            <input id="video-duration" type="number" value="5" min="4" max="15">
+            <div class="hint">4~15 秒</div>
+          </div>
+          <div class="param-group">
+            <label>generate_audio（生成音频）</label>
+            <select id="video-audio">
+              <option value="true">true（含音频）</option>
+              <option value="false">false（静音）</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <label>watermark（水印）</label>
+            <select id="video-watermark">
+              <option value="false">false（无水印）</option>
+              <option value="true">true（含水印）</option>
+            </select>
+          </div>
+        </div>
+        <div class="param-group" style="margin-top:14px">
+          <label>prompt（提示词）</label>
+          <textarea id="video-prompt" rows="4">写实风格，晴朗的蓝天之下，一大片白色的雏菊花田，镜头逐渐拉近，最终定格在一朵雏菊花的特写上，花瓣上有几颗晶莹的露珠</textarea>
+        </div>
+
+        <div class="section" style="margin-top:20px;padding:16px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <strong style="font-size:14px">参考素材（可选）</strong>
+            <button class="btn btn-secondary" style="padding:4px 12px;font-size:12px" onclick="addReferenceVideo()">+ 添加参考视频</button>
+          </div>
+
+          <div id="reference-videos-container"></div>
+
+          <div class="param-group" style="margin-top:12px">
+            <label>reference_audio（参考音频 URL）</label>
+            <input id="video-ref-audio" type="text" placeholder="https://example.com/audio.mp3（可选）">
+            <div class="hint">可选：提供音频 URL 作为生成参考</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">curl 命令（提交任务）</div>
+        <div class="curl-box">
+          <pre id="video-curl"></pre>
+          <button class="copy-btn" onclick="copyText('video-curl')">复制</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="video-send-btn" onclick="sendVideoSubmit()">提交任务</button>
+        <button class="btn btn-secondary" onclick="clearResponse('video')">清空响应</button>
+      </div>
+
+      <div class="response-box">
+        <div class="resp-header">
+          <span>提交结果</span>
+          <span id="video-status"></span>
+        </div>
+        <pre id="video-response" style="min-height:200px">等待提交任务...</pre>
+      </div>
+
+      <div class="toggle-section" onclick="toggleSection(this)">
+        <span class="arrow">▶</span><strong>提交请求参数说明</strong>
+      </div>
+      <div class="toggle-content">
+        <table class="param-table">
+          <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="pname">model</td><td class="ptype">string</td><td class="prequired">必需</td><td>doubao-seedance-2-0-260128 / doubao-seedance-1-5-pro-251215</td></tr>
+            <tr><td class="pname">prompt</td><td class="ptype">string</td><td class="prequired">必需</td><td>视频描述文本</td></tr>
+            <tr><td class="pname">seconds</td><td class="ptype">string</td><td class="prequired">必需</td><td>视频时长 "4"~"15" 秒（字符串格式）</td></tr>
+            <tr><td class="pname">metadata</td><td class="ptype">object</td><td class="poptional">可选</td><td>元数据配置对象</td></tr>
+            <tr><td class="pname">metadata.generate_audio</td><td class="ptype">boolean</td><td class="poptional">可选</td><td>是否生成同步音频</td></tr>
+            <tr><td class="pname">metadata.ratio</td><td class="ptype">string</td><td class="poptional">可选</td><td>16:9 / 9:16 / 1:1 / 4:3 / 3:4 / 21:9 / adaptive</td></tr>
+            <tr><td class="pname">metadata.resolution</td><td class="ptype">string</td><td class="poptional">可选</td><td>480p / 720p / 1080p</td></tr>
+            <tr><td class="pname">metadata.watermark</td><td class="ptype">boolean</td><td class="poptional">可选</td><td>是否添加水印</td></tr>
+            <tr><td class="pname">metadata.content</td><td class="ptype">array[object]</td><td class="poptional">可选</td><td>参考素材数组（视频/音频）</td></tr>
+            <tr><td class="pname">metadata.content[].role</td><td class="ptype">string</td><td class="poptional">可选</td><td>reference_video / reference_audio</td></tr>
+            <tr><td class="pname">metadata.content[].type</td><td class="ptype">string</td><td class="poptional">可选</td><td>video_url / audio_url</td></tr>
+            <tr><td class="pname">metadata.content[].video_url</td><td class="ptype">object</td><td class="poptional">可选</td><td>视频 URL 对象 {url: "..."}</td></tr>
+            <tr><td class="pname">metadata.content[].audio_url</td><td class="ptype">object</td><td class="poptional">可选</td><td>音频 URL 对象 {url: "..."}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="toggle-section" onclick="toggleSection(this)" style="margin-top:16px">
+        <span class="arrow">▶</span><strong>提交响应参数说明</strong>
+      </div>
+      <div class="toggle-content">
+        <table class="param-table">
+          <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="pname">id</td><td class="ptype">string</td><td>唯一标识符，如 cgt-20260227153643-mx6c7</td></tr>
+            <tr><td class="pname">task_id</td><td class="ptype">string</td><td>任务 ID，用于轮询状态</td></tr>
+            <tr><td class="pname">object</td><td class="ptype">string</td><td>对象类型，固定 "video"</td></tr>
+            <tr><td class="pname">model</td><td class="ptype">string</td><td>使用的模型名称</td></tr>
+            <tr><td class="pname">status</td><td class="ptype">string</td><td>初始任务状态</td></tr>
+            <tr><td class="pname">progress</td><td class="ptype">integer</td><td>进度百分比 0~100</td></tr>
+            <tr><td class="pname">created_at</td><td class="ptype">integer</td><td>创建时间戳（Unix 秒）</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 轮询任务 -->
+    <div class="card" style="margin-top:20px">
+      <div class="card-title">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint" style="margin-left:10px">https://ai-api.kkidc.com/api/v3/contents/generations/tasks/{taskId}</span>
+        <span style="color:var(--text2);font-size:13px;margin-left:16px">轮询视频任务状态</span>
+      </div>
+
+      <div class="section">
+        <div class="section-title">请求参数</div>
+        <div class="param-grid">
+          <div class="param-group">
+            <label>taskId（任务 ID）</label>
+            <input id="poll-task-id" type="text" placeholder="cgt-20260227153643-mx6c7">
+            <div class="hint">从提交响应中获取的 task_id</div>
+          </div>
+          <div class="param-group">
+            <label>自动轮询</label>
+            <select id="poll-auto">
+              <option value="true">开启（每 3 秒自动刷新）</option>
+              <option value="false">关闭（手动轮询）</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">curl 命令（轮询）</div>
+        <div class="curl-box">
+          <pre id="poll-curl"></pre>
+          <button class="copy-btn" onclick="copyText('poll-curl')">复制</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="poll-send-btn" onclick="sendVideoPoll()">轮询状态</button>
+        <button class="btn btn-secondary" id="poll-stop-btn" onclick="stopPolling()" style="display:none">停止轮询</button>
+        <button class="btn btn-secondary" onclick="clearResponse('poll')">清空响应</button>
+      </div>
+
+      <div class="response-box">
+        <div class="resp-header">
+          <span>轮询结果</span>
+          <span id="poll-status"></span>
+        </div>
+        <pre id="poll-response" style="min-height:300px">等待轮询...</pre>
+      </div>
+      <div id="video-preview" style="display:none;margin-bottom:20px">
+        <strong style="font-size:13px;color:var(--text2)">视频预览：</strong>
+        <div id="video-preview-container" style="margin-top:10px">
+          <video id="video-player" controls style="max-width:100%;border-radius:8px;border:1px solid var(--border)"></video>
+        </div>
+      </div>
+
+      <div class="toggle-section" onclick="toggleSection(this)">
+        <span class="arrow">▶</span><strong>轮询响应参数说明</strong>
+      </div>
+      <div class="toggle-content">
+        <table class="param-table">
+          <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="pname">code</td><td class="ptype">string</td><td>响应码，"success" 表示成功</td></tr>
+            <tr><td class="pname">message</td><td class="ptype">string</td><td>响应消息</td></tr>
+            <tr><td class="pname">data.task_id</td><td class="ptype">string</td><td>任务 ID</td></tr>
+            <tr><td class="pname">data.action</td><td class="ptype">string</td><td>操作类型，如 generate</td></tr>
+            <tr><td class="pname">data.status</td><td class="ptype">string</td><td>NOT_START / SUBMITTED / QUEUED / IN_PROGRESS / SUCCESS / FAILURE</td></tr>
+            <tr><td class="pname">data.fail_reason</td><td class="ptype">string</td><td>失败原因（status=FAILURE 时）</td></tr>
+            <tr><td class="pname">data.submit_time</td><td class="ptype">integer</td><td>提交时间戳</td></tr>
+            <tr><td class="pname">data.start_time</td><td class="ptype">integer</td><td>开始处理时间戳</td></tr>
+            <tr><td class="pname">data.finish_time</td><td class="ptype">integer</td><td>完成时间戳</td></tr>
+            <tr><td class="pname">data.progress</td><td class="ptype">string</td><td>进度，如 "50%"</td></tr>
+            <tr><td class="pname">data.data.model</td><td class="ptype">string</td><td>使用的模型</td></tr>
+            <tr><td class="pname">data.data.ratio</td><td class="ptype">string</td><td>画面比例</td></tr>
+            <tr><td class="pname">data.data.duration</td><td class="ptype">integer</td><td>视频时长</td></tr>
+            <tr><td class="pname">data.data.resolution</td><td class="ptype">string</td><td>视频分辨率</td></tr>
+            <tr><td class="pname">data.data.content.video_url</td><td class="ptype">string</td><td>视频下载/播放地址（SUCCESS 时）</td></tr>
+            <tr><td class="pname">data.data.usage.total_tokens</td><td class="ptype">integer</td><td>消耗总 token</td></tr>
+            <tr><td class="pname">data.data.usage.completion_tokens</td><td class="ptype">integer</td><td>生成消耗 token</td></tr>
+            <tr><td class="pname">data.data.seed</td><td class="ptype">integer</td><td>随机种子</td></tr>
+            <tr><td class="pname">data.data.framespersecond</td><td class="ptype">integer</td><td>帧率，如 24</td></tr>
+            <tr><td class="pname">data.data.generate_audio</td><td class="ptype">boolean</td><td>是否含音频</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 素材管理 ==================== -->
+  <div id="panel-asset" class="panel">
+
+    <!-- 上传素材 -->
+    <div class="card">
+      <div class="card-title">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint" style="margin-left:10px">https://ai-api.kkidc.com/v1/assets/upload</span>
+        <span style="color:var(--text2);font-size:13px;margin-left:16px">上传素材到素材库</span>
+      </div>
+
+      <div class="section">
+        <div class="section-title">请求参数</div>
+        <div class="param-grid three-col">
+          <div class="param-group">
+            <label>type（素材类型）</label>
+            <select id="asset-type">
+              <option value="image">image（图片）</option>
+              <option value="video">video（视频）</option>
+              <option value="audio">audio（音频）</option>
+            </select>
+          </div>
+          <div class="param-group">
+            <label>url（素材 URL）</label>
+            <input id="asset-url" type="text" placeholder="https://cdn.example.com/photo.jpg">
+          </div>
+          <div class="param-group">
+            <label>purpose（用途描述）</label>
+            <input id="asset-purpose" type="text" value="素材" placeholder="描述用途">
+          </div>
+        </div>
+        <div class="param-group" style="margin-top:14px">
+          <label>group_id（分组 ID，可选）</label>
+          <input id="asset-group-id" type="text" placeholder="不填则自动分组">
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">curl 命令</div>
+        <div class="curl-box">
+          <pre id="asset-curl"></pre>
+          <button class="copy-btn" onclick="copyText('asset-curl')">复制</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="sendAssetUpload()">上传素材</button>
+        <button class="btn btn-secondary" onclick="clearResponse('asset')">清空响应</button>
+      </div>
+
+      <div class="response-box">
+        <div class="resp-header">
+          <span>响应结果</span>
+          <span id="asset-status"></span>
+        </div>
+        <pre id="asset-response" style="min-height:150px">等待上传...</pre>
+      </div>
+
+      <div class="toggle-section" onclick="toggleSection(this)">
+        <span class="arrow">▶</span><strong>上传响应参数说明</strong>
+      </div>
+      <div class="toggle-content">
+        <table class="param-table">
+          <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td class="pname">success</td><td class="ptype">boolean</td><td>是否成功</td></tr>
+            <tr><td class="pname">message</td><td class="ptype">string</td><td>响应消息</td></tr>
+            <tr><td class="pname">data.asset_id</td><td class="ptype">string</td><td>素材 ID，如 mat_ADyx4iQvkHUy7jDzPKqp</td></tr>
+            <tr><td class="pname">data.group_id</td><td class="ptype">string</td><td>分组 ID</td></tr>
+            <tr><td class="pname">data.status</td><td class="ptype">string</td><td>素材状态：pending / ready / failed</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 查询素材列表 -->
+    <div class="card" style="margin-top:20px">
+      <div class="card-title">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint" style="margin-left:10px">https://ai-api.kkidc.com/v1/assets</span>
+        <span style="color:var(--text2);font-size:13px;margin-left:16px">查询素材列表</span>
+      </div>
+
+      <div class="section">
+        <div class="section-title">请求参数</div>
+        <div class="param-grid three-col">
+          <div class="param-group">
+            <label>page（页码）</label>
+            <input id="asset-list-page" type="number" value="1" min="1">
+          </div>
+          <div class="param-group">
+            <label>page_size（每页数量）</label>
+            <input id="asset-list-size" type="number" value="20" min="1" max="100">
+          </div>
+          <div class="param-group">
+            <label>sort_order（排序）</label>
+            <select id="asset-list-sort">
+              <option value="Desc">Desc（最新优先）</option>
+              <option value="Asc">Asc（最早优先）</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">curl 命令</div>
+        <div class="curl-box">
+          <pre id="asset-list-curl"></pre>
+          <button class="copy-btn" onclick="copyText('asset-list-curl')">复制</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="sendAssetList()">查询列表</button>
+        <button class="btn btn-secondary" onclick="clearResponse('asset-list')">清空响应</button>
+      </div>
+
+      <div class="response-box">
+        <div class="resp-header">
+          <span>响应结果</span>
+          <span id="asset-list-status"></span>
+        </div>
+        <pre id="asset-list-response" style="min-height:200px">等待查询...</pre>
+      </div>
+    </div>
+
+    <!-- 查询单个素材 -->
+    <div class="card" style="margin-top:20px">
+      <div class="card-title">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint" style="margin-left:10px">https://ai-api.kkidc.com/v1/assets/{assetId}</span>
+        <span style="color:var(--text2);font-size:13px;margin-left:16px">查询单个素材详情</span>
+      </div>
+
+      <div class="section">
+        <div class="section-title">请求参数</div>
+        <div class="param-grid">
+          <div class="param-group">
+            <label>assetId（素材 ID）</label>
+            <input id="asset-get-id" type="text" placeholder="mat_ADyx4iQvkHUy7jDzPKqp">
+          </div>
+          <div class="param-group">
+            <label>group_id（分组 ID，可选）</label>
+            <input id="asset-get-group" type="text" placeholder="可选">
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">curl 命令</div>
+        <div class="curl-box">
+          <pre id="asset-get-curl"></pre>
+          <button class="copy-btn" onclick="copyText('asset-get-curl')">复制</button>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="sendAssetGet()">查询素材</button>
+        <button class="btn btn-secondary" onclick="clearResponse('asset-get')">清空响应</button>
+      </div>
+
+      <div class="response-box">
+        <div class="resp-header">
+          <span>响应结果</span>
+          <span id="asset-get-status"></span>
+        </div>
+        <pre id="asset-get-response" style="min-height:150px">等待查询...</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 系统接口 ==================== -->
+  <div id="panel-system" class="panel">
+
+    <div class="card">
+      <div class="card-title">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint" style="margin-left:10px">https://ai-api.kkidc.com/v1/models</span>
+        <span style="color:var(--text2);font-size:13px;margin-left:16px">连通性检查（获取模型列表）</span>
+      </div>
+      <div class="section">
+        <div class="section-title">curl 命令</div>
+        <div class="curl-box">
+          <pre id="health-curl"></pre>
+          <button class="copy-btn" onclick="copyText('health-curl')">复制</button>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="sendHealthCheck()">发送请求</button>
+      </div>
+      <div class="response-box">
+        <div class="resp-header"><span>响应结果</span><span id="health-status"></span></div>
+        <pre id="health-response">等待请求...</pre>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="card-title">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint" style="margin-left:10px">https://ai-api.kkidc.com/v1/messages</span>
+        <span style="color:var(--text2);font-size:13px;margin-left:16px">Token 验证（发送测试消息）</span>
+      </div>
+      <div class="section">
+        <div class="section-title">curl 命令</div>
+        <div class="curl-box">
+          <pre id="verify-curl"></pre>
+          <button class="copy-btn" onclick="copyText('verify-curl')">复制</button>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="sendVerify()">验证 Token</button>
+      </div>
+      <div class="response-box">
+        <div class="resp-header"><span>响应结果</span><span id="verify-status"></span></div>
+        <pre id="verify-response">等待验证...</pre>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="card-title">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint" style="margin-left:10px">https://ai-api.kkidc.com/v1/models</span>
+        <span style="color:var(--text2);font-size:13px;margin-left:16px">获取可用模型列表</span>
+      </div>
+      <div class="section">
+        <div class="section-title">curl 命令</div>
+        <div class="curl-box">
+          <pre id="models-curl"></pre>
+          <button class="copy-btn" onclick="copyText('models-curl')">复制</button>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="sendModels()">获取模型</button>
+      </div>
+      <div class="response-box">
+        <div class="resp-header"><span>响应结果</span><span id="models-status"></span></div>
+        <pre id="models-response" style="min-height:300px">等待请求...</pre>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ==================== 全局工具 ====================
+const API_BASE = 'https://ai-api.kkidc.com';
+function getAuth() { return 'Bearer ' + document.getElementById('token').value }
+function getToken() { return document.getElementById('token').value }
+
+function saveConfig() {
+  localStorage.setItem('api-docs-token', document.getElementById('token').value);
+  const models = localStorage.getItem('api-docs-models');
+  if (models) localStorage.setItem('api-docs-models', models);
+}
+function loadConfig() {
+  const t = localStorage.getItem('api-docs-token');
+  if (t) document.getElementById('token').value = t;
+  const cached = localStorage.getItem('api-docs-models');
+  if (cached) {
+    try {
+      populateModels(JSON.parse(cached));
+      document.getElementById('models-load-status').textContent = '(已从缓存加载)';
+    } catch {}
+  }
+}
+
+// ==================== 动态模型加载 ====================
+async function loadModels() {
+  const token = getToken();
+  if (!token) {
+    document.getElementById('models-load-status').textContent = '请先输入 Token';
+    document.getElementById('models-load-status').style.color = 'var(--red)';
+    return;
+  }
+
+  document.getElementById('load-models-btn').disabled = true;
+  document.getElementById('models-load-status').textContent = '加载中...';
+  document.getElementById('models-load-status').style.color = 'var(--orange)';
+
+  try {
+    const resp = await fetch(API_BASE + '/v1/models', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const text = await resp.text();
+    const json = JSON.parse(text);
+
+    let models = [];
+    if (json.data && Array.isArray(json.data)) {
+      models = json.data.map(m => m.id || m.name || m).filter(Boolean);
+    } else if (Array.isArray(json)) {
+      models = json.map(m => typeof m === 'string' ? m : (m.id || m.name)).filter(Boolean);
+    }
+
+    if (models.length === 0) {
+      document.getElementById('models-load-status').textContent = '未获取到模型，请检查 Token';
+      document.getElementById('models-load-status').style.color = 'var(--red)';
+      document.getElementById('load-models-btn').disabled = false;
+      return;
+    }
+
+    localStorage.setItem('api-docs-models', JSON.stringify(models));
+    populateModels(models);
+
+    document.getElementById('models-load-status').textContent = `已加载 ${models.length} 个模型`;
+    document.getElementById('models-load-status').style.color = 'var(--green)';
+  } catch (e) {
+    document.getElementById('models-load-status').textContent = '加载失败：' + e.message;
+    document.getElementById('models-load-status').style.color = 'var(--red)';
+  }
+  document.getElementById('load-models-btn').disabled = false;
+}
+
+function populateModels(models) {
+  const chatModels = [];
+  const imgModels = [];
+  const geminiImgModels = [];
+  const videoModels = [];
+
+  for (const m of models) {
+    const ml = m.toLowerCase();
+    if (ml.includes('doubao') || ml.includes('seedance') || ml.includes('video') || ml.includes('kling') || ml.includes('minimax') || ml.includes('wan-')) {
+      videoModels.push(m);
+    } else if (ml.includes('gemini') && (ml.includes('image') || ml.includes('flash-preview'))) {
+      geminiImgModels.push(m);
+      imgModels.push(m);
+    } else if (ml.includes('gpt-image') || ml.includes('dall-e') || ml.includes('imagen') || ml.includes('flux') || ml.includes('stable-diffusion') || ml.includes('midjourney')) {
+      imgModels.push(m);
+    } else {
+      chatModels.push(m);
+    }
+  }
+
+  fillSelect('chat-model', chatModels.length ? chatModels : models);
+  fillSelect('chatoa-model', chatModels.length ? chatModels : models);
+  fillSelect('img-model', imgModels.length ? imgModels : models);
+  fillSelect('gemini-model', geminiImgModels.length ? geminiImgModels : models);
+  fillSelect('video-model', videoModels.length ? videoModels : models);
+
+  updateAllCurls();
+}
+
+function fillSelect(id, items) {
+  const sel = document.getElementById(id);
+  sel.innerHTML = '';
+  for (const item of items) {
+    const opt = document.createElement('option');
+    opt.value = item;
+    opt.textContent = item;
+    sel.appendChild(opt);
+  }
+}
+
+function toggleTokenVisibility() {
+  const input = document.getElementById('token');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+  updateAllCurls();
+}
+
+function toggleSection(el) {
+  el.classList.toggle('open');
+  const content = el.nextElementSibling;
+  content.classList.toggle('open');
+}
+
+function copyText(id) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('#' + id + ' + .copy-btn') ||
+                document.getElementById(id).parentElement.querySelector('.copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = '已复制';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+function clearResponse(prefix) {
+  document.getElementById(prefix + '-response').textContent = '等待发送请求...';
+  document.getElementById(prefix + '-status').innerHTML = '';
+}
+
+function setStatus(prefix, code) {
+  const el = document.getElementById(prefix + '-status');
+  if (code === 'loading') {
+    el.innerHTML = '<span class="status-badge status-loading">请求中...</span>';
+  } else if (code >= 200 && code < 300) {
+    el.innerHTML = '<span class="status-badge status-ok">HTTP ' + code + '</span>';
+  } else {
+    el.innerHTML = '<span class="status-badge status-err">HTTP ' + code + '</span>';
+  }
+}
+
+function formatJson(text) {
+  try {
+    return JSON.stringify(JSON.parse(text), null, 2);
+  } catch { return text; }
+}
+
+function escapeShell(s) {
+  return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
+// ==================== curl 生成 ====================
+function buildChatCurl() {
+  const base = API_BASE;
+  const token = getToken() || '<YOUR_TOKEN>';
+  const model = document.getElementById('chat-model').value;
+  const maxTokens = document.getElementById('chat-max-tokens').value;
+  const stream = document.getElementById('chat-stream').value;
+  const temp = document.getElementById('chat-temperature').value;
+  const msgs = document.getElementById('chat-messages').value.trim();
+  const sys = document.getElementById('chat-system').value.trim();
+
+  let bodyObj = { model, messages: '__MSGS__', max_tokens: parseInt(maxTokens), stream: stream === 'true' };
+  if (temp !== '1') bodyObj.temperature = parseFloat(temp);
+  if (sys) bodyObj.system = sys;
+
+  let bodyStr = JSON.stringify(bodyObj, null, 2).replace('"__MSGS__"', msgs);
+
+  return `curl -X POST "https://ai-api.kkidc.com/v1/messages" \\
+  -H "Authorization: Bearer ${token}" \\
+  -H "Content-Type: application/json" \\
+  -d '${bodyStr}'`;
+}
+
+function buildChatCompletionsCurl() {
+  const base = API_BASE;
+  const token = getToken() || '<YOUR_TOKEN>';
+  const model = document.getElementById('chatoa-model').value;
+  const maxTokens = document.getElementById('chatoa-max-tokens').value;
+  const stream = document.getElementById('chatoa-stream').value;
+  const temp = document.getElementById('chatoa-temperature').value;
+  const msgs = document.getElementById('chatoa-messages').value.trim();
+
+  let bodyObj = { model, messages: '__MSGS__', stream: stream === 'true' };
+  if (maxTokens) bodyObj.max_tokens = parseInt(maxTokens);
+  if (temp !== '1') bodyObj.temperature = parseFloat(temp);
+
+  let bodyStr = JSON.stringify(bodyObj, null, 2).replace('"__MSGS__"', msgs);
+
+  return `curl -X POST "https://ai-api.kkidc.com/v1/chat/completions" \\
+  -H "Authorization: Bearer ${token}" \\
+  -H "Content-Type: application/json" \\
+  -d '${bodyStr}'`;
+}
+
+function buildImgCurl() {
+  const base = API_BASE;
+  const token = getToken() || '<YOUR_TOKEN>';
+  const body = {
+    model: document.getElementById('img-model').value,
+    prompt: document.getElementById('img-prompt').value,
+    size: document.getElementById('img-size').value,
+    n: parseInt(document.getElementById('img-n').value),
+    quality: document.getElementById('img-quality').value,
+    response_format: document.getElementById('img-format').value,
+    stream: document.getElementById('img-stream').value === 'true'
+  };
+  return `curl -X POST "https://ai-api.kkidc.com/v1/images/generations" \\
+  -H "Authorization: Bearer ${token}" \\
+  -H "Content-Type: application/json" \\
+  --max-time 600 \\
+  -d '${JSON.stringify(body, null, 2)}'`;
+}
+
+function buildGeminiCurl() {
+  const base = API_BASE;
+  const token = getToken() || '<YOUR_TOKEN>';
+  const model = document.getElementById('gemini-model').value;
+  const body = {
+    model: model,
+    generationConfig: {
+      responseModalities: ["IMAGE"],
+      imageConfig: {
+        aspectRatio: document.getElementById('gemini-ratio').value,
+        imageSize: document.getElementById('gemini-size').value
+      }
+    },
+    contents: [{ role: "user", parts: [{ text: document.getElementById('gemini-prompt').value }] }]
+  };
+  return `curl -X POST "https://ai-api.kkidc.com/v1beta/models/${model}:generateContent" \\
+  -H "Authorization: Bearer ${token}" \\
+  -H "Content-Type: application/json" \\
+  --max-time 600 \\
+  -d '${JSON.stringify(body, null, 2)}'`;
+}
+
+function buildVideoCurl() {
+  const base = API_BASE;
+  const token = getToken() || '<YOUR_TOKEN>';
+  const prompt = document.getElementById('video-prompt').value;
+  const model = document.getElementById('video-model').value;
+  const duration = document.getElementById('video-duration').value;
+  const refAudio = document.getElementById('video-ref-audio').value;
+
+  // 收集所有参考视频
+  const refVideos = [];
+  document.querySelectorAll('.reference-video-item').forEach(item => {
+    const url = item.querySelector('input[type="text"]').value;
+    if (url) refVideos.push(url);
+  });
+
+  // 构建请求体
+  const body = {
+    model: model,
+    prompt: prompt,
+    seconds: duration.toString()
+  };
+
+  // 构建 metadata
+  const metadata = {
+    generate_audio: document.getElementById('video-audio').value === 'true',
+    ratio: document.getElementById('video-ratio').value,
+    resolution: document.getElementById('video-resolution').value,
+    watermark: document.getElementById('video-watermark').value === 'true'
+  };
+
+  // 添加参考素材到 metadata.content
+  const content = [];
+  for (const videoUrl of refVideos) {
+    content.push({
+      role: 'reference_video',
+      type: 'video_url',
+      video_url: { url: videoUrl }
+    });
+  }
+  if (refAudio) {
+    content.push({
+      role: 'reference_audio',
+      type: 'audio_url',
+      audio_url: { url: refAudio }
+    });
+  }
+  if (content.length > 0) {
+    metadata.content = content;
+  }
+
+  body.metadata = metadata;
+
+  return `curl -X POST "https://ai-api.kkidc.com/api/v3/contents/generations/tasks" \\
+  -H "Authorization: Bearer ${token}" \\
+  -H "Content-Type: application/json" \\
+  -d '${JSON.stringify(body, null, 2)}'`;
+}
+
+function buildPollCurl() {
+  const base = API_BASE;
+  const token = getToken() || '<YOUR_TOKEN>';
+  const taskId = document.getElementById('poll-task-id').value || '<TASK_ID>';
+  return `curl -X GET "https://ai-api.kkidc.com/api/v3/contents/generations/tasks/${taskId}" \\
+  -H "Authorization: Bearer ${token}"`;
+}
+
+function buildAssetCurl() {
+  const base = API_BASE;
+  const token = getToken() || '<YOUR_TOKEN>';
+  const body = { url: document.getElementById('asset-url').value || 'https://cdn.example.com/photo.jpg', type: document.getElementById('asset-type').value, purpose: document.getElementById('asset-purpose').value || '素材' };
+  const gid = document.getElementById('asset-group-id').value;
+  if (gid) body.group_id = gid;
+  return `curl -X POST "https://ai-api.kkidc.com/v1/assets/upload" \\
+  -H "Authorization: Bearer ${token}" \\
+  -H "Content-Type: application/json" \\
+  -d '${JSON.stringify(body, null, 2)}'`;
+}
+
+function buildAssetListCurl() {
+  const base = API_BASE;
+  const token = getToken() || '<YOUR_TOKEN>';
+  const page = document.getElementById('asset-list-page').value;
+  const size = document.getElementById('asset-list-size').value;
+  const sort = document.getElementById('asset-list-sort').value;
+  return `curl -X GET "https://ai-api.kkidc.com/v1/assets?page=${page}&page_size=${size}&sort_order=${sort}" \\
+  -H "Authorization: Bearer ${token}"`;
+}
+
+function buildAssetGetCurl() {
+  const base = API_BASE;
+  const token = getToken() || '<YOUR_TOKEN>';
+  const id = document.getElementById('asset-get-id').value || '<ASSET_ID>';
+  let url = `https://ai-api.kkidc.com/v1/assets/${id}`;
+  const gid = document.getElementById('asset-get-group').value;
+  if (gid) url += '?group_id=' + gid;
+  return `curl -X GET "${url}" \\
+  -H "Authorization: Bearer ${token}"`;
+}
+
+function updateAllCurls() {
+  document.getElementById('chat-curl').textContent = buildChatCurl();
+  document.getElementById('chatoa-curl').textContent = buildChatCompletionsCurl();
+  document.getElementById('img-curl').textContent = buildImgCurl();
+  document.getElementById('gemini-curl').textContent = buildGeminiCurl();
+  document.getElementById('video-curl').textContent = buildVideoCurl();
+  document.getElementById('poll-curl').textContent = buildPollCurl();
+  document.getElementById('asset-curl').textContent = buildAssetCurl();
+  document.getElementById('asset-list-curl').textContent = buildAssetListCurl();
+  document.getElementById('asset-get-curl').textContent = buildAssetGetCurl();
+
+  const base = API_BASE;
+  const token = getToken() || '<YOUR_TOKEN>';
+  document.getElementById('health-curl').textContent = `curl -X GET "${API_BASE}/v1/models"`;
+  document.getElementById('verify-curl').textContent = `curl -X POST "${API_BASE}/v1/messages" \\\n  -H "Authorization: Bearer ${token}" \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"claude-haiku-4-5-20251001","messages":[{"role":"user","content":"hi"}],"max_tokens":10}'`;
+  document.getElementById('models-curl').textContent = `curl -X GET "${API_BASE}/v1/models" \\\n  -H "Authorization: Bearer ${token}"`;
+}
+
+// 输入变化时更新 curl
+document.addEventListener('input', updateAllCurls);
+document.addEventListener('change', updateAllCurls);
+
+// ==================== 发送请求 ====================
+
+// 文字对话
+async function sendChatRequest() {
+  const base = API_BASE;
+  const stream = document.getElementById('chat-stream').value === 'true';
+  const model = document.getElementById('chat-model').value;
+  const maxTokens = parseInt(document.getElementById('chat-max-tokens').value);
+  const temp = parseFloat(document.getElementById('chat-temperature').value);
+  const sys = document.getElementById('chat-system').value.trim();
+
+  let messages;
+  try {
+    messages = JSON.parse(document.getElementById('chat-messages').value);
+  } catch (e) {
+    document.getElementById('chat-response').textContent = '错误：消息格式无效，请检查 JSON 格式\n\n' + e.message;
+    setStatus('chat', 400);
+    return;
+  }
+
+  const body = { model, messages, max_tokens: maxTokens, stream };
+  if (temp !== 1) body.temperature = temp;
+  if (sys) body.system = sys;
+
+  setStatus('chat', 'loading');
+  document.getElementById('chat-response').textContent = '';
+  document.getElementById('chat-send-btn').disabled = true;
+
+  try {
+    const resp = await fetch('https://ai-api.kkidc.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Authorization': getAuth(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (stream) {
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+      let contentText = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        fullText += chunk;
+
+        const lines = chunk.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.type === 'content_block_delta' && data.delta && data.delta.text) {
+                contentText += data.delta.text;
+              }
+            } catch {}
+          }
+        }
+
+        document.getElementById('chat-response').textContent =
+          '=== 提取的回复内容 ===\n' + contentText + '\n\n=== 原始 SSE 流 ===\n' + fullText;
+      }
+      setStatus('chat', resp.status);
+    } else {
+      const text = await resp.text();
+      document.getElementById('chat-response').textContent = formatJson(text);
+      setStatus('chat', resp.status);
+    }
+  } catch (e) {
+    document.getElementById('chat-response').textContent = '请求失败：' + e.message;
+    setStatus('chat', 500);
+  }
+  document.getElementById('chat-send-btn').disabled = false;
+}
+
+// 文字对话 (OpenAI Chat Completions)
+async function sendChatCompletionsRequest() {
+  const base = API_BASE;
+  const stream = document.getElementById('chatoa-stream').value === 'true';
+  const model = document.getElementById('chatoa-model').value;
+  const maxTokens = document.getElementById('chatoa-max-tokens').value;
+  const temp = parseFloat(document.getElementById('chatoa-temperature').value);
+
+  let messages;
+  try {
+    messages = JSON.parse(document.getElementById('chatoa-messages').value);
+  } catch (e) {
+    document.getElementById('chatoa-response').textContent = '错误：消息格式无效，请检查 JSON 格式\n\n' + e.message;
+    setStatus('chatoa', 400);
+    return;
+  }
+
+  const body = { model, messages, stream };
+  if (maxTokens) body.max_tokens = parseInt(maxTokens);
+  if (temp !== 1) body.temperature = temp;
+
+  setStatus('chatoa', 'loading');
+  document.getElementById('chatoa-response').textContent = '';
+  document.getElementById('chatoa-send-btn').disabled = true;
+
+  try {
+    const resp = await fetch('https://ai-api.kkidc.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': getAuth(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (stream) {
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+      let contentText = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        fullText += chunk;
+
+        const lines = chunk.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const payload = line.slice(6).trim();
+            if (payload === '[DONE]') continue;
+            try {
+              const data = JSON.parse(payload);
+              const delta = data.choices && data.choices[0] && data.choices[0].delta;
+              if (delta && delta.content) {
+                contentText += delta.content;
+              }
+            } catch {}
+          }
+        }
+
+        document.getElementById('chatoa-response').textContent =
+          '=== 提取的回复内容 ===\n' + contentText + '\n\n=== 原始 SSE 流 ===\n' + fullText;
+      }
+      setStatus('chatoa', resp.status);
+    } else {
+      const text = await resp.text();
+      document.getElementById('chatoa-response').textContent = formatJson(text);
+      setStatus('chatoa', resp.status);
+    }
+  } catch (e) {
+    document.getElementById('chatoa-response').textContent = '请求失败：' + e.message;
+    setStatus('chatoa', 500);
+  }
+  document.getElementById('chatoa-send-btn').disabled = false;
+}
+
+// 图像生成 (OpenAI)
+async function sendImageRequest() {
+  const base = API_BASE;
+  const body = {
+    model: document.getElementById('img-model').value,
+    prompt: document.getElementById('img-prompt').value,
+    size: document.getElementById('img-size').value,
+    n: parseInt(document.getElementById('img-n').value),
+    quality: document.getElementById('img-quality').value,
+    response_format: document.getElementById('img-format').value,
+    stream: document.getElementById('img-stream').value === 'true'
+  };
+
+  setStatus('img', 'loading');
+  document.getElementById('img-response').textContent = '图像生成中，请耐心等待（可能需要 1~10 分钟）...';
+  document.getElementById('img-send-btn').disabled = true;
+  document.getElementById('img-preview').style.display = 'none';
+
+  try {
+    const resp = await fetch('https://ai-api.kkidc.com/v1/images/generations', {
+      method: 'POST',
+      headers: { 'Authorization': getAuth(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const text = await resp.text();
+    const displayText = text.length > 50000 ? text.substring(0, 500) + '\n\n... [Base64 数据过长，已截断显示] ...\n\n共 ' + text.length + ' 字符' : formatJson(text);
+    document.getElementById('img-response').textContent = displayText;
+    setStatus('img', resp.status);
+
+    try {
+      const json = JSON.parse(text);
+      if (json.data && json.data[0]) {
+        const item = json.data[0];
+        const container = document.getElementById('img-preview-container');
+        container.innerHTML = '';
+        if (item.b64_json) {
+          const img = document.createElement('img');
+          img.src = 'data:image/png;base64,' + item.b64_json;
+          img.style.cssText = 'max-width:100%;max-height:600px;border-radius:8px;border:1px solid var(--border)';
+          container.appendChild(img);
+          document.getElementById('img-preview').style.display = 'block';
+        } else if (item.url) {
+          const img = document.createElement('img');
+          img.src = item.url;
+          img.style.cssText = 'max-width:100%;max-height:600px;border-radius:8px;border:1px solid var(--border)';
+          container.appendChild(img);
+          document.getElementById('img-preview').style.display = 'block';
+        }
+      }
+    } catch {}
+  } catch (e) {
+    document.getElementById('img-response').textContent = '请求失败：' + e.message;
+    setStatus('img', 500);
+  }
+  document.getElementById('img-send-btn').disabled = false;
+}
+
+// 图像生成 (Gemini)
+async function sendGeminiRequest() {
+  const base = API_BASE;
+  const model = document.getElementById('gemini-model').value;
+  const body = {
+    generationConfig: {
+      responseModalities: ["IMAGE"],
+      imageConfig: {
+        aspectRatio: document.getElementById('gemini-ratio').value,
+        imageSize: document.getElementById('gemini-size').value
+      }
+    },
+    contents: [{ role: "user", parts: [{ text: document.getElementById('gemini-prompt').value }] }]
+  };
+
+  setStatus('gemini', 'loading');
+  document.getElementById('gemini-response').textContent = 'Gemini 图像生成中，请耐心等待...';
+  document.getElementById('gemini-send-btn').disabled = true;
+
+  try {
+    const resp = await fetch(`https://ai-api.kkidc.com/v1beta/models/${model}:generateContent`, {
+      method: 'POST',
+      headers: { 'Authorization': getAuth(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const text = await resp.text();
+    const displayText = text.length > 50000 ? text.substring(0, 500) + '\n\n... [数据过长，已截断] ...' : formatJson(text);
+    document.getElementById('gemini-response').textContent = displayText;
+    setStatus('gemini', resp.status);
+  } catch (e) {
+    document.getElementById('gemini-response').textContent = '请求失败：' + e.message;
+    setStatus('gemini', 500);
+  }
+  document.getElementById('gemini-send-btn').disabled = false;
+}
+
+// 视频提交
+async function sendVideoSubmit() {
+  const base = API_BASE;
+  const prompt = document.getElementById('video-prompt').value;
+  const model = document.getElementById('video-model').value;
+  const duration = document.getElementById('video-duration').value;
+  const refAudio = document.getElementById('video-ref-audio').value;
+
+  // 收集所有参考视频
+  const refVideos = [];
+  document.querySelectorAll('.reference-video-item').forEach(item => {
+    const url = item.querySelector('input[type="text"]').value;
+    if (url) refVideos.push(url);
+  });
+
+  // 构建请求体
+  const body = {
+    model: model,
+    prompt: prompt,
+    seconds: duration.toString()
+  };
+
+  // 构建 metadata
+  const metadata = {
+    generate_audio: document.getElementById('video-audio').value === 'true',
+    ratio: document.getElementById('video-ratio').value,
+    resolution: document.getElementById('video-resolution').value,
+    watermark: document.getElementById('video-watermark').value === 'true'
+  };
+
+  // 添加参考素材到 metadata.content
+  const content = [];
+  for (const videoUrl of refVideos) {
+    content.push({
+      role: 'reference_video',
+      type: 'video_url',
+      video_url: { url: videoUrl }
+    });
+  }
+  if (refAudio) {
+    content.push({
+      role: 'reference_audio',
+      type: 'audio_url',
+      audio_url: { url: refAudio }
+    });
+  }
+  if (content.length > 0) {
+    metadata.content = content;
+  }
+
+  body.metadata = metadata;
+
+  setStatus('video', 'loading');
+  document.getElementById('video-response').textContent = '提交任务中...';
+  document.getElementById('video-send-btn').disabled = true;
+
+  try {
+    const resp = await fetch('https://ai-api.kkidc.com/api/v3/contents/generations/tasks', {
+      method: 'POST',
+      headers: { 'Authorization': getAuth(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const text = await resp.text();
+    document.getElementById('video-response').textContent = formatJson(text);
+    setStatus('video', resp.status);
+
+    try {
+      const json = JSON.parse(text);
+      if (json.task_id) {
+        document.getElementById('poll-task-id').value = json.task_id;
+        updateAllCurls();
+      }
+    } catch {}
+  } catch (e) {
+    document.getElementById('video-response').textContent = '请求失败：' + e.message;
+    setStatus('video', 500);
+  }
+  document.getElementById('video-send-btn').disabled = false;
+}
+
+// 视频轮询
+let pollTimer = null;
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  document.getElementById('poll-stop-btn').style.display = 'none';
+  document.getElementById('poll-send-btn').disabled = false;
+}
+
+async function sendVideoPoll() {
+  const base = API_BASE;
+  const taskId = document.getElementById('poll-task-id').value;
+  if (!taskId) {
+    document.getElementById('poll-response').textContent = '请先填入 taskId';
+    return;
+  }
+
+  const auto = document.getElementById('poll-auto').value === 'true';
+
+  async function doPoll() {
+    setStatus('poll', 'loading');
+    try {
+      const resp = await fetch(`https://ai-api.kkidc.com/api/v3/contents/generations/tasks/${taskId}`, {
+        headers: { 'Authorization': getAuth() }
+      });
+      const text = await resp.text();
+      document.getElementById('poll-response').textContent = formatJson(text);
+      setStatus('poll', resp.status);
+
+      try {
+        const json = JSON.parse(text);
+        const status = json.data?.status;
+        if (status === 'SUCCESS' || status === 'FAILURE') {
+          stopPolling();
+          if (status === 'SUCCESS') {
+            const videoUrl = json.data?.data?.content?.video_url;
+            if (videoUrl) {
+              document.getElementById('video-player').src = videoUrl;
+              document.getElementById('video-preview').style.display = 'block';
+            }
+          }
+        }
+      } catch {}
+    } catch (e) {
+      document.getElementById('poll-response').textContent = '请求失败：' + e.message;
+      setStatus('poll', 500);
+      stopPolling();
+    }
+  }
+
+  await doPoll();
+  if (auto) {
+    document.getElementById('poll-stop-btn').style.display = '';
+    document.getElementById('poll-send-btn').disabled = true;
+    pollTimer = setInterval(doPoll, 3000);
+  }
+}
+
+// 素材上传
+async function sendAssetUpload() {
+  const base = API_BASE;
+  const body = {
+    url: document.getElementById('asset-url').value,
+    type: document.getElementById('asset-type').value,
+    purpose: document.getElementById('asset-purpose').value
+  };
+  const gid = document.getElementById('asset-group-id').value;
+  if (gid) body.group_id = gid;
+
+  setStatus('asset', 'loading');
+  try {
+    const resp = await fetch('https://ai-api.kkidc.com/v1/assets/upload', {
+      method: 'POST',
+      headers: { 'Authorization': getAuth(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const text = await resp.text();
+    document.getElementById('asset-response').textContent = formatJson(text);
+    setStatus('asset', resp.status);
+  } catch (e) {
+    document.getElementById('asset-response').textContent = '请求失败：' + e.message;
+    setStatus('asset', 500);
+  }
+}
+
+// 素材列表
+async function sendAssetList() {
+  const base = API_BASE;
+  const page = document.getElementById('asset-list-page').value;
+  const size = document.getElementById('asset-list-size').value;
+  const sort = document.getElementById('asset-list-sort').value;
+
+  setStatus('asset-list', 'loading');
+  try {
+    const resp = await fetch(`https://ai-api.kkidc.com/v1/assets?page=${page}&page_size=${size}&sort_order=${sort}`, {
+      headers: { 'Authorization': getAuth() }
+    });
+    const text = await resp.text();
+    document.getElementById('asset-list-response').textContent = formatJson(text);
+    setStatus('asset-list', resp.status);
+  } catch (e) {
+    document.getElementById('asset-list-response').textContent = '请求失败：' + e.message;
+    setStatus('asset-list', 500);
+  }
+}
+
+// 查询单个素材
+async function sendAssetGet() {
+  const base = API_BASE;
+  const id = document.getElementById('asset-get-id').value;
+  if (!id) { document.getElementById('asset-get-response').textContent = '请填入素材 ID'; return; }
+  let url = `https://ai-api.kkidc.com/v1/assets/${id}`;
+  const gid = document.getElementById('asset-get-group').value;
+  if (gid) url += '?group_id=' + gid;
+
+  setStatus('asset-get', 'loading');
+  try {
+    const resp = await fetch(url, { headers: { 'Authorization': getAuth() } });
+    const text = await resp.text();
+    document.getElementById('asset-get-response').textContent = formatJson(text);
+    setStatus('asset-get', resp.status);
+  } catch (e) {
+    document.getElementById('asset-get-response').textContent = '请求失败：' + e.message;
+    setStatus('asset-get', 500);
+  }
+}
+
+// 系统接口
+async function sendHealthCheck() {
+  setStatus('health', 'loading');
+  try {
+    const resp = await fetch(API_BASE + '/v1/models', {
+      headers: { 'Authorization': getAuth() }
+    });
+    document.getElementById('health-response').textContent = formatJson(await resp.text());
+    setStatus('health', resp.status);
+  } catch (e) {
+    document.getElementById('health-response').textContent = '请求失败：' + e.message;
+    setStatus('health', 500);
+  }
+}
+
+async function sendVerify() {
+  setStatus('verify', 'loading');
+  try {
+    const resp = await fetch(API_BASE + '/v1/messages', {
+      method: 'POST',
+      headers: { 'Authorization': getAuth(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({model:'claude-haiku-4-5-20251001',messages:[{role:'user',content:'hi'}],max_tokens:10})
+    });
+    document.getElementById('verify-response').textContent = formatJson(await resp.text());
+    setStatus('verify', resp.status);
+  } catch (e) {
+    document.getElementById('verify-response').textContent = '请求失败：' + e.message;
+    setStatus('verify', 500);
+  }
+}
+
+async function sendModels() {
+  setStatus('models', 'loading');
+  try {
+    const resp = await fetch(API_BASE + '/v1/models', {
+      headers: { 'Authorization': getAuth() }
+    });
+    document.getElementById('models-response').textContent = formatJson(await resp.text());
+    setStatus('models', resp.status);
+  } catch (e) {
+    document.getElementById('models-response').textContent = '请求失败：' + e.message;
+    setStatus('models', 500);
+  }
+}
+
+// ==================== 初始化 ====================
+loadConfig();
+updateAllCurls();
+
+// ==================== 参考视频动态管理 ====================
+let videoRefIndex = 0;
+function addReferenceVideo() {
+  videoRefIndex++;
+  const container = document.getElementById('reference-videos-container');
+  const item = document.createElement('div');
+  item.className = 'reference-video-item';
+  item.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px';
+  item.innerHTML = `
+    <input type="text" placeholder="https://example.com/video${videoRefIndex}.mp4"
+           style="flex:1;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-size:13px">
+    <button class="btn btn-secondary" style="padding:6px 12px;font-size:12px" onclick="removeReferenceVideo(this)">移除</button>
+  `;
+  container.appendChild(item);
+  updateAllCurls();
+}
+
+function removeReferenceVideo(btn) {
+  btn.parentElement.remove();
+  updateAllCurls();
+}
+
+</script>
+</body>
+</html>

@@ -20,6 +20,15 @@ ai:
   access-key: ""
   # 允许的跨域来源；留空则仅允许同源访问，如需外部前端可填列表，如 ["https://a.com"]
   cors-allowed-origins: []
+  # ---- 模型广场 ----
+  plaza:
+    # 全量模型定价数据源（new-api /api/pricing），返回含官网广场未展示（隐藏/海外）的模型
+    pricing-url: https://www.kkhub.com/api/pricing
+    # 系统访问令牌：非空时以 Authorization: Bearer <token> 请求上游。
+    # 令牌只保存在服务端配置里，不会下发给浏览器。
+    token: +7aQhceXtTDmt5kMg1rnx/tK+14Gmw==
+    # 结果缓存秒数，避免每次打开广场都请求上游
+    cache-seconds: 300
 
 logging:
   level:
