@@ -35,10 +35,26 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- 请求日志持久化：JdbcTemplate + 数据库驱动（H2 默认文件模式，MySQL 可选） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <!-- 日志导出 Excel -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.5</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

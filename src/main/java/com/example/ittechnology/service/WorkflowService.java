@@ -674,30 +674,20 @@ public class WorkflowService {
         body.put("model", model);
         body.put("prompt", finalPrompt);
         if (intl) {
+            // 国际站：官方模板格式 metadata.reference_images/videos/audios 数组
             ObjectNode meta = mapper.createObjectNode();
-            ArrayNode content = mapper.createArrayNode();
-            for (String du : imgs) {
-                ObjectNode c = mapper.createObjectNode();
-                c.put("type", "image_url");
-                ObjectNode iu = mapper.createObjectNode();
-                iu.put("url", du);
-                c.set("image_url", iu);
-                c.put("role", "reference_image");
-                content.add(c);
-            }
-            for (String vu : vids) {
-                ObjectNode c = mapper.createObjectNode();
-                c.put("type", "video_url");
-                ObjectNode vu2 = mapper.createObjectNode();
-                vu2.put("url", vu);
-                c.set("video_url", vu2);
-                c.put("role", "reference_video");
-                content.add(c);
-            }
-            meta.set("content", content);
+            ArrayNode refImages = mapper.createArrayNode();
+            imgs.forEach(refImages::add);
+            ArrayNode refVideos = mapper.createArrayNode();
+            vids.forEach(refVideos::add);
+            ArrayNode refAudios = mapper.createArrayNode();
+            meta.set("reference_images", refImages);
+            meta.set("reference_videos", refVideos);
+            meta.set("reference_audios", refAudios);
             meta.put("generate_audio", cfg.path("audio").asBoolean(true));
             meta.put("ratio", cfg.path("ratio").asText("16:9"));
             meta.put("duration", cfg.path("duration").asInt(5));
+            meta.put("resolution", cfg.path("resolution").asText("720p"));
             meta.put("watermark", cfg.path("watermark").asBoolean(false));
             body.set("metadata", meta);
         } else {

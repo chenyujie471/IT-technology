@@ -119,8 +119,12 @@ public class ToolCallService {
             ObjectNode at = mapper.createObjectNode();
             at.put("name", t.path("function").path("name").asText());
             at.put("description", t.path("function").path("description").asText());
-            ObjectNode inputSchema = (ObjectNode) t.path("function").path("parameters").deepCopy();
-            if (inputSchema.isMissingNode()) inputSchema = mapper.createObjectNode();
+            // 注意：parameters 缺失（如 computer_use 类工具）时 path() 返回 MissingNode，
+            // 不能直接强转 ObjectNode，必须先判断类型再兜底。
+            JsonNode params = t.path("function").path("parameters");
+            ObjectNode inputSchema = params != null && params.isObject()
+                    ? (ObjectNode) params.deepCopy()
+                    : mapper.createObjectNode();
             inputSchema.put("type", "object");
             at.set("input_schema", inputSchema);
             arr.add(at);

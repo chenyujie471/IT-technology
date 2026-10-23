@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *   状态：NOT_START / SUBMITTED / QUEUED / IN_PROGRESS / SUCCESS / FAILURE
  *   完成后在 data.data.content.video_url 取视频地址
  *
- * 请求体示例（submit）：
+ * 请求体示例（submit，国内站扁平参数）：
  * {
  *   "model": "doubao-seedance-2-0-260128",
  *   "prompt": "...",
@@ -141,6 +141,77 @@ public class VideoController {
         AtomicInteger status = new AtomicInteger(200);
         String result = proxyService.proxyGet(
                 site, base + taskId, auth, Duration.ofSeconds(30), status);
+        response.setHeader("X-Upstream-Status", String.valueOf(status.get()));
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(result);
+    }
+
+    /**
+     * 轮询视频任务状态（JSON 直发专用）：
+     * 固定走 GET /v1/video/generations/{task_id}（与 /api/test/video-generate 的上游路径一致，
+     * 不按站点切换轮询路径），站点的 base 地址仍由 X-Site 决定。
+     */
+    @GetMapping(value = "/poll-v1/{taskId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> pollTaskV1(
+            @RequestHeader("Authorization") String auth,
+            @RequestHeader(name = "X-Site", required = false, defaultValue = "cn") String site,
+            @PathVariable String taskId,
+            HttpServletResponse response) {
+
+        log.debug("Polling v1 video task: {} [site={}]", taskId, site);
+        AtomicInteger status = new AtomicInteger(200);
+        String result = proxyService.proxyGet(
+                site, "/v1/video/generations/" + taskId, auth, Duration.ofSeconds(30), status);
+        response.setHeader("X-Upstream-Status", String.valueOf(status.get()));
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(result);
+    }
+
+    // ==================== MiniMax V2 接口 ====================
+
+    /**
+     * 提交 MiniMax 视频生成任务（V2 接口）。
+     * 支持文生视频 / 图生视频（首帧 / 尾帧 / 首尾帧）。
+     * 上游：POST /v2/video_generation
+     * 返回：{ task_id: "task_xxx" }
+     */
+    @PostMapping(value = "/submit-minimax", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StreamingResponseBody> submitMinimax(
+            @RequestHeader("Authorization") String auth,
+            @RequestHeader(name = "X-Site", required = false, defaultValue = "cn") String site,
+            @RequestBody String body,
+            HttpServletResponse response) {
+
+        log.info("MiniMax video task submit received [site={}]", site);
+
+        StreamingResponseBody stream = out ->
+                proxyService.proxyPostStream(
+                        site, "/v2/video_generation", auth, body, Duration.ofSeconds(60), out, response);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(stream);
+    }
+
+    /**
+     * 轮询 MiniMax 视频任务状态。
+     * 上游：GET /v2/video_generation/{task_id}
+     */
+    @GetMapping(value = "/poll-minimax/{taskId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> pollMinimax(
+            @RequestHeader("Authorization") String auth,
+            @RequestHeader(name = "X-Site", required = false, defaultValue = "cn") String site,
+            @PathVariable String taskId,
+            HttpServletResponse response) {
+
+        log.debug("Polling MiniMax video task: {} [site={}]", taskId, site);
+        AtomicInteger status = new AtomicInteger(200);
+        String result = proxyService.proxyGet(
+                site, "/v2/video_generation/" + taskId, auth, Duration.ofSeconds(30), status);
         response.setHeader("X-Upstream-Status", String.valueOf(status.get()));
 
         return ResponseEntity.ok()

@@ -8,9 +8,24 @@ spring:
     multipart:
       max-file-size: 20MB       # 图像编辑参考图单文件上限
       max-request-size: 80MB    # 4 张参考图的总上限
+  # 请求日志持久化数据源
+  # 默认：H2 文件模式（零配置，重启不丢，文件在 ./data/reqlog）
+  # 使用 MySQL：--spring.profiles.active=mysql，并在下方覆盖 url/username/password
+  datasource:
+    url: jdbc:h2:file:./data/db;AUTO_RECONNECT=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  sql:
+    init:
+      mode: embedded
+      schema-locations: classpath:schema1.sql
 
 server:
-  port: 8080
+  port: 8035
 
 ai:
   upstream: https://ai-api.kkidc.com        # 国内站

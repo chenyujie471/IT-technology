@@ -78,6 +78,11 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,'PingFang 
 .logo-tag{font-size:10px;color:var(--muted2);letter-spacing:.8px;text-transform:uppercase}
 
 nav{flex:1;padding:8px}
+.nav-sec-lbl{
+  padding:10px 10px 4px;font-size:10px;font-weight:700;letter-spacing:.8px;
+  color:var(--muted2);text-transform:uppercase;user-select:none;
+}
+.nav-sec-lbl:first-child{padding-top:2px}
 .nav-btn{
   display:flex;align-items:center;gap:10px;
   width:100%;padding:9px 10px;
@@ -230,11 +235,29 @@ input[type=range]:focus{box-shadow:none}
   border-bottom:1px solid var(--border);
   background:var(--chat-bar-bg);
   backdrop-filter:blur(8px);
-  display:flex;align-items:center;gap:10px;flex-shrink:0;
+  display:flex;flex-direction:column;align-items:stretch;gap:8px;flex-shrink:0;
   position:relative;z-index:5;
 }
 .chat-bar label{margin:0}
+.chat-bar-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.chat-bar-tools{
+  justify-content:flex-end;padding-top:8px;
+  border-top:1px dashed var(--border2);
+}
+.chat-bar-tools .btn{white-space:nowrap}
 .bar-sep{width:1px;height:18px;background:var(--border2);flex-shrink:0}
+/* 生成页三段式布局：工具栏 / 结果区 / 输入区 */
+.gen-col{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg)}
+.gen-col .chat-bar{border-bottom:1px solid var(--border)}
+.gen-col .mode-tabs{flex-shrink:0}
+.gen-bar-item{display:flex;align-items:center;gap:6px}
+.gen-bar-item .fg{margin:0}
+.gen-mid{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding:14px 18px;overflow-y:auto;background:var(--bg)}
+.gen-mid .result{flex:1 1 0;min-height:0;padding:20px;border:1px solid var(--border);border-radius:14px}
+.gen-foot{flex-shrink:0;display:flex;flex-direction:column;gap:8px;padding:12px 18px;border-top:1px solid var(--border);background:var(--bg2)}
+.gen-foot textarea{resize:vertical}
+.gen-foot-row{display:flex;gap:10px;align-items:flex-end}
+.gen-sub{flex-shrink:0;width:110px;min-height:92px}
 .msgs{
   flex:1;overflow-y:auto;
   padding:24px 20px;
@@ -261,6 +284,15 @@ input[type=range]:focus{box-shadow:none}
 .chat-foot{
   padding:16px 20px;border-top:1px solid var(--border);
   background:var(--bg2);display:flex;gap:12px;align-items:flex-end;flex-shrink:0;
+}
+.chat-attach{
+  display:flex;gap:8px;flex-wrap:wrap;padding:8px 20px 0;
+  background:var(--bg2);flex-shrink:0;
+}
+.chat-attach-item{
+  display:flex;align-items:center;gap:8px;max-width:260px;
+  background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  padding:5px 8px;
 }
 #ci{min-height:110px;font-size:14px;line-height:1.75}
 #csend{min-height:110px;width:88px;font-size:15px}
@@ -298,6 +330,8 @@ input[type=range]:focus{box-shadow:none}
   min-height:0;
 }
 .ctrl.wide{width:340px;min-width:340px;max-width:340px}
+/* 视频页侧栏：5 个模式 tab 挤在 340px 里放不下，稍加宽给「多模态参考」留空间 */
+#tab-video .ctrl.wide{width:372px;min-width:372px;max-width:372px}
 /* 缓存测试页右侧 */
 .cache-main{flex:1 1 0;min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--bg)}
 .cache-doc{flex-shrink:0;padding:16px 18px 14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px;background:var(--bg2)}
@@ -334,6 +368,18 @@ input[type=range]:focus{box-shadow:none}
 
 img.r-img{max-width:100%;max-height:min(480px, calc(100vh - 280px));border-radius:12px;border:1px solid var(--border);display:block;box-shadow:0 20px 40px rgba(0,0,0,.5)}
 video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);display:block;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+
+/* ========== IMAGE BATCH GRID ========== */
+.bimg-bar{display:flex;align-items:center;gap:14px;font-size:12px;color:var(--muted2);padding:0 2px;flex-wrap:wrap}
+.bimg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;width:100%}
+.bimg-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;min-height:220px}
+.bimg-top{display:flex;align-items:center;gap:6px;padding:6px 10px;font-size:11px;color:var(--muted2);border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+.bimg-idx{font-weight:700;color:var(--text2)}
+.bimg-tag{margin-left:auto;font-weight:600}
+.bimg-card img{width:100%;height:auto;display:block}
+.bimg-ph{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted2);font-size:12px;min-height:160px}
+.bimg-foot{display:flex;gap:8px;padding:8px 10px;border-top:1px solid var(--border);font-size:11px;color:var(--muted2);align-items:center}
+.bimg-err{flex:1;display:flex;flex-direction:column;gap:6px;justify-content:center;padding:10px;font-size:11.5px;color:var(--red);min-height:120px;background:rgba(239,68,68,.05)}
 
 /* Modal */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:200}
@@ -401,6 +447,20 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
 .ab-card .ab-ms{font-size:11px;color:var(--muted);font-family:ui-monospace,Consolas,monospace}
 .ab-card .ab-body{color:var(--text2);word-break:break-word}
 .ab-card .ab-body pre{background:var(--bg4);padding:8px 10px;border-radius:8px;overflow-x:auto;font-size:11.5px;white-space:pre-wrap;word-break:break-word}
+/* 性能基准表 / 能力体检表：容器横向滚动，防溢出 */
+.res-msg > .perf-tbl,
+#pf-res > .perf-tbl,
+#cap-res > .perf-tbl{display:block;overflow-x:auto;max-width:100%;white-space:nowrap}
+.perf-tbl{width:100%;border-collapse:collapse;font-size:12px;text-align:left}
+.perf-tbl th{background:var(--bg4);color:var(--muted);font-weight:600;padding:7px 9px;border-bottom:1px solid var(--border);white-space:nowrap}
+.perf-tbl td{padding:7px 9px;border-bottom:1px solid var(--border);color:var(--text2);word-break:break-word}
+.perf-tbl tr:hover td{background:var(--bg3)}
+.perf-tbl .perf-model{font-weight:800;color:var(--text);font-size:12px;white-space:nowrap}
+.perf-tbl .perf-out{max-width:280px;font-size:11px;color:var(--muted)}
+.perf-tbl tr.perf-fail td{opacity:.85}
+.perf-tbl .best{color:var(--green);font-weight:800}
+.perf-tbl .ok{color:var(--green)}
+.perf-tbl .fail{color:var(--red)}
 .ch-note{font-size:11.5px;color:var(--muted);background:var(--bg4);border-radius:8px;padding:8px 12px;line-height:1.6;margin-bottom:10px}
 
 /* Scrollbar */
@@ -427,6 +487,9 @@ video.r-vid{max-width:100%;border-radius:12px;border:1px solid var(--border);dis
 }
 .mode-tab:hover{color:var(--text2)}
 .mode-tab.active{background:var(--bg2);color:var(--primary);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+/* 视频页模式 tab：空间不足时换行而非被 overflow 裁剪，避免「🌐 多模态参考」图标被遮挡 */
+#vid-mode-tabs.mode-tabs{flex-wrap:wrap}
+#vid-mode-tabs .mode-tab{flex:1 1 auto;min-width:0}
 
 /* Upload zone */
 .upload-zone{
@@ -704,6 +767,7 @@ input:focus,textarea:focus,select:focus{
 
 /* ========== CHAT V2（聊天体验强化，仅叠加不改功能）========== */
 .chat-bar{padding:12px 18px;gap:8px;border-bottom:1px solid var(--border)}
+#tab-plaza .chat-bar{flex-direction:row;align-items:center}
 .chat-bar select,.chat-bar input#cmt{background:var(--bg3)}
 .msgs{padding:26px 22px;gap:18px;scroll-behavior:smooth}
 .msg{max-width:min(760px,88%);gap:12px}
@@ -1185,6 +1249,7 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
     </div>
   </div>
   <nav>
+    <div class="nav-sec-lbl">对话生成</div>
     <button class="nav-btn active" id="nav-chat" onclick="go('chat')">
       <span class="nb-ic">💬</span><span class="nb-lbl">文字对话</span>
     </button>
@@ -1194,6 +1259,8 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
     <button class="nav-btn" id="nav-video" onclick="go('video')">
       <span class="nb-ic">🎬</span><span class="nb-lbl">视频生成</span>
     </button>
+
+    <div class="nav-sec-lbl">资源与编排</div>
     <button class="nav-btn" id="nav-plaza" onclick="go('plaza')">
       <span class="nb-ic">🏪</span><span class="nb-lbl">模型广场</span>
     </button>
@@ -1203,8 +1270,16 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
     <button class="nav-btn" id="nav-workflow" onclick="go('workflow')">
       <span class="nb-ic">🕸️</span><span class="nb-lbl">工作流</span>
     </button>
+
+    <div class="nav-sec-lbl">测试工具</div>
     <button class="nav-btn" id="nav-cache" onclick="go('cache')">
       <span class="nb-ic">🧠</span><span class="nb-lbl">缓存测试</span>
+    </button>
+    <button class="nav-btn" onclick="openBatch()">
+      <span class="nb-ic">⚡</span><span class="nb-lbl">压测</span>
+    </button>
+    <button class="nav-btn" onclick="openAb()">
+      <span class="nb-ic">⇄</span><span class="nb-lbl">A/B 对比</span>
     </button>
     <button class="nav-btn" id="nav-scan" onclick="go('scan')">
       <span class="nb-ic">🔍</span><span class="nb-lbl">模型巡检</span>
@@ -1214,6 +1289,9 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
     </button>
     <button class="nav-btn" id="nav-tools" onclick="go('tools')">
       <span class="nb-ic">🛠</span><span class="nb-lbl">工具测试</span>
+    </button>
+    <button class="nav-btn" id="nav-raw" onclick="go('raw')">
+      <span class="nb-ic">📤</span><span class="nb-lbl">原始请求</span>
     </button>
   </nav>
   <div class="sidebar-foot">
@@ -1249,34 +1327,42 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
       </div>
       <div class="chat-main">
         <div class="chat-bar">
-          <label>模型</label>
-          <select id="cm" style="width:220px" onchange="sessSyncModel()"><option value="">加载中...</option></select>
-          <button class="btn btn-g btn-sm" onclick="loadModels()" title="刷新模型列表" style="padding:7px 10px">↻</button>
-          <div class="bar-sep"></div>
-          <label style="margin:0" title="上游对话接口格式">格式</label>
-          <select id="cf" style="width:170px" title="auto：claude 系走 /v1/messages，其余走 /v1/chat/completions">
-            <option value="auto">Auto 自动</option>
-            <option value="messages">Anthropic /v1/messages</option>
-            <option value="chat">OpenAI /v1/chat/completions</option>
-            <option value="responses">OpenAI /v1/responses</option>
-          </select>
-          <div class="bar-sep"></div>
-          <label style="margin:0">Max Tokens</label>
-          <input type="number" id="cmt" value="2000" style="width:86px">
-          <div class="bar-sep"></div>
-          <button class="btn btn-g btn-sm" onclick="toggleParams()" title="采样参数（temperature 等）">⚙ 参数</button>
-          <button class="btn btn-g btn-sm" onclick="go('cache')" title="缓存命中率测试（独立页）：Claude 前缀缓存命中率与耗时">🧠 缓存</button>
-          <button class="btn btn-g btn-sm" onclick="openBatch()" title="批量/压测：多提示词并发执行并统计">⚡ 压测</button>
-          <button class="btn btn-g btn-sm" onclick="openAb()" title="模型 A/B 对比：同一提示词多模型并行">⇄ A/B</button>
-          <button class="btn btn-g btn-sm" onclick="chatCurl()" title="把当前会话与模型导出为 cURL 命令">📋 cURL</button>
-          <div style="flex:1"></div>
-          <label class="tog" style="margin:0;white-space:nowrap" title="启用后模型可调用计算器、网页抓取等工具，自动多轮执行">
-            <input type="checkbox" id="ctool">
-            <span class="tog-s"></span>
-            <span style="font-size:12px;color:var(--text2)">工具</span>
-          </label>
-          <button class="btn btn-g btn-sm" onclick="sessCompress()" id="sess-compress" title="上下文过长时压缩为摘要" style="display:none">🧠 压缩上下文</button>
-          <button class="btn btn-g btn-sm" onclick="clearChat()">🗑 清空</button>
+          <div class="chat-bar-group">
+            <label style="margin:0">站点</label>
+            <div class="chips site-g" style="display:inline-flex;gap:4px">
+              <span class="chip" data-v="cn" style="font-size:11px;padding:3px 8px">🇨🇳 国内</span>
+              <span class="chip" data-v="intl" style="font-size:11px;padding:3px 8px">🌍 国际</span>
+            </div>
+            <div class="bar-sep"></div>
+            <label>模型</label>
+            <select id="cm" style="width:220px" onchange="sessSyncModel()"><option value="">加载中...</option></select>
+            <button class="btn btn-g btn-sm" onclick="loadModels()" title="刷新模型列表" style="padding:7px 10px">↻</button>
+            <div class="bar-sep"></div>
+            <label style="margin:0" title="上游对话接口格式">格式</label>
+            <select id="cf" style="width:170px" title="auto：claude 系走 /v1/messages，其余走 /v1/chat/completions">
+              <option value="auto">Auto 自动</option>
+              <option value="messages">Anthropic /v1/messages</option>
+              <option value="chat">OpenAI /v1/chat/completions</option>
+              <option value="responses">OpenAI /v1/responses</option>
+            </select>
+            <div class="bar-sep"></div>
+            <label style="margin:0">Max Tokens</label>
+            <input type="number" id="cmt" value="2000" style="width:86px">
+            <div class="bar-sep"></div>
+            <button class="btn btn-g btn-sm" onclick="toggleParams()" title="采样参数（temperature 等）">⚙ 参数</button>
+            <div style="flex:1"></div>
+            <label class="tog" style="margin:0;white-space:nowrap" title="启用后模型可调用计算器、网页抓取等工具，自动多轮执行">
+              <input type="checkbox" id="ctool">
+              <span class="tog-s"></span>
+              <span style="font-size:12px;color:var(--text2)">工具</span>
+            </label>
+            <button class="btn btn-g btn-sm" onclick="clearChat()">🗑 清空</button>
+          </div>
+          <div class="chat-bar-group chat-bar-tools">
+            <button class="btn btn-g btn-sm" onclick="chatCurl()" title="把当前会话与模型导出为 cURL 命令">📋 cURL</button>
+            <div style="flex:1"></div>
+            <button class="btn btn-g btn-sm" onclick="sessCompress()" id="sess-compress" title="上下文过长时压缩为摘要" style="display:none">🧠 压缩上下文</button>
+          </div>
         </div>
         <div class="chat-params" id="chat-params" style="display:none">
           <div class="cp-grid">
@@ -1310,7 +1396,11 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
             <div class="ph-sub">选择模型，输入消息<br>Ctrl + Enter 快速发送</div>
           </div>
         </div>
+        <div class="chat-attach" id="chat-attach" style="display:none"></div>
         <div class="chat-foot">
+          <button class="btn btn-g btn-sm" id="chat-at-btn" onclick="document.getElementById('chat-at-inp').click()" title="上传图片做图片理解，或附上参考文件（PDF/文档/表格等）">📎</button>
+          <input type="file" id="chat-at-inp" multiple style="display:none"
+            accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.md,.json" onchange="pickChatAttach(event)">
           <textarea id="ci" rows="5" style="flex:1" placeholder="输入消息... (Ctrl+Enter 发送)" onkeydown="ck(event)"></textarea>
           <button class="btn btn-p" id="csend" onclick="sendChat()"
             style="flex-direction:column;gap:4px;align-self:stretch">
@@ -1324,34 +1414,79 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
 
   <!-- ===== IMAGE ===== -->
   <section class="tab" id="tab-image">
-    <div class="split">
-      <div class="ctrl">
-        <div class="mode-tabs" id="img-mode-tabs">
-          <button class="mode-tab active" onclick="setImgMode('t2i')">✍ 文生图</button>
-          <button class="mode-tab" onclick="setImgMode('i2i')">🖼 图生图</button>
-          <button class="mode-tab" onclick="setImgMode('edit')">✏️ 图像编辑</button>
-          <button class="mode-tab" onclick="setImgMode('json')">📄 JSON 直发</button>
-        </div>
-
-        <div class="fg"><label>站点</label>
-          <div class="chips site-g">
-            <span class="chip" data-v="cn">🇨🇳 国内站</span>
-            <span class="chip" data-v="intl">🌍 国际站</span>
+    <div class="gen-col">
+      <!-- 顶部工具栏：类型 / 站点 / 模型 / 参数 -->
+      <div class="chat-bar">
+        <div class="chat-bar-group">
+          <div class="mode-tabs" id="img-mode-tabs">
+            <button class="mode-tab active" onclick="setImgMode('t2i')">✍ 文生图</button>
+            <button class="mode-tab" onclick="setImgMode('i2i')">🖼 图生图</button>
+            <button class="mode-tab" onclick="setImgMode('edit')">✏️ 图像编辑</button>
+            <button class="mode-tab" onclick="setImgMode('mask')">🎭 蒙版编辑</button>
+            <button class="mode-tab" onclick="setImgMode('understand')">🔍 图片理解</button>
+            <button class="mode-tab" onclick="setImgMode('json')">📄 JSON 直发</button>
           </div>
-          <div class="ph-sub" style="margin-top:2px">上游：<span class="site-url"></span></div>
+          <div class="bar-sep"></div>
+          <div class="gen-bar-item">
+            <label style="margin:0">站点</label>
+            <div class="chips site-g">
+              <span class="chip" data-v="cn">🇨🇳 国内站</span>
+              <span class="chip" data-v="intl">🌍 国际站</span>
+            </div>
+          </div>
+          <div class="bar-sep"></div>
+          <div class="gen-bar-item">
+            <label style="margin:0">模型</label>
+            <select id="im" style="width:200px"><option value="">加载中...</option></select>
+          </div>
         </div>
-
-        <div class="fg"><label>模型</label>
-          <select id="im"><option value="">加载中...</option></select>
+        <div class="chat-bar-group chat-bar-tools">
+          <span style="font-size:10.5px;color:var(--muted);font-weight:700;letter-spacing:.6px;text-transform:uppercase">参数</span>
+          <div class="gen-bar-item" id="img-sz-zone"><label style="margin:0">尺寸</label>
+            <div class="chips" id="sz-g">
+              <span class="chip on" data-v="1024x1024">1024²</span>
+              <span class="chip" data-v="1536x1024">1536×1024</span>
+              <span class="chip" data-v="1024x1536">1024×1536</span>
+              <span class="chip" data-v="2048x2048">2048²</span>
+              <span class="chip" data-v="2048x1152">2048×1152</span>
+              <span class="chip" data-v="3840x2160">4K 横</span>
+              <span class="chip" data-v="2160x3840">4K 竖</span>
+              <span class="chip" data-v="auto">auto</span>
+              <span class="chip" data-v="custom">✏️ 自定义</span>
+            </div>
+            <div id="sz-custom-zone" style="display:none;align-items:center;gap:4px;margin-left:4px">
+              <input type="number" id="sz-cw" min="256" max="8192" step="16" value="1280" placeholder="宽" style="width:62px;padding:5px 6px" title="自定义宽度（256-8192）">
+              <span style="color:var(--muted2);font-size:12px">x</span>
+              <input type="number" id="sz-ch" min="256" max="8192" step="16" value="720" placeholder="高" style="width:62px;padding:5px 6px" title="自定义高度（256-8192）">
+            </div>
+          </div>
+          <div class="gen-bar-item" id="img-q-zone"><label style="margin:0">质量</label>
+            <div class="chips" id="iq-g">
+              <span class="chip" data-v="low">low</span>
+              <span class="chip" data-v="medium">medium</span>
+              <span class="chip on" data-v="high">high</span>
+              <span class="chip" data-v="auto">auto</span>
+            </div>
+          </div>
+          <div class="gen-bar-item" id="img-conc-zone"><label style="margin:0">并发</label>
+            <div class="chips" id="ic-g">
+              <span class="chip on" data-v="1">1</span>
+              <span class="chip" data-v="2">2</span>
+              <span class="chip" data-v="5">5</span>
+              <span class="chip" data-v="10">10</span>
+              <span class="chip" data-v="20">20</span>
+              <span class="chip" data-v="50">50</span>
+              <span class="chip" data-v="100">100</span>
+            </div>
+            <input type="number" id="ic-n" min="0" max="100" value="1"
+                   style="width:60px;padding:6px 8px;margin-left:6px"
+                   title="0-100 任意并发数（0 / 1 = 单张生成；≥2 走服务端并发批量，结果网格一起展示）">
+          </div>
         </div>
+      </div>
 
-        <div class="fg" id="img-prompt-zone"><label>提示词</label>
-          <textarea id="ip" rows="4" placeholder="描述你想要的图像，越详细效果越好..." oninput="onPromptInput(event)" onblur="setTimeout(hideAtMenu, 200)"></textarea>
-          <div class="ph-sub" style="margin-top:2px">上传参考图后，输入 <b>@</b> 可引用（如 @图2 / @2，发送时自动规范为 图2）</div>
-          <div class="at-menu" id="at-menu" style="display:none"></div>
-        </div>
-
-        <!-- JSON 直发模式 -->
+      <!-- 中部：JSON 直发 / 参考图 / 结果区 -->
+      <div class="gen-mid">
         <div id="img-json-zone" style="display:none">
           <div class="fg">
             <label>目标接口</label>
@@ -1364,7 +1499,7 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
           </div>
           <div class="fg">
             <label>请求 JSON（完整请求体，粘贴后可直接发送）</label>
-            <textarea id="ij" rows="12" style="font-family:monospace;font-size:11.5px" placeholder='{ "model": "gpt-image-2", "prompt": "...", "size": "1024x1024", "n": 1, "response_format": "b64_json", "stream": true }'></textarea>
+            <textarea id="ij" rows="8" style="font-family:monospace;font-size:11.5px" placeholder='{ "model": "gpt-image-2", "prompt": "...", "size": "1024x1024", "n": 1, "response_format": "b64_json", "stream": true }'></textarea>
           </div>
           <div class="row" style="gap:8px">
             <button class="btn btn-g btn-sm" style="flex:1" onclick="fillJsonFromCurrent()">📋 填入当前图像请求</button>
@@ -1372,7 +1507,6 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
           </div>
         </div>
 
-        <!-- 参考图（图生图最多 9 张 / 图像编辑最多 4 张） -->
         <div id="img-ref-zone" class="fg" style="display:none">
           <label>参考图 <span id="img-ref-cnt"
             style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">(0/9)</span></label>
@@ -1387,47 +1521,52 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
           <input type="file" id="img-ref-inp" accept="image/*" multiple style="display:none" onchange="pickImgRef(event)">
         </div>
 
-        <div class="sec-lbl">参数设置</div>
-
-        <div class="fg" id="img-sz-zone"><label>尺寸</label>
-          <div class="chips" id="sz-g">
-            <span class="chip on" data-v="1024x1024">1024²</span>
-            <span class="chip" data-v="1536x1024">1536×1024</span>
-            <span class="chip" data-v="1024x1536">1024×1536</span>
-            <span class="chip" data-v="2048x2048">2048²</span>
-            <span class="chip" data-v="2048x1152">2048×1152</span>
-            <span class="chip" data-v="3840x2160">4K 横</span>
-            <span class="chip" data-v="2160x3840">4K 竖</span>
-            <span class="chip" data-v="auto">auto</span>
+        <!-- 蒙版编辑：原图 + 蒙版 双上传区 -->
+        <div id="img-mask-zone" class="fg" style="display:none">
+          <label>原图与蒙版 <span id="img-mask-cnt"
+            style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)">(0/2)</span></label>
+          <div class="ref-grid" id="img-mask-grid"></div>
+          <div class="upload-zone" id="img-mask-drop"
+               onclick="document.getElementById('img-mask-inp').click()"
+               ondragover="event.preventDefault()"
+               ondrop="dropImgMask(event)">
+            <div class="up-ico">🎭</div>
+            <div class="up-txt" id="img-mask-up-txt">依次上传：<b>第 1 张 = 原图</b>，<b>第 2 张 = 蒙版</b><br>PNG · JPG · WEBP · 各 1 张</div>
+          </div>
+          <input type="file" id="img-mask-inp" accept="image/*" multiple style="display:none" onchange="pickImgMask(event)">
+          <div class="ph-sub" style="margin-top:6px">
+            蒙版要求：与原图<b>同尺寸</b>的 PNG，要编辑的区域画成<b>白色（不透明）</b>，其余区域透明或黑色；
+            模型只修改白色区域。参考 curl：
+            <code style="color:var(--green)">-F "image[]=@input.png" -F "mask=@mask.png" -F "prompt=..." -F "size=1536x1024" -F "quality=high" -F "output_format=png"</code>
           </div>
         </div>
 
-        <div class="fg" id="img-q-zone"><label>质量</label>
-          <div class="chips" id="iq-g">
-            <span class="chip" data-v="low">low</span>
-            <span class="chip" data-v="medium">medium</span>
-            <span class="chip on" data-v="high">high</span>
-            <span class="chip" data-v="auto">auto</span>
+        <div class="result" id="ir">
+          <div class="ph" style="margin:auto">
+            <div class="ph-ic">🎨</div>
+            <div style="font-size:16px;color:var(--text2);font-weight:600">图像将在此处显示</div>
+            <div class="ph-sub">生成约需 30 ~ 120 秒，请耐心等待</div>
           </div>
         </div>
-
-        <div class="divider"></div>
-        <button class="gen-btn" id="ib" onclick="genImg()">✨ 生成图像</button>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn btn-g btn-sm" style="flex:1" onclick="copyImgPayload()">📋 复制请求体</button>
-          <button class="btn btn-g btn-sm" style="flex:1" id="img-preview-toggle" onclick="toggleImgPayloadPreview()">👁 查看请求体</button>
-        </div>
-        <div id="img-payload-preview" style="display:none;margin-top:8px">
-          <pre id="img-payload-json" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-size:11px;line-height:1.6;color:var(--text2);white-space:pre-wrap;word-break:break-all;max-height:400px;overflow:auto;margin:0"></pre>
-        </div>
-        <div id="ist" class="ph-sub" style="text-align:center;min-height:14px"></div>
       </div>
 
-      <div class="result" id="ir">
-        <div class="ph" style="margin:auto">
-          <div class="ph-ic">🎨</div>
-          <div style="font-size:16px;color:var(--text2);font-weight:600">图像将在此处显示</div>
-          <div class="ph-sub">生成约需 30 ~ 120 秒，请耐心等待</div>
+      <!-- 底部：提示词输入区 -->
+      <div class="gen-foot">
+        <div class="gen-foot-row">
+          <div class="fg" id="img-prompt-zone" style="flex:1">
+            <textarea id="ip" rows="4" placeholder="描述你想要的图像，越详细效果越好..." oninput="onPromptInput(event)" onblur="setTimeout(hideAtMenu, 200)"></textarea>
+            <div class="ph-sub" style="margin-top:2px">上传参考图后，输入 <b>@</b> 可引用（如 @图2 / @2，发送时自动规范为 图2）</div>
+            <div class="at-menu" id="at-menu" style="display:none"></div>
+          </div>
+          <button class="btn btn-p gen-sub" id="ib" onclick="genImg()">✨ 生成图像</button>
+        </div>
+        <div class="gen-foot-row" style="align-items:center;gap:8px">
+          <button class="btn btn-g btn-sm" onclick="copyImgPayload()">📋 复制请求体</button>
+          <button class="btn btn-g btn-sm" id="img-preview-toggle" onclick="toggleImgPayloadPreview()">👁 查看请求体</button>
+          <span class="ph-sub" id="ist" style="flex:1;text-align:right;min-height:14px"></span>
+        </div>
+        <div id="img-payload-preview" style="display:none">
+          <pre id="img-payload-json" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-size:11px;line-height:1.6;color:var(--text2);white-space:pre-wrap;word-break:break-all;max-height:300px;overflow:auto;margin:0"></pre>
         </div>
       </div>
     </div>
@@ -1443,9 +1582,12 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
           <button class="mode-tab" onclick="setVidMode('v2v')">🎞 视频参考</button>
           <button class="mode-tab" onclick="setVidMode('a2v')">📦 素材生成</button>
           <button class="mode-tab" onclick="setVidMode('m2v')">🌐 多模态参考</button>
+          <button class="mode-tab" onclick="setVidMode('minimax')">🎥 MiniMax</button>
+          <button class="mode-tab" onclick="setVidMode('json')">📄 JSON 直发</button>
+          <button class="mode-tab" onclick="setVidMode('vunder')">🔍 视频理解</button>
         </div>
 
-        <div class="fg"><label>站点</label>
+        <div class="fg" id="vid-site-zone"><label>站点</label>
           <div class="chips site-g">
             <span class="chip" data-v="cn">🇨🇳 国内站</span>
             <span class="chip" data-v="intl">🌍 国际站</span>
@@ -1519,6 +1661,142 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
             <label>参考音频 URL（可选）</label>
             <input type="url" id="vid-m2v-audio" placeholder="https://example.com/bgm.mp3">
             <div class="ph-sub" style="margin-top:2px">在提示词中用「音频1」引用作为背景音乐</div>
+          </div>
+        </div>
+
+        <!-- MiniMax V2 视频生成 -->
+        <div id="vid-minimax-zone" style="display:none">
+          <div class="fg">
+            <label>模型</label>
+            <select id="vmm-model">
+              <option value="MiniMax-H3">MiniMax-H3（支持文生/图生/多模态，768P/2K，4~15s）</option>
+              <option value="MiniMax-H3-Max">MiniMax-H3-Max（极速，文生/图生，480P/768P，5~15s）</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>提示词</label>
+            <textarea id="vmm-prompt" rows="4" placeholder="史诗级太空歌剧院线预告：女舰长独自站在巨大观景窗前..."></textarea>
+          </div>
+          <div class="fg">
+            <label>参考图（可选，图生视频）
+              <span id="vmm-img-cnt" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)"></span>
+            </label>
+            <div id="vmm-img-list"></div>
+            <div class="row" style="gap:8px">
+              <input type="url" id="vmm-img-inp" placeholder="https://example.com/image.png" style="flex:1">
+              <select id="vmm-img-role" style="width:110px">
+                <option value="first_frame">首帧</option>
+                <option value="last_frame">尾帧</option>
+              </select>
+              <button class="btn btn-g btn-sm" onclick="addMmImg()">➕ 添加</button>
+            </div>
+            <div class="ph-sub" style="margin-top:4px">
+              首帧模式：1 张图 role=first_frame · 尾帧模式：1 张图 role=last_frame · 首尾帧模式：2 张图分别设 role<br>
+              不添加图片则为纯文生视频
+            </div>
+          </div>
+          <div class="fg"><label>分辨率</label>
+            <div class="chips" id="vmm-res-g">
+              <span class="chip" data-v="480p">480p</span>
+              <span class="chip" data-v="768p" >768p</span>
+              <span class="chip on" data-v="2K">2K</span>
+            </div>
+            <div class="ph-sub" style="margin-top:2px">H3-Max 不支持 2K</div>
+          </div>
+          <div class="fg">
+            <label>画面比例</label>
+            <div class="chips" id="vmm-ratio-g">
+              <span class="chip on" data-v="16:9">16:9</span>
+              <span class="chip" data-v="9:16">9:16</span>
+              <span class="chip" data-v="1:1">1:1</span>
+              <span class="chip" data-v="adaptive">adaptive</span>
+            </div>
+          </div>
+          <div class="fg">
+            <label>
+              时长
+              <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--primary);margin-left:4px">
+                <span id="vmm-dur-lbl">5</span>s
+              </span>
+            </label>
+            <input type="range" id="vmm-dur" min="4" max="15" value="5"
+              oninput="document.getElementById('vmm-dur-lbl').textContent=this.value">
+            <div class="row" style="justify-content:space-between;font-size:11px;color:var(--muted2)">
+              <span>4s</span><span>15s</span>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <button class="gen-btn" id="vmm-submit" onclick="submitMinimax()">🎬 生成视频（MiniMax）</button>
+        </div>
+
+        <!-- JSON 直发（火山豆包 /v1/video/generations，素材引用 asset:// 或 URL） -->
+        <div id="vid-json-zone" style="display:none">
+          <div class="fg">
+            <label>目标接口</label>
+            <select id="vj-path">
+              <option value="/v1/video/generations">火山豆包 · /v1/video/generations（seed-2.0 多模态）</option>
+              <option value="/api/v3/contents/generations/tasks">国内站扁平 · /api/v3/contents/generations/tasks</option>
+            </select>
+            <div class="ph-sub" style="margin-top:2px">实际请求 <span id="vj-url"></span> + 路径（按当前站点）· 素材引用支持 <b>asset://素材ID</b> 或公网 URL，原样透传</div>
+          </div>
+          <div class="fg">
+            <label>请求 JSON（完整请求体，直接传参发送）</label>
+            <textarea id="vj" rows="14" style="font-family:monospace;font-size:11.5px" placeholder='{ "model": "seed-2-vison", "prompt": "...", "metadata": { "reference_images": ["asset://asset-xxx"], "reference_videos": [], "reference_audios": [], "generate_audio": true, "ratio": "16:9", "duration": 5, "watermark": false } }'></textarea>
+          </div>
+          <div class="fg">
+            <label>素材引用 <span id="vj-asset-cnt" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)"></span></label>
+            <div id="vj-asset-list" style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--r);padding:8px;display:flex;flex-direction:column;gap:6px">
+              <div class="ph-sub" style="margin:0">加载素材库...</div>
+            </div>
+            <div class="ph-sub" style="margin-top:4px">点击素材旁的「⤷ 引用」把 <code>asset://ID</code> 插入光标处；可填入 metadata.reference_images 或 content 的 url 字段</div>
+          </div>
+          <div class="row" style="gap:8px">
+            <button class="btn btn-g btn-sm" style="flex:1" onclick="fillVidJsonTemplate()">📋 填入模板</button>
+            <button class="btn btn-g btn-sm" style="flex:1" onclick="navigator.clipboard.writeText(document.getElementById('vj').value).then(()=>alert('已复制'))">📤 复制请求体</button>
+          </div>
+        </div>
+
+        <!-- 视频理解（把视频作为模型输入：OpenAI video_url 内容块） -->
+        <div id="vid-vunder-zone" style="display:none">
+          <div class="fg">
+            <label>模型（测试视频输入能力）</label>
+            <input type="text" id="vu-model" list="vu-models" value="kimi-k3" placeholder="kimi-k3">
+            <datalist id="vu-models"></datalist>
+            <div class="ph-sub" style="margin-top:2px">下拉候选来自当前站点模型列表；不在列表内的模型 ID 也可直接输入</div>
+          </div>
+          <div class="fg">
+            <label>视频地址</label>
+            <input type="text" id="vu-url" placeholder="ms://xxxx-xxxx 或 https://example.com/a.mp4">
+            <div class="ph-sub" style="margin-top:2px">支持 <code>ms://素材ID</code>（素材引用）· 公网 URL · <code>data:video/mp4;base64,...</code>，原样透传不改写</div>
+          </div>
+          <div class="fg">
+            <label>或本地上传视频
+              <span id="vu-file-name" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2)"></span>
+            </label>
+            <div class="up-zone" onclick="document.getElementById('vu-file').click()"
+              ondragover="event.preventDefault()" ondrop="dropVuFile(event)">
+              <div class="up-ic">🎬</div>
+              <div class="up-txt">点击或拖拽添加本地视频（转 base64 直传）</div>
+            </div>
+            <input type="file" id="vu-file" accept="video/*" style="display:none" onchange="pickVuFile(event)">
+            <div class="ph-sub" style="margin-top:4px">上传会转成 <code>data:video/...;base64,</code> 直传；视频较大时慢且可能超上游大小限制，优先用 URL / 素材引用</div>
+          </div>
+          <div class="fg">
+            <label>提示词</label>
+            <textarea id="vu-prompt" rows="3" placeholder="总结这个视频">总结这个视频</textarea>
+          </div>
+          <div class="fg">
+            <label>Max Tokens</label>
+            <input type="number" id="vu-mt" value="1024" min="1" max="32768" step="128">
+          </div>
+          <div class="fg">
+            <label>请求体 JSON（可选：填了就按此直发，忽略上方字段）</label>
+            <textarea id="vu-json" rows="6" style="font-family:monospace;font-size:11.5px"
+              placeholder='{ "model": "kimi-k3", "messages": [ { "role": "user", "content": [ { "type": "video_url", "video_url": {"url": "ms://xxxx-xxxx"} }, { "type": "text", "text": "总结这个视频" } ] } ] }'></textarea>
+          </div>
+          <div class="row" style="gap:8px">
+            <button class="btn btn-g btn-sm" style="flex:1" onclick="fillVuTemplate()">📋 用上方字段生成请求体</button>
+            <button class="btn btn-g btn-sm" style="flex:1" onclick="clearVu()">🧹 清空</button>
           </div>
         </div>
 
@@ -1753,9 +2031,20 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
   <section class="tab" id="tab-cache">
     <div class="split">
       <div class="ctrl" style="width:330px;min-width:330px;max-width:330px">
-        <div class="fg"><label>模型（走 /v1/messages）</label>
-          <select id="cc-model"><option value="">加载中...</option></select>
-          <div class="ph-sub" style="margin-top:2px">Claude 系：前缀缓存最短 1024 token（Haiku 系 2048）</div>
+        <div class="fg"><label>测试协议</label>
+          <div class="chips site-g" id="cc-proto-g">
+            <span class="chip active" data-v="messages" onclick="cacheSetProto(this,'messages')">🧠 /v1/messages</span>
+            <span class="chip" data-v="chat" onclick="cacheSetProto(this,'chat')">🤖 /v1/chat</span>
+            <span class="chip" data-v="gemini" onclick="cacheSetProto(this,'gemini')">✨ Gemini</span>
+          </div>
+          <div class="chips site-g" id="cc-mode-g" style="margin-top:6px">
+            <span class="chip" data-v="implicit" onclick="cacheSetMode(this,'implicit')">🔵 隐式缓存（前缀自动）</span>
+            <span class="chip active" data-v="explicit" onclick="cacheSetMode(this,'explicit')">🟠 显式缓存（显式标记/创建）</span>
+          </div>
+          <div class="ph-sub" id="cc-proto-note" style="margin-top:2px">Anthropic 显式：system 数组 + cache_control 断点</div>
+        </div>
+        <div class="fg"><label>模型</label>
+          <select id="cc-model" onchange="cacheModelChanged(this)"><option value="">加载中...</option></select>
         </div>
         <div class="row" style="gap:8px">
           <div class="fg" style="flex:1"><label>文档重复份数</label>
@@ -1843,7 +2132,8 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
           <span class="chip" data-v="fail" onclick="lgSetFilter(this,'fail')">❌ 失败</span>
         </div>
         <div style="flex:1"></div>
-        <span class="ph-sub" style="white-space:nowrap">内存环形日志，最多 300 条，重启清空</span>
+        <span class="ph-sub" style="white-space:nowrap" id="lg-count">数据库持久化，重启不丢</span>
+        <button class="btn btn-g btn-sm" onclick="lgExport()">📥 导出Excel</button>
         <button class="btn btn-g btn-sm" onclick="lgRefresh()">🔄 刷新</button>
         <button class="btn btn-g btn-sm" onclick="lgClear()">🗑 清空</button>
       </div>
@@ -1873,6 +2163,13 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
         </div>
         <div class="fg"><label>用户提示词</label>
           <textarea id="tt-prompt" rows="3" placeholder="例如：计算 (2+3)*4 然后告诉我当前时间"></textarea>
+        </div>
+        <div class="fg"><label>🧪 Claude 能力探测（临时，测完可删）</label>
+          <div class="row" style="gap:8px">
+            <button class="btn btn-g btn-sm" style="flex:1" onclick="ttPreset('computer')">🖥 computer-use 探测</button>
+            <button class="btn btn-g btn-sm" style="flex:1" onclick="ttPreset('compact')">📦 compact 压缩探测</button>
+          </div>
+          <div class="ph-sub" style="margin-top:2px">点按钮自动填好模型/提示词/工具定义，再点「▶ 开始测试」</div>
         </div>
         <div id="tt-tools-zone">
           <div class="fg"><label>Tools 定义（OpenAI 格式 JSON，每行一个不换行）</label>
@@ -1912,6 +2209,66 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
     </div>
   </section>
 
+  <!-- ===== 原始请求测试（Apifox 式） ===== -->
+  <section class="tab" id="tab-raw">
+    <div class="split">
+      <div class="ctrl" style="width:330px;min-width:330px;max-width:330px">
+        <div class="fg"><label>目标站点</label>
+          <div class="chips site-g">
+            <span class="chip active" data-v="cn" onclick="rawSetSite(this,'cn')">🇨🇳 国内站</span>
+            <span class="chip" data-v="intl" onclick="rawSetSite(this,'intl')">🌍 国际站</span>
+          </div>
+        </div>
+        <div class="row" style="gap:8px">
+          <div class="fg" style="flex:1"><label>方法</label>
+            <select id="raw-method">
+              <option value="POST">POST</option>
+              <option value="GET">GET</option>
+            </select>
+          </div>
+          <div class="fg" style="flex:2"><label>上游路径</label>
+            <input type="text" id="raw-path" placeholder="/v1/messages">
+          </div>
+        </div>
+        <div class="fg"><label>Authorization（留空用当前 Token）</label>
+          <input type="text" id="raw-auth" placeholder="Bearer sk-...">
+        </div>
+        <div class="fg"><label>自定义请求头（每行 Key: Value，可选）</label>
+          <textarea id="raw-headers" rows="3" spellcheck="false" placeholder='anthropic-beta: claude-3-7-sonnet-20250219&#10;x-custom-header: test-value'></textarea>
+          <div class="row" style="gap:6px;margin-top:4px">
+            <button class="btn btn-g btn-sm" style="flex:1" onclick="rawHdrPreset('beta')">🧪 anthropic-beta</button>
+            <button class="btn btn-g btn-sm" style="flex:1" onclick="rawHdrPreset('lang')">🌐 Accept-Language</button>
+          </div>
+        </div>
+        <div class="fg"><label>请求体（JSON，POST 用）</label>
+          <textarea id="raw-body" rows="8" spellcheck="false"></textarea>
+        </div>
+        <div class="row" style="gap:8px">
+          <button class="btn btn-p" style="flex:1" onclick="rawRun()">▶ 发送请求</button>
+          <button class="btn btn-g" style="flex:1" onclick="rawCurl()">📋 cURL</button>
+        </div>
+        <div class="fg" style="margin-top:8px"><label>快速填充</label>
+          <div class="chips site-g">
+            <span class="chip" data-v="messages" onclick="rawPreset('messages')">💬 对话</span>
+            <span class="chip" data-v="chat" onclick="rawPreset('chat')">🤖 Chat</span>
+            <span class="chip" data-v="responses" onclick="rawPreset('responses')">🧠 Responses</span>
+            <span class="chip" data-v="models" onclick="rawPreset('models')">📚 模型列表</span>
+          </div>
+        </div>
+        <div class="res-msg" id="raw-msg" style="text-align:left;min-height:20px"></div>
+      </div>
+      <div class="cache-main">
+        <div class="cache-res" id="raw-res">
+          <div class="ph" style="margin:auto">
+            <div class="ph-ic">📤</div>
+            <div style="font-size:15px;color:var(--text2);font-weight:600">原始请求测试台</div>
+            <div class="ph-sub">像 Apifox 一样粘贴 JSON 请求体，指定路径与方法<br>原样转发上游并查看原始响应</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <!-- ========== SETTINGS MODAL ========== -->
@@ -1932,7 +2289,7 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
     <div class="fg">
       <label>🌍 国际站 Token</label>
       <input type="password" id="s-tok-intl" placeholder="sk-...">
-      <div class="ph-sub" style="margin-top:2px">两站 Token 相互独立，图像/视频按当前所选站点自动使用对应 Token</div>
+      <div class="ph-sub" style="margin-top:2px">两站 Token 相互独立，图像/视频按当前所选站点自动使用对应 Token。填 <code>sk-xxx</code> 即可；若连同 <code>Bearer </code> 前缀一起粘贴也会自动纠正，不会重复拼接</div>
     </div>
     <div class="fg">
       <label>测试站点（测试连接 / 图像 / 视频 / 模型列表使用）</label>
@@ -2019,6 +2376,67 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
   </div>
 </div>
 
+<!-- ========== 性能基准 MODAL ========== -->
+<div class="overlay" id="ov-perf" onclick="bgClose2(event, 'ov-perf')">
+  <div class="modal modal-wide" onclick="event.stopPropagation()">
+    <div>
+      <div class="modal-title">🚀 性能基准测试</div>
+      <div class="modal-sub">同一提示词流式发往多个模型，统计<b>首Token延迟(TTFT)</b>、<b>生成速度(TPS)</b>、<b>总耗时</b>，排成对比表</div>
+    </div>
+    <div class="fg">
+      <label>测试提示词</label>
+      <textarea id="pf-prompt" rows="4" placeholder="输入一个提示词，用于测多个模型的响应速度（建议用能触发长输出的提示词，更能看出 TPS 差异）"></textarea>
+    </div>
+    <div class="fg">
+      <label>对比模型（每行一个，最多 6 个）</label>
+      <textarea id="pf-models" rows="4" placeholder="claude-sonnet-4-6&#10;claude-haiku-4-5-20251001&#10;claude-opus-4-6&#10;gpt-4o-mini&#10;gemini-2.0-flash"></textarea>
+    </div>
+    <div class="row">
+      <div class="fg" style="flex:1">
+        <label>Max Tokens</label>
+        <input type="number" id="pf-mt" value="800" min="64" max="8192">
+      </div>
+      <div class="fg" style="flex:1">
+        <label>Temperature</label>
+        <input type="number" id="pf-temp" value="0.7" min="0" max="2" step="0.05">
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn btn-p" style="flex:1" onclick="runPerf()">▶ 开始测试</button>
+      <button class="btn btn-g" style="flex:1" onclick="closeOv('ov-perf')">关闭</button>
+    </div>
+    <div class="res-msg" id="pf-res" style="min-height:24px"></div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-cap" onclick="bgClose2(event, 'ov-cap')">
+  <div class="modal modal-wide" onclick="event.stopPropagation()">
+    <div>
+      <div class="modal-title">🧭 模型能力体检</div>
+      <div class="modal-sub">对一组模型并发跑<b>标准任务集</b>（数学推理 / 代码生成 / 翻译 / JSON 结构化），逐项校验输出是否达标，输出能力对比表</div>
+    </div>
+    <div class="fg">
+      <label>对比模型（每行一个，最多 6 个）</label>
+      <textarea id="cap-models" rows="4" placeholder="claude-sonnet-4-6&#10;claude-haiku-4-5-20251001&#10;claude-opus-4-6&#10;gpt-4o-mini&#10;gemini-2.0-flash"></textarea>
+    </div>
+    <div class="row">
+      <div class="fg" style="flex:1">
+        <label>Max Tokens</label>
+        <input type="number" id="cap-mt" value="1024" min="64" max="8192">
+      </div>
+      <div class="fg" style="flex:1">
+        <label>Temperature</label>
+        <input type="number" id="cap-temp" value="0.2" min="0" max="2" step="0.05">
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn btn-p" style="flex:1" onclick="runCap()">▶ 开始体检</button>
+      <button class="btn btn-g" style="flex:1" onclick="closeOv('ov-cap')">关闭</button>
+    </div>
+    <div class="res-msg" id="cap-res" style="min-height:24px"></div>
+  </div>
+</div>
+
 <!-- ========== 缓存命中率测试已迁移至独立页 tab-cache ========== -->
 
 <script>
@@ -2064,7 +2482,7 @@ const ASSETS = {
 
 // ============ CHIPS ============
 function initChips() {
-  ['sz-g','iq-g','vr-g','vres-g','asset-type-g'].forEach(id => {
+  ['sz-g','iq-g','vr-g','vres-g','asset-type-g','ic-g','vmm-res-g','vmm-ratio-g'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     el.querySelectorAll('.chip').forEach(c => {
@@ -2074,6 +2492,36 @@ function initChips() {
       };
     });
   });
+  // 并发 chips 与数字输入框双向同步（0-100，0/1 均表示单张）
+  const icn = document.getElementById('ic-n');
+  const icg = document.getElementById('ic-g');
+  if (icn && icg && !icn.dataset.bound) {
+    icn.dataset.bound = '1';
+    icg.querySelectorAll('.chip').forEach(c => {
+      c.addEventListener('click', () => { icn.value = c.dataset.v; });
+    });
+    icn.addEventListener('input', () => {
+      const v = parseInt(icn.value, 10);
+      if (!Number.isFinite(v)) return;
+      const vv = Math.max(0, Math.min(100, v));
+      if (vv !== v) icn.value = vv;
+      icg.querySelectorAll('.chip').forEach(c => {
+        c.classList.toggle('on', parseInt(c.dataset.v, 10) === vv);
+      });
+    });
+  }
+  // 自定义尺寸：选中「✏️ 自定义」chip 时显示 宽x高 输入框
+  const szg = document.getElementById('sz-g');
+  const szc = document.getElementById('sz-custom-zone');
+  if (szg && szc && !szg.dataset.bound) {
+    szg.dataset.bound = '1';
+    const syncSz = () => {
+      const c = szg.querySelector('.chip.on');
+      szc.style.display = (c && c.dataset.v === 'custom') ? 'inline-flex' : 'none';
+    };
+    szg.addEventListener('click', syncSz);
+    syncSz();
+  }
 }
 function chipVal(groupId) {
   const el = document.querySelector('#'+groupId+' .chip.on');
@@ -2093,6 +2541,7 @@ function go(name) {
   if (name === 'scan') scanInit();
   if (name === 'logs') lgRefresh();
   if (name === 'tools') ttInit();
+  if (name === 'raw') rawInit();
 }
 
 // ============ SETTINGS ============
@@ -2118,22 +2567,31 @@ async function testConn() {
   setRes('🔄 正在测试'+siteName+' Token ...', 'var(--yellow)');
   const url = document.getElementById('s-url').value.trim();
   // 按当前所选站点取对应输入框的 Token 进行验证
-  const tok = (S.site === 'intl'
+  const rawTok = (S.site === 'intl'
     ? document.getElementById('s-tok-intl').value
     : document.getElementById('s-tok').value).trim();
+  if (!rawTok) { setRes('❌ 请先填写 '+siteName+' Token', 'var(--red)'); return; }
+  // 规范化：若粘贴的 Token 自带 "Bearer " 前缀，避免拼成 "Bearer Bearer xxx" 被上游拒绝
+  const auth = normAuth(rawTok);
   try {
     const r = await fetch(api('/api/verify', url), {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer '+tok, 'X-Site': S.site },
+      headers: { 'Authorization': auth, 'X-Site': S.site },
     });
+    const upstream = r.headers.get('X-Upstream') || S.site;
     if (r.ok) {
       const j = await r.json().catch(() => ({}));
       const cnt = (j.data || []).length;
-      setRes('✅ '+siteName+' Token 有效，共 '+cnt+' 个可用模型（'+(r.headers.get('X-Upstream')||'')+'）', 'var(--green)');
+      setRes('✅ '+siteName+' Token 有效，共 '+cnt+' 个可用模型（'+upstream+'）', 'var(--green)');
     } else {
       const body = await r.text().catch(() => '');
-      setRes('❌ '+siteName+' Token 无效 ('+r.status+')，实际请求: '+(r.headers.get('X-Upstream')||S.site), 'var(--red)');
-      console.warn('verify failed:', body);
+      let detail = body;
+      try {
+        const j = JSON.parse(body);
+        detail = j?.error?.message || j?.error?.msg || j?.message || j?.msg || body;
+      } catch {}
+      setRes('❌ '+siteName+' Token 无效 ('+r.status+') · 上游 '+upstream+' · '+detail, 'var(--red)');
+      console.warn('verify failed:', r.status, upstream, '| 发送头:', auth.slice(0, 15) + '...', '| 响应:', body);
     }
   } catch(e) { setRes('❌ 无法连接后端: '+e.message, 'var(--red)'); }
 }
@@ -2156,7 +2614,8 @@ function api(path, base) {
 function hdrs(site) {
   const s = site || S.site;
   const tok = s === 'intl' ? S.tokIntl : S.tokCn;
-  return { 'Authorization': 'Bearer '+tok, 'Content-Type': 'application/json', 'X-Site': s };
+  // normAuth：Token 已带 "Bearer " 前缀时不再重复拼接（否则 "Bearer Bearer xxx" 会被上游判为 Invalid token）
+  return { 'Authorization': normAuth(tok), 'Content-Type': 'application/json', 'X-Site': s };
 }
 
 // ============ SITE SWITCH（国内站 / 国际站）============
@@ -2182,7 +2641,7 @@ function renderSiteToggles() {
 const DEFAULTS = {
   chat:  ['claude-sonnet-4-6','claude-haiku-4-5-20251001','claude-opus-4-6','claude-opus-4-7'],
   image: ['gpt-image-2'],
-  video: ['doubao-seedance-2-0-260128', 'doubao-seedance-2-0-fast-260128'],
+  video: ['seed-2-vison', 'doubao-seedance-2-0-260128', 'doubao-seedance-2-0-fast-260128'],
 };
 
 function populateSel(selId, ids, prefer) {
@@ -2201,7 +2660,7 @@ async function loadModels() {
   });
   try {
     const res = await fetch(api('/api/models'), {
-      headers: { 'Authorization': 'Bearer '+S.tok, 'X-Site': S.site },
+      headers: { 'Authorization': normAuth(S.tok), 'X-Site': S.site },
     });
     if (!res.ok) throw new Error('HTTP '+res.status);
     const j = await res.json();
@@ -2209,6 +2668,7 @@ async function loadModels() {
       .map(m => (typeof m === 'string' ? m : m.id) || '')
       .filter(Boolean);
     if (!all.length) throw new Error('模型列表为空');
+    S.allModels = all;   // 供「视频理解」模型候选等复用
     populateSel('cm', all, 'claude-sonnet-4-6');
     populateSel('im', all, 'gpt-image-2');
     populateSel('vm', all, 'doubao-seedance-2-0-260128');
@@ -2216,6 +2676,7 @@ async function loadModels() {
   } catch(e) {
     console.warn('loadModels failed, using defaults:', e.message);
     const fallback = [...new Set([...DEFAULTS.chat, ...DEFAULTS.image, ...DEFAULTS.video])];
+    S.allModels = fallback;
     populateSel('cm', fallback, 'claude-sonnet-4-6');
     populateSel('im', fallback, 'gpt-image-2');
     populateSel('vm', fallback, 'doubao-seedance-2-0-260128');
@@ -2350,6 +2811,46 @@ function sessAppend(role, content) {
 
 function ck(e) { if (e.key==='Enter' && e.ctrlKey) { e.preventDefault(); sendChat(); } }
 
+// ============ 聊天附件（图片理解 / 参考文件） ============
+S.chatAttach = [];   // {name, mime, data(dataURL), isImg}
+function pickChatAttach(e) {
+  Array.from(e.target.files || []).forEach(f => addChatAttach(f));
+  e.target.value = '';
+}
+function addChatAttach(file) {
+  if (!file) return;
+  if (S.chatAttach.length >= 4) { toast('最多同时附带 4 个文件'); return; }
+  if (file.size > 20 * 1024 * 1024) { toast('单个文件不能超过 20MB：' + file.name); return; }
+  const isImg = file.type.startsWith('image/');
+  S.chatAttach.push({ name: file.name, mime: file.type || (isImg ? 'image/png' : 'application/octet-stream'), data: null, isImg });
+  const slot = S.chatAttach.length - 1;
+  const fr = new FileReader();
+  fr.onload = () => { S.chatAttach[slot].data = fr.result; renderChatAttach(); };
+  fr.readAsDataURL(file);
+  renderChatAttach();
+}
+function removeChatAttach(i) {
+  S.chatAttach.splice(i, 1);
+  renderChatAttach();
+}
+function renderChatAttach() {
+  const bar = document.getElementById('chat-attach');
+  const items = S.chatAttach;
+  bar.style.display = items.length ? '' : 'none';
+  bar.innerHTML = items.map((a, i) => {
+    const thumb = a.isImg && a.data
+      ? '<img src="' + a.data + '" style="width:34px;height:34px;object-fit:cover;border-radius:6px;flex:none">'
+      : '<div style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--bg4);border-radius:6px;flex:none">' + (a.isImg ? '🖼' : '📄') + '</div>';
+    return '<div class="chat-attach-item">' + thumb
+      + '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11.5px;color:var(--text2)">' + esc(a.name) + '</span>'
+      + '<button onclick="removeChatAttach(' + i + ')" style="background:none;border:none;cursor:pointer;color:var(--muted2);font-size:12px;padding:2px">✕</button></div>';
+  }).join('');
+}
+function chatAttachSummary() {
+  // 会话存储用文本摘要（base64 不入库）
+  return S.chatAttach.map(a => (a.isImg ? '[图片:' : '[文件:') + esc(a.name) + ']').join(' ');
+}
+
 function clearChat() {
   S.chatMsgs = [];
   if (S.curSess) sessApi('DELETE', '/' + S.curSess + '/messages').then(s => {
@@ -2378,7 +2879,21 @@ function addBubble(role, text) {
   const d = document.createElement('div');
   d.className = 'msg ' + (role === 'user' ? 'user' : 'ai');
   const ava  = role === 'user' ? '🧑' : '✦';
-  const body = role === 'user' ? esc(String(text)) : md(String(text));
+  let body;
+  if (role === 'user' && Array.isArray(text)) {
+    // 附件消息：text + 图片/文件块
+    body = text.map(p => {
+      if (p.type === 'image' && p.data) {
+        return '<img src="' + p.data + '" style="max-width:180px;max-height:140px;border-radius:8px;border:1px solid var(--border);display:block;margin:2px 0">';
+      }
+      if (p.type === 'file') {
+        return '<div class="ch-note" style="margin:2px 0">📄 ' + esc(p.name || '附件') + '</div>';
+      }
+      return esc(p.text || '');
+    }).join('<br>');
+  } else {
+    body = role === 'user' ? esc(String(text)) : md(String(text));
+  }
   d.innerHTML =
     `<div class="ava">${ava}</div>` +
     `<div class="bubble"><div class="b-content">${body}</div></div>` +
@@ -2393,7 +2908,7 @@ let aiBubble = null, aiText = '';
 
 async function sendChat() {
   if (S.chatBusy) return;
-  if (!S.tokCn) { openModal(); return; }   // 对话固定走国内站
+  if (!S.tok) { openModal(); return; }   // 跟随全局站点：国内站校验 tokCn，国际站校验 tokIntl
   const ci = document.getElementById('ci');
   const txt = ci.value.trim(); if (!txt) return;
   const model = document.getElementById('cm').value;
@@ -2401,23 +2916,66 @@ async function sendChat() {
   const maxTok = parseInt(document.getElementById('cmt').value) || 2000;
   ci.value = '';
   autoGrow(ci);
-  S.chatMsgs.push({ role:'user', content:txt });
-  sessAppend('user', txt);
-  addBubble('user', txt);
+  // 附件模式：content 数组 {type:text|image|file}；否则保持纯文本（流式）
+  const hasAttach = S.chatAttach.some(a => a.data);
+  let userContent = txt;
+  if (hasAttach) {
+    userContent = [{ type:'text', text: txt }];
+    S.chatAttach.forEach(a => {
+      userContent.push(a.isImg
+        ? { type:'image', mime:a.mime, name:a.name, data:a.data }
+        : { type:'file',  mime:a.mime, name:a.name, data:a.data });
+    });
+  }
+  S.chatMsgs.push({ role:'user', content: userContent });
+  sessAppend('user', hasAttach ? txt + ' ' + chatAttachSummary() : txt);
+  addBubble('user', userContent);
   aiText = '';
   aiBubble = addBubble('ai', '');
   const bc = aiBubble.querySelector('.b-content');
   bc.innerHTML = '<span class="cur"></span>';
+  S.streamAborted = false;
   S.chatBusy = true;
   const btn = document.getElementById('csend');
   btn.disabled = true;
   btn.innerHTML = '<span>生成中</span><span style="font-size:10px;opacity:.65;font-weight:400">请稍候</span>';
+  if (hasAttach) {
+    // 附件模式：非流式，后端按模型重写为 Gemini parts / Claude source / OpenAI image_url
+    const att = S.chatAttach.slice();
+    S.chatAttach = [];
+    renderChatAttach();
+    try {
+      const res = await fetch(api('/api/chat/attach'), {
+        method: 'POST', headers: { ...hdrs(S.site), 'X-Chat-Api': chatApi },
+        body: JSON.stringify({ model, messages: S.chatMsgs, max_tokens: maxTok }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (j.error) { bc.innerHTML = errCard(null, j.error, ''); return; }
+      aiText = j.text || '';
+      bc.innerHTML = aiText ? md(aiText) : errCard(null, '模型未返回任何内容', '');
+      if (aiText) {
+        S.chatMsgs.push({ role:'assistant', content: aiText });
+        sessAppend('assistant', aiText);
+        addCopyBtn(aiBubble, aiText);
+      }
+      updateScrollBtn();
+    } catch(e) {
+      S.streamAborted = true;
+      bc.innerHTML = errCard(null, e.message, '');
+    } finally {
+      S.streamAborted = true;
+      S.chatBusy = false;
+      btn.disabled = false;
+      btn.innerHTML = '<span>发送</span><span style="font-size:10px;opacity:.65;font-weight:400">Ctrl+↵</span>';
+    }
+    return;
+  }
   try {
     const toolMode = document.getElementById('ctool').checked;
     if (toolMode) {
       // 工具调用模式：非流式，后端自动执行工具循环
       const res = await fetch(api('/api/chat/tools'), {
-        method: 'POST', headers: hdrs('cn'),
+        method: 'POST', headers: hdrs(S.site),
         body: JSON.stringify({ model, messages: S.chatMsgs, max_tokens: maxTok, max_rounds: 4 }),
       });
       if (!res.ok) {
@@ -2449,7 +3007,7 @@ async function sendChat() {
     }
     const bodyParams = chatParams(chatApi, model);
     const res = await fetch(api('/api/chat'), {
-      method: 'POST', headers: { ...hdrs('cn'), 'X-Chat-Api': chatApi },
+      method: 'POST', headers: { ...hdrs(S.site), 'X-Chat-Api': chatApi },
       body: JSON.stringify(Object.assign({ model, messages: S.chatMsgs, max_tokens: maxTok, stream: true }, bodyParams)),
     });
     if (!res.ok) {
@@ -2459,7 +3017,20 @@ async function sendChat() {
     }
     const reader = res.body.getReader();
     const dec = new TextDecoder();
-    let buf = '';
+    let buf = '', evt = '', gotEnd = false;
+    let shown = 0, typeTimer = null;
+    const typeStop = () => { if (typeTimer) { clearInterval(typeTimer); typeTimer = null; } };
+    const typeFull = () => { typeStop(); shown = aiText.length; bc.innerHTML = md(aiText); };
+    // 逐字平滑渲染：每 16ms 放 3 个字符，形成打字机效果
+    const startType = () => {
+      if (typeTimer) return;
+      typeTimer = setInterval(() => {
+        if (S.streamAborted || shown >= aiText.length) { typeStop(); return; }
+        shown = Math.min(aiText.length, shown + 3);
+        bc.innerHTML = md(aiText.slice(0, shown)) + '<span class="cur"></span>';
+        document.getElementById('msgs').scrollTop = 99999;
+      }, 16);
+    };
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
@@ -2467,11 +3038,15 @@ async function sendChat() {
       const lines = buf.split('\n');
       buf = lines.pop();
       for (const line of lines) {
+        if (line.startsWith('event: ')) { evt = line.slice(7).trim(); continue; }
         if (!line.startsWith('data: ')) continue;
         const d = line.slice(6).trim();
-        if (d === '[DONE]') { buf = ''; break; }
+        if (d === '[DONE]') { gotEnd = true; buf = ''; break; }
+        if (d === '{}' && evt === 'message_stop') { gotEnd = true; buf = ''; break; }
         try {
           const j = JSON.parse(d);
+          // 正常结束事件（Anthropic message_stop / OpenAI responses completed）
+          if (j.type === 'message_stop' || j.type === 'response.completed') gotEnd = true;
           // 上游在流中返回错误事件（Anthropic type:error 或 OpenAI/网关 error:{} 格式）
           if (j.type === 'error' || j.error) {
             bc.innerHTML = errCard(null, fmtErr(j), d);
@@ -2489,19 +3064,38 @@ async function sendChat() {
           } else if (j.type === 'response.output_text.done' && j.text && !aiText) {
             // 兜底：某些网关只发 done 事件
             aiText += j.text;
-          } else if (j.type === 'response.failed' || j.type === 'error') {
-            bc.innerHTML = errCard(null, fmtErr(j), d);
-            return;
           }
-          bc.innerHTML = md(aiText) + '<span class="cur"></span>';
-          document.getElementById('msgs').scrollTop = 99999;
+          startType();
+        } catch {}
+        evt = '';
+      }
+      if (gotEnd) break;
+    }
+    // 处理流结束后残留在 buf 中的最后一条 data 行（无换行符结尾时）
+    const tail = buf.trim();
+    if (tail.startsWith('data:')) {
+      const d = tail.slice(5).trim();
+      if (d === '[DONE]') gotEnd = true;
+      else if (d && d !== '{}') {
+        try {
+          const j = JSON.parse(d);
+          if (j.type === 'message_stop' || j.type === 'response.completed') gotEnd = true;
+          if (j.type === 'error' || j.error) { bc.innerHTML = errCard(null, fmtErr(j), d); typeStop(); return; }
+          if (j.type === 'content_block_delta' && j.delta?.type === 'text_delta') aiText += j.delta.text;
+          else if (j.choices?.[0]?.delta?.content) aiText += j.choices[0].delta.content;
+          else if (j.type === 'response.output_text.delta' && j.delta) aiText += j.delta;
         } catch {}
       }
     }
+    typeFull();
     if (aiText) {
-      bc.innerHTML = md(aiText);
-      S.chatMsgs.push({ role:'assistant', content: aiText });
-      sessAppend('assistant', aiText);
+      if (gotEnd) {
+        S.chatMsgs.push({ role:'assistant', content: aiText });
+        sessAppend('assistant', aiText);
+      } else {
+        // 未收到结束事件：连接被提前掐断，输出可能不完整
+        bc.innerHTML = md(aiText) + '<div class="ch-note" style="margin-top:10px;color:var(--yellow)">⚠ 流式连接中断，输出可能不完整。可调低 max_tokens 或重试。</div>';
+      }
       addCopyBtn(aiBubble, aiText);
     } else {
       bc.innerHTML = errCard(null, '模型未返回任何内容，请检查模型名称或 Token 权限', '');
@@ -2509,8 +3103,16 @@ async function sendChat() {
     sessSyncCompressBtn();
     updateScrollBtn();
   } catch(e) {
-    bc.innerHTML = errCard(null, e.message, '');
+    S.streamAborted = true;
+    if (aiText) {
+      // 流式中途断开但已有部分输出：保留已生成内容并提示，而不是覆盖成错误卡片
+      bc.innerHTML = md(aiText) + '<div class="ch-note" style="margin-top:10px;color:var(--red)">⚠ 连接中断：' + esc(e.message || '网络错误') + '（已保留部分输出）</div>';
+      addCopyBtn(aiBubble, aiText);
+    } else {
+      bc.innerHTML = errCard(null, e.message, '');
+    }
   } finally {
+    S.streamAborted = true;
     S.chatBusy = false;
     btn.disabled = false;
     btn.innerHTML = '<span>发送</span><span style="font-size:10px;opacity:.65;font-weight:400">Ctrl+↵</span>';
@@ -2528,12 +3130,22 @@ function toggleParams() {
   p.style.display = p.style.display === 'none' ? '' : 'none';
 }
 function cpSync(k, v) {
-  S.params[k] = (k === 'seed') ? v : parseFloat(v);
+  S.params[k] = (k === 'seed') ? String(v) : parseFloat(v);
   const b = document.getElementById('cp-' + k + '-v');
   if (b) b.textContent = (k === 'seed') ? (v || '随机') : v;
   cpSave();
 }
 function cpLoad() {
+  // 归一化：历史 localStorage 可能存了字符串 "1"/"0"，统一转数字后回写
+  let dirty = false;
+  ['temperature', 'top_p', 'presence_penalty', 'frequency_penalty'].forEach(k => {
+    const v = S.params[k];
+    if (v !== undefined && typeof v === 'string') {
+      S.params[k] = parseFloat(v);
+      dirty = true;
+    }
+  });
+  if (dirty) cpSave();
   const p = S.params;
   if (p.temperature !== undefined) { document.getElementById('cp-temp').value = p.temperature; document.getElementById('cp-temp-v').textContent = p.temperature; }
   if (p.top_p !== undefined) { document.getElementById('cp-topp').value = p.top_p; document.getElementById('cp-topp-v').textContent = p.top_p; }
@@ -2541,19 +3153,29 @@ function cpLoad() {
   if (p.frequency_penalty !== undefined) { document.getElementById('cp-fp').value = p.frequency_penalty; document.getElementById('cp-fp-v').textContent = p.frequency_penalty; }
   if (p.seed !== undefined) document.getElementById('cp-seed').value = p.seed;
 }
-// 按格式筛选参数：Anthropic 仅支持 temperature/top_p
+// 按格式筛选参数：Anthropic 仅支持 temperature（新版 Claude 已弃用 top_p/top_k）；
+// 新版 OpenAI（gpt-5 家族 / o 系列）不支持 presence_penalty/frequency_penalty/seed，o 系列连 top_p 也不支持
 function chatParams(chatApi, model) {
   const p = S.params;
   const fmt = String(chatApi || 'auto').toLowerCase();
-  const isAnthropic = fmt === 'messages' || (fmt === 'auto' && String(model).toLowerCase().includes('claude'));
+  const lm = String(model || '').toLowerCase();
+  const isAnthropic = fmt === 'messages' || (fmt === 'auto' && lm.includes('claude'));
+  const isNextGen = lm.includes('gpt-5') || lm.includes('gpt-5.6') || lm.includes('-luna') || /^o[0-9]/.test(lm);
+  const isOReasoner = /^o[0-9]/.test(lm);
   const out = {};
   if (fmt === 'responses') return out;   // responses 格式由后端重写，不支持透传参数
-  if (p.temperature !== undefined && p.temperature !== '' && !(p.temperature === 1)) out.temperature = Number(p.temperature);
-  if (p.top_p !== undefined && p.top_p !== '' && p.top_p !== 1) out.top_p = Number(p.top_p);
-  if (!isAnthropic) {
-    if (p.presence_penalty !== undefined && p.presence_penalty !== 0) out.presence_penalty = Number(p.presence_penalty);
-    if (p.frequency_penalty !== undefined && p.frequency_penalty !== 0) out.frequency_penalty = Number(p.frequency_penalty);
-    if (p.seed !== undefined && p.seed !== '') out.seed = Number(p.seed);
+  // 数值归一化：localStorage 历史值可能是字符串 "1"/"0"，避免 "1" !== 1 误发默认参数
+  const num = (v, dflt) => (v === undefined || v === '' || isNaN(Number(v))) ? dflt : Number(v);
+  const temperature = num(p.temperature, 1);
+  const topP = num(p.top_p, 1);
+  if (temperature !== 1) out.temperature = temperature;
+  if (!isAnthropic && !isOReasoner && topP !== 1) out.top_p = topP;
+  if (!isAnthropic && !isNextGen) {
+    const pp = num(p.presence_penalty, 0);
+    const fp = num(p.frequency_penalty, 0);
+    if (pp !== 0) out.presence_penalty = pp;
+    if (fp !== 0) out.frequency_penalty = fp;
+    if (p.seed !== undefined && p.seed !== '' && p.seed !== null) out.seed = Number(p.seed);
   }
   return out;
 }
@@ -2570,7 +3192,7 @@ function chatCurl() {
   const curl = "curl -sS -X POST '" + base + "/api/chat' \\\n"
     + "  -H 'Authorization: Bearer " + S.tok + "' \\\n"
     + "  -H 'Content-Type: application/json' \\\n"
-    + "  -H 'X-Site: cn' \\\n"
+    + "  -H 'X-Site: " + S.site + "' \\\n"
     + "  -H 'X-Chat-Api: " + chatApi + "' \\\n"
     + "  -d '" + JSON.stringify(body).replace(/'/g, "'\\''") + "'";
   copyText(curl);
@@ -2587,7 +3209,7 @@ async function tokenModels(force) {
   if (S.tok) {
     try {
       const res = await fetch(api('/api/models'), {
-        headers: { 'Authorization': 'Bearer ' + S.tok, 'X-Site': S.site },
+        headers: { 'Authorization': normAuth(S.tok), 'X-Site': S.site },
       });
       if (res.ok) {
         const j = await res.json();
@@ -2631,7 +3253,7 @@ async function runBatch() {
   res.innerHTML = '<span style="color:var(--muted)">正在并发执行 ' + prompts.length + ' 条提示词...</span>';
   try {
     const r = await fetch(api('/api/test/batch'), {
-      method: 'POST', headers: hdrs('cn'),
+      method: 'POST', headers: hdrs(S.site),
       body: JSON.stringify({ model, prompts, max_tokens: mt, concurrency: conc }),
     });
     const j = await r.json();
@@ -2689,7 +3311,7 @@ async function runAb() {
   res.innerHTML = '<span style="color:var(--muted)">正在并行对比 ' + models.length + ' 个模型...</span>';
   try {
     const r = await fetch(api('/api/test/ab'), {
-      method: 'POST', headers: hdrs('cn'),
+      method: 'POST', headers: hdrs(S.site),
       body: JSON.stringify({ prompt, models, max_tokens: mt, temperature: temp }),
     });
     const j = await r.json();
@@ -2716,7 +3338,177 @@ function renderAb(res, j) {
   res.innerHTML = h;
 }
 
+// ============ 性能基准测试 ============
+async function openPerf() {
+  const models = await tokenModels();
+  const cur = document.getElementById('cm').value;
+  const defs = models.slice(0, 5);
+  if (cur && !defs.includes(cur)) defs.unshift(cur);
+  document.getElementById('pf-models').value = defs.join('\n');
+  document.getElementById('pf-res').innerHTML = '';
+  document.getElementById('ov-perf').classList.add('show');
+}
+async function runPerf() {
+  const btn = document.querySelector('#ov-perf .btn-p');
+  const prompt = document.getElementById('pf-prompt').value.trim();
+  const mt = parseInt(document.getElementById('pf-mt').value) || 800;
+  const temp = parseFloat(document.getElementById('pf-temp').value) || 0.7;
+  const models = document.getElementById('pf-models').value.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 6);
+  const res = document.getElementById('pf-res');
+  if (!prompt) { res.innerHTML = '<span style="color:var(--red)">请输入测试提示词</span>'; return; }
+  if (!models.length) { res.innerHTML = '<span style="color:var(--red)">至少填写一个模型</span>'; return; }
+  if (!S.tokCn && !S.tokIntl) { res.innerHTML = '<span style="color:var(--red)">请先配置 API Token</span>'; return; }
+  btn.disabled = true; btn.textContent = '⏳ 测试中...';
+  res.innerHTML = '<span style="color:var(--muted)">正在流式并发测 ' + models.length + ' 个模型（最长 180s）...</span>';
+  try {
+    const r = await fetch(api('/api/test/perf'), {
+      method: 'POST', headers: hdrs(S.site),
+      body: JSON.stringify({ prompt, models, max_tokens: mt, temperature: temp }),
+    });
+    const j = await r.json();
+    if (j.error) { res.innerHTML = errCard(null, j.error, ''); return; }
+    renderPerf(res, j);
+  } catch (e) {
+    res.innerHTML = errCard(null, e.message, '');
+  } finally {
+    btn.disabled = false; btn.textContent = '▶ 开始测试';
+  }
+}
+function renderPerf(res, j) {
+  const rows = j.results || [];
+  if (!rows.length) { res.innerHTML = '<span style="color:var(--red)">无结果</span>'; return; }
+  // 统计最快 TTFT / 最高 TPS / 最快总耗时
+  const bestTtft = rows.filter(r => r.ok && r.ttft_ms > 0).reduce((a, b) => !a || b.ttft_ms < a.ttft_ms ? b : a, null);
+  const bestTps = rows.filter(r => r.ok && r.tps > 0).reduce((a, b) => !a || b.tps > a.tps ? b : a, null);
+  const bestTotal = rows.filter(r => r.ok).reduce((a, b) => !a || b.total_ms < a.total_ms ? b : a, null);
+  let h = '<table class="perf-tbl"><thead><tr>'
+    + '<th>模型</th><th>状态</th><th>首Token(TTFT)</th><th>首字节</th><th>Tokens</th><th>TPS</th><th>总耗时</th><th>输出</th>'
+    + '</tr></thead><tbody>';
+  rows.forEach(r => {
+    h += '<tr class="' + (r.ok ? '' : 'perf-fail') + '">'
+      + '<td class="perf-model">' + esc(r.model) + '</td>'
+      + '<td>' + (r.ok ? '<span class="ok">✓</span>' : '<span class="fail">✗</span>') + '</td>'
+      + '<td>' + perfMs(r, r.ttft_ms, bestTtft) + '</td>'
+      + '<td>' + (r.first_byte_ms > 0 ? r.first_byte_ms + 'ms' : '—') + '</td>'
+      + '<td>' + r.tokens + '</td>'
+      + '<td>' + (r.ok && r.tps > 0 ? '<span' + (bestTps && bestTps.model === r.model ? ' class="best"' : '') + '>' + r.tps + '</span>' : '—') + '</td>'
+      + '<td>' + perfMs(r, r.total_ms, bestTotal) + '</td>'
+      + '<td class="perf-out">' + (r.ok ? shortTxt(r.text || '') : '<span style="color:var(--red)">' + esc(r.error || '') + '</span>') + '</td>'
+      + '</tr>';
+  });
+  h += '</tbody></table>';
+  // 图例
+  h += '<div class="ph-sub" style="margin-top:6px">🟢 = 该项目最快/最优 &nbsp;·&nbsp; '
+    + (bestTtft ? '最快首Token：' + esc(bestTtft.model) : '')
+    + (bestTps ? ' · 最高TPS：' + esc(bestTps.model) : '')
+    + (bestTotal ? ' · 最快总耗时：' + esc(bestTotal.model) : '') + '</div>';
+  res.innerHTML = h;
+}
+function perfMs(r, v, best) {
+  if (!r.ok || v <= 0) return '—';
+  const isBest = best && best.model === r.model;
+  return (isBest ? '<span class="best">' : '') + v + 'ms' + (isBest ? ' 🟢</span>' : '');
+}
+function shortTxt(s) {
+  if (s.length <= 80) return esc(s);
+  return esc(s.slice(0, 80)) + '…';
+}
+
+// ============ 模型能力体检 ============
+async function openCap() {
+  const models = await tokenModels();
+  const cur = document.getElementById('cm').value;
+  const defs = models.slice(0, 5);
+  if (cur && !defs.includes(cur)) defs.unshift(cur);
+  document.getElementById('cap-models').value = defs.join('\n');
+  document.getElementById('cap-res').innerHTML = '';
+  document.getElementById('ov-cap').classList.add('show');
+}
+async function runCap() {
+  const btn = document.querySelector('#ov-cap .btn-p');
+  const mt = parseInt(document.getElementById('cap-mt').value) || 1024;
+  const temp = parseFloat(document.getElementById('cap-temp').value) || 0.2;
+  const models = document.getElementById('cap-models').value.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 6);
+  const res = document.getElementById('cap-res');
+  if (!models.length) { res.innerHTML = '<span style="color:var(--red)">至少填写一个模型</span>'; return; }
+  if (!S.tokCn && !S.tokIntl) { res.innerHTML = '<span style="color:var(--red)">请先配置 API Token</span>'; return; }
+  btn.disabled = true; btn.textContent = '⏳ 体检中...';
+  res.innerHTML = '<span style="color:var(--muted)">正在并发体检 ' + models.length + ' 个模型 × 4 项任务（最长约 120s）...</span>';
+  try {
+    const r = await fetch(api('/api/test/capability'), {
+      method: 'POST', headers: hdrs(S.site),
+      body: JSON.stringify({ models, max_tokens: mt, temperature: temp }),
+    });
+    const j = await r.json();
+    if (j.error) { res.innerHTML = errCard(null, j.error, ''); return; }
+    renderCap(res, j);
+  } catch (e) {
+    res.innerHTML = errCard(null, e.message, '');
+  } finally {
+    btn.disabled = false; btn.textContent = '▶ 开始体检';
+  }
+}
+function renderCap(res, j) {
+  const tasks = j.tasks || [];
+  const rows = j.results || [];
+  if (!rows.length) { res.innerHTML = '<span style="color:var(--red)">无结果</span>'; return; }
+  let h = '<table class="perf-tbl"><thead><tr><th>模型</th>';
+  tasks.forEach(t => { h += '<th>' + esc(t.label) + '</th>'; });
+  h += '<th>通过率</th></tr></thead><tbody>';
+  rows.forEach(m => {
+    const byKey = {};
+    (m.rows || []).forEach(r => byKey[r.key] = r);
+    const okCount = (m.rows || []).filter(r => r.ok).length;
+    const total = (m.rows || []).length;
+    h += '<tr><td class="perf-model">' + esc(m.model) + '</td>';
+    tasks.forEach(t => {
+      const r = byKey[t.key];
+      if (!r) { h += '<td>—</td>'; return; }
+      const tooltip = esc((r.ok ? '' : '✗ ' + (r.err || '')) + ' ' + r.ms + 'ms ' + (r.text || ''));
+      h += '<td title="' + tooltip + '">'
+        + (r.ok ? '<span class="ok">✓</span>' : '<span class="fail">✗</span>')
+        + ' <span style="color:var(--muted);font-size:11px">' + r.ms + 'ms</span></td>';
+    });
+    h += '<td>' + okCount + '/' + total + (okCount === total ? ' <span class="ok">✓</span>' : '') + '</td></tr>';
+  });
+  h += '</tbody></table>';
+  h += '<div class="ph-sub" style="margin-top:6px">🟩 = 通过（输出满足任务校验标准）&nbsp;·&nbsp;🟥 = 未通过（悬停看错误/输出摘要）</div>';
+  res.innerHTML = h;
+}
+
 // ============ 缓存命中率测试（独立页 tab-cache） ============
+let cacheProto = 'messages';   // messages | chat | gemini
+let cacheMode = 'explicit';    // implicit | explicit（默认显式：各协议官方推荐的缓存标记方式）
+function cacheSetProto(el, proto) {
+  cacheProto = proto;
+  document.querySelectorAll('#cc-proto-g .chip').forEach(c => c.classList.toggle('active', c.getAttribute('data-v') === proto));
+  cacheNote();
+  cacheTokEst();
+}
+function cacheSetMode(el, mode) {
+  cacheMode = mode;
+  document.querySelectorAll('#cc-mode-g .chip').forEach(c => c.classList.toggle('active', c.getAttribute('data-v') === mode));
+  cacheNote();
+  cacheTokEst();
+}
+function cacheNote() {
+  const el = document.getElementById('cc-proto-note');
+  if (!el) return;
+  const p = cacheProto, m = cacheMode;
+  if (m === 'explicit') {
+    el.innerHTML = p === 'gemini'
+      ? 'Gemini 显式：先 POST /v1beta/cachedContents 创建缓存对象，请求体带 cachedContent 引用；命中看 usageMetadata.cachedContentTokenCount（依赖中继站支持）'
+      : p === 'chat'
+        ? 'OpenAI 无官方显式缓存 API：本模式请求体与隐式一致，仅用于观察中继站行为'
+        : 'Anthropic 显式：system 数组 + cache_control 断点（官方推荐）';
+  } else {
+    el.innerHTML = p === 'gemini'
+      ? 'Gemini 隐式：contents 前缀一致自动命中，usageMetadata 返回 cachedContentTokenCount'
+      : p === 'chat'
+        ? 'OpenAI 隐式：system 前缀自动缓存，usage 返回 cached_tokens'
+        : 'Anthropic 隐式：system 纯文本前缀，观察中继站是否自动前缀缓存（官方无隐式，通常不命中）';
+  }
+}
 // 实时粗估前缀 token
 function cacheTokEst() {
   const doc = document.getElementById('cc-doc').value || '';
@@ -2728,7 +3520,20 @@ function cacheTokEst() {
   const perBlock = Math.round(ascii / 4 + cjk * 0.95);
   const est = perBlock * repeat;
   el.textContent = '前缀约 ' + est + ' token（每份约 ' + perBlock + '，×' + repeat + '）'
-    + (est >= 1024 ? '  ✓≥1024' : '  ⚠ 建议≥1024');
+    + (cacheMode === 'explicit'
+      ? '  🟠 显式创建即生效'
+      : cacheProto === 'gemini'
+        ? (est >= 4000 ? '  ✓≥4K（较稳）' : '  ⚠ Gemini 建议≥4K')
+        : (est >= 1024 ? '  ✓≥1024' : '  ⚠ 建议≥1024'));
+}
+// 选模型自动联动协议：模型名含 gemini → 若协议还不是 gemini 则切到 Gemini（保留已选缓存方式）
+function cacheModelChanged(sel) {
+  const m = (sel.value || '').toLowerCase();
+  if (m.includes('gemini')) {
+    if (cacheProto === 'gemini') return; // 已在 gemini，保留用户选择
+    const chip = document.querySelector('#cc-proto-g .chip[data-v="gemini"]');
+    if (chip) cacheSetProto(chip, 'gemini');
+  }
 }
 async function cacheInit() {
   const models = await tokenModels();
@@ -2737,6 +3542,7 @@ async function cacheInit() {
   sel.innerHTML = models.map(m =>
     '<option value="' + esc(m) + '"' + (m === cur ? ' selected' : '') + '>' + esc(m) + '</option>').join('')
     || '<option value="' + esc(cur || 'claude-sonnet-4-6') + '">' + esc(cur || 'claude-sonnet-4-6') + '</option>';
+  cacheNote();
   cacheTokEst();
 }
 function cacheLoadSample() {
@@ -2772,12 +3578,12 @@ async function cacheRun() {
   btn.disabled = true; btn.textContent = '⏳ 测试中...';
   msg.innerHTML = '<span style="color:var(--muted)">正在连续调用 ' + rounds + ' 次（间隔 ' + delay + 's）...</span>';
   res.innerHTML = '<div class="ph" style="margin:auto"><div class="ph-ic">⏳</div><div style="font-size:15px;color:var(--text2);font-weight:600">测试进行中...</div><div class="ph-sub">第 1 次写入缓存，之后应命中 cache_read</div></div>';
-  const body = { model, systemDoc: doc, repeat, max_tokens: mt, delay };
+  const body = { model, systemDoc: doc, repeat, max_tokens: mt, delay, protocol: cacheProto + '-' + cacheMode };
   if (ttl) body.ttl = ttl;
   if (questions.length) body.questions = questions;
   try {
     const r = await fetch(api('/api/test/cache'), {
-      method: 'POST', headers: hdrs('cn'),
+      method: 'POST', headers: hdrs(S.site),
       body: JSON.stringify(body),
     });
     const j = await r.json();
@@ -2791,7 +3597,17 @@ async function cacheRun() {
   }
 }
 function renderCacheResults(res, j) {
-  let h = '<div class="bt-stats">'
+  const p = j.protocol || '';
+  const isExp = p.endsWith('-explicit');
+  const isGemini = p.startsWith('gemini');
+  const isChat = p.startsWith('chat');
+  let protoName;
+  if (isGemini) protoName = isExp ? '⚡ Gemini 显式（cachedContents + cachedContent 引用）' : '✨ /v1beta/models/{model}:generateContent（Gemini 隐式前缀缓存）';
+  else if (isChat) protoName = isExp ? '🤖 /v1/chat/completions（OpenAI 显式，无官方API·观察中继站）' : '🤖 /v1/chat/completions（OpenAI 隐式前缀缓存）';
+  else protoName = isExp ? '🧠 /v1/messages（Anthropic 显式 cache_control 断点）' : '🧠 /v1/messages（Anthropic 隐式·观察中继站自动缓存）';
+  let h = '<div class="ch-note" style="margin-top:0">协议：' + protoName
+    + ' · 模型：' + esc(j.model || '') + (j.cache_name ? ' · 缓存：<b>' + esc(j.cache_name) + '</b>' : '') + '</div>'
+    + '<div class="bt-stats">'
     + '<div class="bt-stat"><span class="v">' + j.rounds + '</span><span class="k">调用次数</span></div>'
     + '<div class="bt-stat"><span class="v ok">' + j.read_requests + '</span><span class="k">命中请求</span></div>'
     + '<div class="bt-stat"><span class="v fail">' + j.write_requests + '</span><span class="k">写入请求</span></div>'
@@ -2802,7 +3618,11 @@ function renderCacheResults(res, j) {
     + '<div class="bt-stat"><span class="v">' + j.max_latency + 's</span><span class="k">最慢</span></div>'
     + '</div>'
     + '<div class="ch-note">前缀约 <b>' + j.prefix_tokens_est + '</b> token（' + j.prefix_chars + ' 字符）'
-    + (j.prefix_min_ok ? ' · 已超最小阈值 1024' : ' · ⚠ 低于 1024，可能不缓存') + '<br>'
+    + (isExp
+        ? ' · 🟠 显式缓存创建即生效，不依赖前缀长度阈值'
+        : (isGemini
+            ? ' · Gemini 隐式缓存阈值因模型而异（常见 4K/8K/32K，前缀越长越稳）'
+            : (j.prefix_min_ok ? ' · 已超最小阈值 1024' : ' · ⚠ 低于 1024，可能不缓存'))) + '<br>'
     + '累计读取缓存 <b>' + j.total_read + '</b> tokens · 累计写入 <b>' + j.total_write + '</b> tokens · 成功 ' + j.ok_count + ' / 失败 ' + j.fail_count + '</div>'
     + '<div class="bt-list">';
   (j.results || []).forEach(r => {
@@ -2897,7 +3717,14 @@ function lgSetFilter(el, f) {
 }
 async function lgRefresh() {
   const res = document.getElementById('lg-res');
+  const cntEl = document.getElementById('lg-count');
   try {
+    // 数据库总条数（COUNT(*)）——证明数据真实落库
+    try {
+      const cr = await fetch(api('/api/logs/count'), { headers: hdrs('cn') });
+      const cj = await cr.json();
+      if (cntEl && typeof cj.count === 'number') cntEl.textContent = '数据库共 ' + cj.count + ' 条';
+    } catch { /* count 失败不影响列表 */ }
     const r = await fetch(api('/api/logs?filter=' + lgFilter), { headers: hdrs('cn') });
     const arr = await r.json();
     if (!Array.isArray(arr) || arr.length === 0) {
@@ -2944,6 +3771,23 @@ async function lgClear() {
     await fetch(api('/api/logs'), { method: 'DELETE', headers: hdrs('cn') });
     lgRefresh();
   } catch (e) { /* ignore */ }
+}
+async function lgExport() {
+  try {
+    const r = await fetch(api('/api/logs/export?filter=' + lgFilter), { headers: hdrs('cn') });
+    if (!r.ok) { alert('导出失败：HTTP ' + r.status); return; }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'request_logs.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('导出失败：' + e.message);
+  }
 }
 function prettyJson(s) {
   if (!s) return '';
@@ -3008,6 +3852,46 @@ const BUILTIN_TOOLS = [
 function ttLoadBuiltin() {
   document.getElementById('tt-tools').value = JSON.stringify(BUILTIN_TOOLS, null, 2);
 }
+// ===== 临时：Claude 能力探测预设（测完可删）=====
+const TT_PRESETS = {
+  computer: {
+    label: '🖥 computer-use 能力探测',
+    model: 'computer-use-2025-11-24',
+    system: '你是 computer use 助手。当用户要求操作电脑时，必须调用 computer 工具完成，不要只做文字回答。',
+    prompt: '请调用 computer 工具，帮我打开计算器并计算 1234 × 5678，然后描述你看到的屏幕内容。',
+    tools: JSON.stringify([
+      { "type": "function", "function": { "name": "computer", "description": "操作电脑：查看屏幕、移动鼠标、点击、输入文字等", "parameters": { "type": "object", "properties": { "action": { "type": "string", "description": "要执行的操作，如 open_calculator / screenshot / click / type" }, "target": { "type": "string", "description": "操作对象描述" } }, "required": ["action"] } } }
+    ], null, 2),
+    note: '若返回的「工具调用」列表为空 → 该模型未触发 computer 工具。'
+  },
+  compact: {
+    label: '📦 compact 压缩能力探测',
+    model: 'compact-2026-01-12',
+    system: '你是一个上下文压缩助手。用户提供长文本时，请将其压缩为更短的摘要，保留关键信息。',
+    prompt: '请压缩下面这段文本为不超过 50 字的摘要：' + 'AI 技术正快速发展，大语言模型在自然语言理解、代码生成、多模态推理等方向持续突破。企业纷纷将模型接入业务场景，从智能客服到代码助手，从内容创作到数据分析，应用日益广泛。与此同时，模型的可控性、安全性与成本也成为关注焦点，如何在能力与风险间取得平衡，是行业共同面对的课题。',
+    tools: '',
+    note: '观察输出是否明显短于输入（≈100字输入）。也可在「📤 原始请求」里用 usage 对比压缩前后 token。'
+  }
+};
+function ttPreset(key) {
+  const p = TT_PRESETS[key];
+  if (!p) return;
+  ttSetMode('tools');
+  // 模型：先尝试在下拉里选中，找不到则填入同名选项
+  const sel = document.getElementById('tt-model');
+  const opts = Array.from(sel.options).map(o => o.value);
+  if (opts.includes(p.model)) { sel.value = p.model; }
+  else {
+    sel.innerHTML = '<option value="' + esc(p.model) + '" selected>' + esc(p.model) + '</option>' + sel.innerHTML;
+  }
+  document.getElementById('tt-system').value = p.system;
+  document.getElementById('tt-prompt').value = p.prompt;
+  document.getElementById('tt-tools').value = p.tools || '';
+  document.getElementById('tt-msg').innerHTML = '<span style="color:var(--muted)">✅ ' + p.label + ' 已填入，点「▶ 开始测试」' + (p.note ? '（' + p.note + '）' : '') + '</span>';
+  document.getElementById('tt-res').innerHTML = '<div class="ph" style="margin:auto"><div class="ph-ic">🧪</div>'
+    + '<div style="font-size:15px;color:var(--text2);font-weight:600">' + p.label + '</div>'
+    + '<div class="ph-sub">' + p.note + '</div></div>';
+}
 async function ttRun() {
   const btn = document.querySelector('#tab-tools .btn-p');
   const msg = document.getElementById('tt-msg');
@@ -3026,7 +3910,7 @@ async function ttRun() {
       const schema = document.getElementById('tt-schema').value.trim();
       const jmt = parseInt(document.getElementById('tt-jmt').value) || 1024;
       const r = await fetch(api('/api/test/jsontest'), {
-        method: 'POST', headers: hdrs('cn'),
+        method: 'POST', headers: hdrs(S.site),
         body: JSON.stringify({ model, prompt, schema, max_tokens: jmt, temperature: 0 }),
       });
       j = await r.json();
@@ -3041,7 +3925,7 @@ async function ttRun() {
       try { tools = toolsRaw ? JSON.parse(toolsRaw) : BUILTIN_TOOLS; }
       catch (e) { msg.innerHTML = '<span style="color:var(--red)">Tools 定义不是合法 JSON</span>'; btn.disabled = false; btn.textContent = '▶ 开始测试'; return; }
       const r = await fetch(api('/api/chat/tools'), {
-        method: 'POST', headers: hdrs('cn'),
+        method: 'POST', headers: hdrs(S.site),
         body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], system, tools, max_tokens: mt, max_rounds: rounds }),
       });
       j = await r.json();
@@ -3090,7 +3974,7 @@ async function ttCurl() {
   const prompt = document.getElementById('tt-prompt').value.trim();
   if (!model || !prompt) { document.getElementById('tt-msg').innerHTML = '<span style="color:var(--red)">请先填好模型与提示词</span>'; return; }
   const base = (S.url || window.location.origin);
-  const tok = S.tokCn;
+  const tok = S.tok;
   let body;
   if (ttMode === 'json') {
     const system = document.getElementById('tt-system').value.trim();
@@ -3110,10 +3994,211 @@ async function ttCurl() {
   const curl = "curl -sS -X POST '" + base + path + "' \\\n"
     + "  -H 'Authorization: Bearer " + tok + "' \\\n"
     + "  -H 'Content-Type: application/json' \\\n"
-    + "  -H 'X-Site: cn' \\\n"
+    + "  -H 'X-Site: " + S.site + "' \\\n"
     + "  -d '" + JSON.stringify(body).replace(/'/g, "'\\''") + "'";
   copyText(curl);
   document.getElementById('tt-msg').innerHTML = '<span style="color:var(--green)">✅ cURL 已复制到剪贴板</span>';
+}
+
+// ============ 原始请求测试（Apifox 式） ============
+let rawSite = 'cn';
+const RAW_PRESETS = {
+  messages: { path: '/v1/messages', method: 'POST', body: '{\n  "model": "claude-sonnet-4-6",\n  "max_tokens": 200,\n  "messages": [\n    { "role": "user", "content": "你好，请简短回复" }\n  ]\n}' },
+  chat: { path: '/v1/chat/completions', method: 'POST', body: '{\n  "model": "gpt-4o-mini",\n  "max_tokens": 200,\n  "messages": [\n    { "role": "user", "content": "你好，请简短回复" }\n  ]\n}' },
+  responses: { path: '/v1/responses', method: 'POST', body: '{\n  "model": "gpt-4o-mini",\n  "input": "你好，请简短回复",\n  "max_output_tokens": 200\n}' },
+  models: { path: '/v1/models', method: 'GET', body: '' },
+};
+function rawSetSite(el, site) {
+  rawSite = site;
+  document.querySelectorAll('#tab-raw .chips .chip').forEach(c => {
+    const v = c.getAttribute('data-v');
+    if (v === 'cn' || v === 'intl') c.classList.toggle('active', v === site);
+  });
+}
+function rawInit() {
+  rawSetSite(null, rawSite);
+  // 预填模型名：用当前聊天所选模型
+  if (!document.getElementById('raw-body').value && document.getElementById('cm').value) {
+    const m = document.getElementById('cm').value;
+    const ta = document.getElementById('raw-body');
+    try {
+      const j = JSON.parse(ta.value || '{}');
+      j.model = m;
+      ta.value = JSON.stringify(j, null, 2);
+    } catch (e) { /* ignore */ }
+  }
+}
+function rawPreset(key) {
+  const p = RAW_PRESETS[key];
+  if (!p) return;
+  document.getElementById('raw-method').value = p.method;
+  document.getElementById('raw-path').value = p.path;
+  document.getElementById('raw-body').value = p.body;
+  // 用当前聊天模型替换占位模型
+  const m = document.getElementById('cm').value;
+  if (m) {
+    try {
+      const j = JSON.parse(p.body);
+      if (j.model) j.model = m;
+      document.getElementById('raw-body').value = JSON.stringify(j, null, 2);
+    } catch (e) { /* ignore */ }
+  }
+  document.getElementById('raw-msg').innerHTML = '';
+}
+async function rawRun() {
+  const btn = document.querySelector('#tab-raw .btn-p');
+  const msg = document.getElementById('raw-msg');
+  const res = document.getElementById('raw-res');
+  const method = document.getElementById('raw-method').value;
+  const path = document.getElementById('raw-path').value.trim();
+  const bodyTxt = document.getElementById('raw-body').value;
+  const auth = document.getElementById('raw-auth').value.trim();
+  const headersTxt = document.getElementById('raw-headers').value.trim();
+  if (!path) { msg.innerHTML = '<span style="color:var(--red)">请填写上游路径</span>'; return; }
+  // 站点对应 Token：留空认证则自动用当前站点 Token；规范化确保带上 Bearer 前缀
+  const tok = normAuth(auth || (rawSite === 'intl' ? S.tokIntl : S.tokCn));
+  if (!tok) { msg.innerHTML = '<span style="color:var(--red)">缺少 Token：请填 Authorization 或先配置 API Token</span>'; return; }
+  btn.disabled = true; btn.textContent = '⏳ 请求中...';
+  msg.innerHTML = '<span style="color:var(--muted)">正在发送 ' + method + ' ' + path + ' ...</span>';
+  res.innerHTML = '<div class="ph" style="margin:auto"><div class="ph-ic">⏳</div><div style="font-size:15px;color:var(--text2);font-weight:600">请求中...</div></div>';
+  try {
+    const r = await fetch(api('/api/test/raw'), {
+      method: 'POST', headers: hdrs(rawSite),
+      body: JSON.stringify({ site: rawSite, method, path, auth: tok, body: bodyTxt, headers: headersTxt || '', timeout: 300 }),
+    });
+    const j = await r.json();
+    if (j.error) { msg.innerHTML = errCard(null, j.error, ''); res.innerHTML = ''; return; }
+    msg.innerHTML = '';
+    renderRaw(res, j);
+  } catch (e) {
+    msg.innerHTML = errCard(null, e.message, '');
+  } finally {
+    btn.disabled = false; btn.textContent = '▶ 发送请求';
+  }
+}
+/** 快速填充常用测试请求头（每行 Key: Value，会追加到现有输入框） */
+function rawHdrPreset(key) {
+  const el = document.getElementById('raw-headers');
+  const presets = {
+    beta: 'anthropic-beta: claude-3-7-sonnet-20250219',
+    lang: 'Accept-Language: zh-CN,zh;q=0.9',
+  };
+  const v = presets[key];
+  if (!v) return;
+  const lines = el.value.split('\n').map(s => s.trim()).filter(Boolean);
+  const keyName = v.split(':')[0].trim();
+  const rest = lines.filter(l => !l.startsWith(keyName + ':'));
+  rest.push(v);
+  el.value = rest.join('\n');
+}
+function renderRaw(res, j) {
+  const ok = j.ok;
+  let h = '<div class="bt-stats">'
+    + '<div class="bt-stat"><span class="v ' + (ok ? 'ok' : 'fail') + '">' + j.status + (ok ? ' ✓' : ' ✗') + '</span><span class="k">HTTP 状态</span></div>'
+    + '<div class="bt-stat"><span class="v">' + j.ms + 'ms</span><span class="k">耗时</span></div>'
+    + '<div class="bt-stat"><span class="v">' + (j.site === 'intl' ? '🌍 国际' : '🇨🇳 国内') + '</span><span class="k">站点</span></div>'
+    + '<div class="bt-stat"><span class="v" style="font-size:10px">' + esc(j.path || '') + '</span><span class="k">路径</span></div>'
+    + '</div>';
+  // 若响应是 SSE 分块流，额外展示合并后的内容
+  const m = mergeSse(j.body);
+  if (m) {
+    h += '<div class="ch-note" style="margin-top:6px">📦 合并后的流式内容（共 ' + m.chunks + ' 块）</div>';
+    if (m.reasoning) {
+      h += '<div style="font-size:11px;color:var(--muted);margin:6px 0 2px">🧠 思考过程 reasoning_content</div>'
+        + '<div class="lg-raw" style="color:var(--text2);background:var(--bg4);border-left:3px solid var(--yellow);white-space:pre-wrap;padding:8px 10px">' + esc(m.reasoning) + '</div>';
+    }
+    if (m.text) {
+      h += '<div style="font-size:11px;color:var(--muted);margin:8px 0 2px">💬 最终回答 content</div>'
+        + '<div class="msg ai" style="margin:0"><div class="ava">🤖</div><div class="bubble">' + md(m.text) + '</div></div>';
+    }
+    if (!m.reasoning && !m.text) {
+      h += '<div class="ch-note" style="color:var(--muted)">流中未检测到文本增量（可能为工具调用/元数据）</div>';
+    }
+  }
+  h += '<div class="ch-note" style="margin-top:6px">原始响应体' + (j.truncated ? '（已截断，仅前 100KB）' : '') + '</div>';
+  h += '<pre class="lg-raw">' + esc(prettyJson(j.body)) + '</pre>';
+  res.innerHTML = h;
+}
+/** 解析 SSE 分块响应，合并 reasoning 与正文。非 SSE 或无法解析时返回 null。 */
+function mergeSse(body) {
+  if (!body) return null;
+  const t = String(body);
+  const lines = t.split('\n');
+  let dataCnt = 0;
+  const isData = l => l.trim().startsWith('data:');
+  lines.forEach(l => { if (isData(l)) dataCnt++; });
+  // 至少 2 个 data 行才视为分块流；单个 data 行可能是完整 JSON 返回
+  if (dataCnt < 2) return null;
+  let reasoning = '', text = '', chunkN = 0;
+  for (const line of lines) {
+    if (!isData(line)) continue;
+    const d = line.trim().slice(5).trim();
+    if (!d || d === '[DONE]') continue;
+    let j;
+    try { j = JSON.parse(d); } catch (e) { continue; }
+    chunkN++;
+    // OpenAI 系（chat.completion.chunk）
+    const ch = j.choices && j.choices[0];
+    if (ch && ch.delta) {
+      const dd = ch.delta;
+      if (typeof dd.reasoning_content === 'string') reasoning += dd.reasoning_content;
+      if (typeof dd.reasoning === 'string') reasoning += dd.reasoning;
+      if (typeof dd.content === 'string') text += dd.content;
+      continue;
+    }
+    // Anthropic /v1/messages
+    if (j.type === 'content_block_delta' && j.delta) {
+      if (j.delta.type === 'text_delta' && typeof j.delta.text === 'string') text += j.delta.text;
+      if (j.delta.type === 'thinking_delta' && typeof j.delta.thinking === 'string') reasoning += j.delta.thinking;
+      continue;
+    }
+    // OpenAI /v1/responses
+    if (j.type === 'response.output_text.delta' && typeof j.delta === 'string') text += j.delta;
+    if (j.type === 'response.reasoning_summary_text.delta' && typeof j.delta === 'string') reasoning += j.delta;
+  }
+  if (!reasoning && !text) return null;
+  return { reasoning: reasoning.trim(), text: text.trim(), chunks: chunkN };
+}
+async function rawCurl() {
+  const method = document.getElementById('raw-method').value;
+  const path = document.getElementById('raw-path').value.trim();
+  const bodyTxt = document.getElementById('raw-body').value;
+  const auth = document.getElementById('raw-auth').value.trim();
+  const headersTxt = document.getElementById('raw-headers').value.trim();
+  if (!path) { document.getElementById('raw-msg').innerHTML = '<span style="color:var(--red)">请先填写路径</span>'; return; }
+  const tok = normAuth(auth || (rawSite === 'intl' ? S.tokIntl : S.tokCn));
+  const base = UPSTREAM_BASE[rawSite] || '';
+  let curl = "curl -sS -X " + method + " '" + base + path + "' \\\n"
+    + "  -H 'Authorization: " + tok + "' \\\n"
+    + "  -H 'Content-Type: application/json' \\\n"
+    + "  -H 'X-Site: " + rawSite + "'";
+  // 附加自定义请求头
+  (headersTxt || '').split('\n').map(s => s.trim()).filter(Boolean).forEach(line => {
+    const i = line.indexOf(':');
+    if (i > 0) {
+      curl += " \\\n  -H '" + line.substring(0, i).trim() + ": " + line.substring(i + 1).trim() + "'";
+    }
+  });
+  if (method === 'POST') {
+    curl += " \\\n  -d '" + (bodyTxt || '{}').replace(/'/g, "'\\''") + "'";
+  }
+  copyBtn(curl);
+  document.getElementById('raw-msg').innerHTML = '<span style="color:var(--green)">✅ cURL 已复制到剪贴板</span>';
+}
+/** 规范化 Authorization：纯 Token 自动补 "Bearer "；已带 scheme 则保留一层；
+ *  重复 scheme（"Bearer Bearer xxx"，粘贴 Token 时常见）折叠为一层，避免上游 401 Invalid token。 */
+function normAuth(v) {
+  const a = String(v || '').trim();
+  if (!a) return a;
+  const parts = a.split(/\s+/);
+  let scheme = null, i = 0;
+  while (i < parts.length && /^(Bearer|Basic|Token|Digest)$/i.test(parts[i])) {
+    if (!scheme) scheme = parts[i];
+    i++;
+  }
+  const rest = parts.slice(i).join(' ');
+  if (!rest) return scheme || '';
+  return (scheme || 'Bearer') + ' ' + rest;
 }
 
 // ============ IMAGE MODE ============
@@ -3124,28 +4209,37 @@ const EDIT_MAX_REF = 4;   // 图像编辑最多 4 张（上游建议 1-4 张）
 const VID_MAX_REF = 3;    // 图生视频最多 3 张
 
 function refMax(ns) {
-  if (ns === 'img') return imgMode === 'edit' ? EDIT_MAX_REF : MAX_REF;
+  if (ns === 'img') {
+    if (imgMode === 'edit') return EDIT_MAX_REF;
+    if (imgMode === 'understand') return 1;
+    return MAX_REF;
+  }
   return VID_MAX_REF;
 }
 
 function setImgMode(mode) {
   imgMode = mode;
-  const labels = { t2i:'文生图', i2i:'图生图', edit:'图像编辑', json:'JSON 直发' };
+  const labels = { t2i:'文生图', i2i:'图生图', edit:'图像编辑', mask:'蒙版编辑', understand:'图片理解', json:'JSON 直发' };
   document.querySelectorAll('#img-mode-tabs .mode-tab').forEach(t => {
     const key = Object.keys(labels).find(k => t.textContent.includes(labels[k]));
     t.classList.toggle('active', key === mode);
   });
   const isJson = mode === 'json';
+  const isUnderstand = mode === 'understand';
+  const isMask = mode === 'mask';
   document.getElementById('img-prompt-zone').style.display = isJson ? 'none' : '';
-  document.getElementById('img-ref-zone').style.display = (mode==='i2i' || mode==='edit') ? '' : 'none';
+  document.getElementById('img-ref-zone').style.display = (mode==='i2i' || mode==='edit' || isUnderstand) ? '' : 'none';
+  document.getElementById('img-mask-zone').style.display = isMask ? '' : 'none';
   document.getElementById('img-json-zone').style.display  = isJson ? '' : 'none';
-  document.getElementById('img-sz-zone').style.display    = isJson ? 'none' : '';
-  document.getElementById('img-q-zone').style.display     = (mode==='t2i' || mode==='i2i') ? '' : 'none';
+  document.getElementById('img-sz-zone').style.display    = (isJson || isUnderstand) ? 'none' : '';
+  document.getElementById('img-q-zone').style.display     = (mode==='t2i' || mode==='i2i' || isMask) ? '' : 'none';
   document.getElementById('img-up-txt').innerHTML = mode === 'edit'
     ? '点击或拖拽添加参考图<br>PNG · JPG · WEBP · 最多 4 张（提示词中用「图1/图2」引用）'
+    : isUnderstand
+    ? '点击或拖拽添加参考图<br>PNG · JPG · WEBP · 最多 1 张'
     : '点击或拖拽添加参考图<br>PNG · JPG · WEBP · 最多 9 张（提示词中输入 @ 可引用）';
   document.getElementById('img-ref-cnt').textContent = `(${imgRefB64s.length}/${refMax('img')})`;
-  document.getElementById('ib').textContent = isJson ? '📤 发送请求' : '✨ 生成图像';
+  document.getElementById('ib').textContent = isJson ? '📤 发送请求' : (isUnderstand ? '🔍 开始理解' : (isMask ? '🎭 蒙版编辑' : '✨ 生成图像'));
   if (isJson) updateJsonUrl();
 }
 
@@ -3183,6 +4277,48 @@ function removeRef(ns, idx) {
   arr.splice(idx, 1);
   renderRefGrid(ns);
 }
+
+// ============ 蒙版编辑（原图 + 蒙版） ============
+let imgMaskB64s = [];          // [0]=原图, [1]=蒙版
+const MASK_MAX = 2;
+
+function pickImgMask(e) {
+  Array.from(e.target.files).forEach(f => addImgMask(f));
+  e.target.value = '';
+}
+function dropImgMask(e) {
+  e.preventDefault();
+  Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')).forEach(f => addImgMask(f));
+}
+function addImgMask(file) {
+  if (imgMaskB64s.length >= MASK_MAX) { alert('原图 + 蒙版共 2 张，请先移除再替换'); return; }
+  imgMaskB64s.push(null);
+  const slot = imgMaskB64s.length - 1;
+  renderMaskGrid();
+  loadFileAsB64(file, b64 => {
+    imgMaskB64s[slot] = b64;
+    renderMaskGrid();
+  });
+}
+function removeImgMask(idx) {
+  imgMaskB64s.splice(idx, 1);
+  renderMaskGrid();
+}
+function renderMaskGrid() {
+  const labels = ['原图', '蒙版'];
+  const grid = document.getElementById('img-mask-grid');
+  const cnt  = document.getElementById('img-mask-cnt');
+  const drop = document.getElementById('img-mask-drop');
+  grid.innerHTML = imgMaskB64s.map((b64, i) => `
+    <div class="ref-thumb" style="position:relative">
+      ${b64 ? `<img src="${b64}" alt="${labels[i]||'图'+(i+1)}" style="width:100%;height:100%;object-fit:cover">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px;opacity:.5">⏳</div>'}
+      <span style="position:absolute;left:4px;top:4px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:1px 6px;border-radius:4px;z-index:1">${labels[i]||'图'+(i+1)}</span>
+      <button class="rm-btn" onclick="removeImgMask(${i})" title="移除">✕</button>
+    </div>`).join('');
+  cnt.textContent = `(${imgMaskB64s.length}/${MASK_MAX})`;
+  drop.style.display = imgMaskB64s.length >= MASK_MAX ? 'none' : '';
+}
+
 function renderRefGrid(ns) {
   const arr    = ns==='img' ? imgRefB64s : vidImgB64s;
   const gridId = ns==='img' ? 'img-ref-grid' : 'vid-img-grid';
@@ -3204,15 +4340,45 @@ let vidImgB64s = [];
 
 function setVidMode(mode) {
   vidMode = mode;
-  const labels = { t2v:'文生视频', i2v:'图生视频', v2v:'视频参考', a2v:'素材生成', m2v:'多模态参考' };
+  const labels = { t2v:'文生视频', i2v:'图生视频', v2v:'视频参考', a2v:'素材生成', m2v:'多模态参考', minimax:'MiniMax', json:'JSON 直发', vunder:'视频理解' };
   document.querySelectorAll('#vid-mode-tabs .mode-tab').forEach(t => {
     const key = Object.keys(labels).find(k => t.textContent.includes(labels[k]));
     t.classList.toggle('active', key === mode);
   });
+  const isJson = mode === 'json';
+  const isVU = mode === 'vunder';
   document.getElementById('vid-img-zone').style.display = mode==='i2v' ? '' : 'none';
   document.getElementById('vid-ref-zone').style.display = mode==='v2v' ? '' : 'none';
   document.getElementById('vid-asset-zone').style.display = mode==='a2v' ? '' : 'none';
   document.getElementById('vid-m2v-zone').style.display = mode==='m2v' ? '' : 'none';
+  document.getElementById('vid-minimax-zone').style.display = mode==='minimax' ? '' : 'none';
+  document.getElementById('vid-json-zone').style.display = isJson ? '' : 'none';
+  document.getElementById('vid-vunder-zone').style.display = isVU ? '' : 'none';
+  // 生成类参数与标准表单：MiniMax（自带完整控件）/ JSON 直发 / 视频理解 都不需要
+  const isMinimax = mode === 'minimax';
+  const hideStd = isMinimax || isJson || isVU;
+  const stdIds = isMinimax
+    ? ['vid-site-zone','vm','vp','vd','vau','vwm','vsub','vr-g']
+    : (hideStd ? ['vm','vp','vd','vau','vwm','vr-g'] : []);
+  stdIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { const t = el.closest('.fg') || el.closest('.toggle-row') || el; t.style.display = 'none'; }
+  });
+  if (!hideStd) {
+    ['vm','vp','vd','vau','vwm','vr-g'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { const t = el.closest('.fg') || el.closest('.toggle-row') || el; t.style.display = ''; }
+    });
+  }
+  if (!isMinimax) document.getElementById('vid-site-zone').style.display = '';
+  document.getElementById('vsub').style.display = isMinimax ? 'none' : '';
+  document.querySelectorAll('#tab-video .ctrl > .sec-lbl, #tab-video .ctrl > .divider').forEach(el => el.style.display = hideStd ? 'none' : '');
+  document.getElementById('vsub').textContent = isJson ? '📤 发送请求' : (isVU ? '🔍 分析视频' : '🎬 生成视频');
+  if (isJson) {
+    updateVidJsonUrl();
+    loadVidJsonAssets();
+  }
+  if (isVU) loadVuModels();
   updateVidResZone();
 
   // 如果切换到素材模式且素材列表为空，自动加载
@@ -3221,10 +4387,21 @@ function setVidMode(mode) {
   }
 }
 
-// 国际站接口（多模态格式）不支持 resolution 参数
+function updateVidJsonUrl() {
+  const el = document.getElementById('vj-url');
+  if (el) el.textContent = upstreamBase();
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('vj-path');
+  if (sel) sel.onchange = updateVidJsonUrl;
+});
+
+// 分辨率：国内站/国际站/m2v 均需带 resolution（上游必填）
 function updateVidResZone() {
-  document.getElementById('vid-res-zone').style.display =
-    (vidMode === 'm2v' || S.site === 'intl') ? 'none' : '';
+  // 仅生成类模式需要分辨率；MiniMax / JSON 直发 / 视频理解 模式隐藏
+  const need = vidMode !== 'minimax' && vidMode !== 'json' && vidMode !== 'vunder';
+  const el = document.getElementById('vid-res-zone');
+  if (el) el.style.display = need ? '' : 'none';
 }
 
 // ============ 多模态参考（国际站）============
@@ -3263,6 +4440,111 @@ function dropVidImg(e) {
   Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/')).forEach(f => addImgRef(f, 'vid'));
 }
 
+// ============ MiniMax V2 视频生成 ============
+let mmImgs = []; // {url, role}
+
+function addMmImg() {
+  const inp = document.getElementById('vmm-img-inp');
+  const url = inp.value.trim();
+  if (!url) { alert('请输入参考图 URL'); return; }
+  if (!/^https?:\/\//.test(url)) { alert('参考图 URL 必须以 http(s):// 开头'); return; }
+  if (mmImgs.length >= 2) { alert('最多 2 张参考图（首帧 + 尾帧）'); return; }
+  const role = document.getElementById('vmm-img-role').value;
+  mmImgs.push({ url, role });
+  inp.value = '';
+  renderMmImgs();
+}
+function removeMmImg(idx) { mmImgs.splice(idx, 1); renderMmImgs(); }
+function renderMmImgs() {
+  const roleLabel = { first_frame:'首帧', last_frame:'尾帧' };
+  document.getElementById('vmm-img-list').innerHTML = mmImgs.map((m, i) => `
+    <div class="row" style="gap:8px;margin-bottom:6px;align-items:center">
+      <img src="${esc(m.url)}" alt="参考图${i+1}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">
+      <span class="badge b-b" style="font-size:10px">${roleLabel[m.role]||m.role}</span>
+      <code style="flex:1;font-size:10.5px;color:var(--muted);word-break:break-all">${esc(m.url)}</code>
+      <button class="rm-btn" onclick="removeMmImg(${i})" title="移除">✕</button>
+    </div>`).join('');
+  document.getElementById('vmm-img-cnt').textContent = `(${mmImgs.length}/2)`;
+}
+
+async function submitMinimax() {
+  if (!S.tok) { openModal(); return; }
+  const prompt = document.getElementById('vmm-prompt').value.trim();
+  if (!prompt) { alert('请输入提示词'); return; }
+  const model = document.getElementById('vmm-model').value;
+  const resolution = chipVal('vmm-res-g') || '2K';
+  const duration = parseInt(document.getElementById('vmm-dur').value);
+  const ratio = chipVal('vmm-ratio-g') || '16:9';
+
+  // 构建 MiniMax V2 content 数组
+  const content = [{ type: 'text', text: prompt }];
+  mmImgs.forEach(m => {
+    content.push({ type: 'image_url', image_url: { url: m.url }, role: m.role });
+  });
+
+  const payload = { model, content, resolution, duration, ratio };
+
+  const btn = document.getElementById('vmm-submit');
+  btn.disabled = true; btn.textContent = '⏳ 提交中...';
+  setVidResult(`<div class="ph" style="margin:auto"><div style="font-size:48px;opacity:.5">📤</div>
+    <div style="font-size:15px;color:var(--text2);font-weight:600">正在提交 MiniMax 视频任务...</div></div>`);
+  try {
+    if (S.vidTimer) { clearInterval(S.vidTimer); S.vidTimer = null; }
+    const r = await fetch(api('/api/video/submit-minimax'), {
+      method: 'POST', headers: hdrs(),
+      body: JSON.stringify(payload),
+    });
+    const raw = await r.text();
+    if (!r.ok) {
+      setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(r.status, fmtErr(raw), raw)+'</div>');
+      return;
+    }
+    const j = JSON.parse(raw);
+    if (!j.task_id) {
+      setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, fmtErr(j), raw)+'</div>');
+      return;
+    }
+    showVidProgress(j.task_id, 'SUBMITTED', '0%');
+    pollMinimax(j.task_id);
+  } catch(e) {
+    setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, e.message, '')+'</div>');
+  } finally {
+    btn.disabled = false; btn.textContent = '🎬 生成视频（MiniMax）';
+  }
+}
+
+function pollMinimax(taskId) {
+  let n = 0;
+  S.vidTimer = setInterval(async () => {
+    if (++n > 200) { clearInterval(S.vidTimer); showVidProgress(taskId,'TIMEOUT','超时'); return; }
+    try {
+      const r = await fetch(api('/api/video/poll-minimax/'+taskId), { headers: hdrs() });
+      const j = JSON.parse(await r.text());
+      // MiniMax V2 返回格式：{ task_id, status, file_id, base_resp:{status_code, status_msg} }
+      const st = (j.status || 'UNKNOWN').toUpperCase();
+      // 将 MiniMax 状态映射到通用状态
+      const stMap = { PROCESSING:'IN_PROGRESS', PREPARING:'QUEUED', SUCCESS:'SUCCESS', FAILED:'FAILURE' };
+      const mappedSt = stMap[st] || st;
+      const pg = mappedSt === 'IN_PROGRESS' ? '生成中...' : mappedSt === 'SUCCESS' ? '100%' : '0%';
+      showVidProgress(taskId, mappedSt, pg);
+      if (mappedSt === 'SUCCESS') {
+        clearInterval(S.vidTimer);
+        // MiniMax 返回 file_id，需要拼接下载地址；如果有 video_url 直接用
+        const videoUrl = j.file_id
+          ? `https://api.minimax.chat/v1/files/retrieve?file_id=${j.file_id}`
+          : (j.video_url || '');
+        showVidDone(taskId, videoUrl, { resolution, duration });
+      } else if (mappedSt === 'FAILURE') {
+        clearInterval(S.vidTimer);
+        showVidFail(taskId, j.base_resp?.status_msg || j.fail_reason || '未知原因');
+      }
+    } catch(e) {
+      clearInterval(S.vidTimer);
+      setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, '轮询出错: '+e.message, '')+'</div>');
+    }
+  }, 3000);
+}
+
 function loadFileAsB64(file, cb) {
   const r = new FileReader();
   r.onload = e => cb(e.target.result);
@@ -3277,10 +4559,39 @@ function detectMime(b64) {
   return 'image/png';
 }
 
+// 当前生效的图片尺寸（含自定义）：返回 "WxH"；未选择或自定义未填完整时返回 ''（调用方回退默认）
+function imgSize() {
+  const v = chipVal('sz-g') || '';
+  if (v !== 'custom') return v;
+  const w = parseInt(document.getElementById('sz-cw').value, 10);
+  const h = parseInt(document.getElementById('sz-ch').value, 10);
+  if (Number.isFinite(w) && Number.isFinite(h) && w >= 256 && h >= 256) return w + 'x' + h;
+  return '';
+}
+function gcd(a, b) { while (b) { const t = b; b = a % b; a = t; } return a || 1; }
+// Gemini 只接受固定 aspectRatio 枚举值，自定义尺寸先约分，匹配不上就取最接近的已知比例
+function geminiAspect(size) {
+  const known = { '1:1':[1,1], '3:2':[3,2], '2:3':[2,3], '4:3':[4,3], '3:4':[3,4], '16:9':[16,9], '9:16':[9,16], '21:9':[21,9], '9:21':[9,21] };
+  const m = size.match(/^(\d+)x(\d+)$/);
+  if (!m) return '1:1';
+  const g = gcd(+m[1], +m[2]);
+  const rw = +m[1] / g, rh = +m[2] / g;
+  for (const k in known) {
+    if (known[k][0] === rw && known[k][1] === rh) return k;
+  }
+  let best = '1:1', bestD = Infinity;
+  const r = rw / rh;
+  for (const k in known) {
+    const d = Math.abs(known[k][0] / known[k][1] - r);
+    if (d < bestD) { bestD = d; best = k; }
+  }
+  return best;
+}
+
 function buildImgPayload() {
   const model   = document.getElementById('im').value;
   const prompt  = document.getElementById('ip').value.trim();
-  const size    = chipVal('sz-g') || '1024x1024';
+  const size    = imgSize() || '1024x1024';
   const quality = chipVal('iq-g') || 'high';
 
   // 检测是否为 Gemini 图像生成模型
@@ -3289,14 +4600,9 @@ function buildImgPayload() {
 
   if (isGemini) {
     // Gemini 格式
-    const aspectRatio = size === '1024x1024' ? '1:1' :
-                       size === '1536x1024' ? '3:2' :
-                       size === '1024x1536' ? '2:3' :
-                       size === '2048x2048' ? '1:1' :
-                       size === '2048x1152' ? '16:9' :
-                       size === '3840x2160' ? '16:9' :
-                       size === '2160x3840' ? '9:16' : '1:1';
-    const imageSize = (size.includes('3840') || size.includes('2048')) ? '2K' : '1K';
+    const aspectRatio = geminiAspect(size);
+    const sm = size.match(/^(\d+)x(\d+)$/);
+    const imageSize = (sm && Math.max(+sm[1], +sm[2]) >= 2048) ? '2K' : '1K';
 
     const payload = {
       model: model,
@@ -3363,7 +4669,8 @@ function buildImgCurlBlock() {
       ? `${upstreamBase()}/v1beta/models/${model}:generateContent`
       : `${upstreamBase()}/v1/images/generations`,
     headers: {
-      'Authorization': 'Bearer ' + (S.tok ? S.tok.slice(0,8) + '****' : '<your-token>'),
+      // 与真实请求保持一致（normAuth 规范化后再脱敏），避免复制出去变成 "Bearer Bearer xxx"
+      'Authorization': S.tok ? normAuth(S.tok).slice(0, 12) + '****' : 'Bearer <your-token>',
       'Content-Type': 'application/json'
     },
     body: display
@@ -3400,9 +4707,83 @@ function buildImgCurlBlock() {
   return { request, response };
 }
 
+async function understandImg() {
+  if (!S.tok) { openModal(); return; }
+  const prompt = document.getElementById('ip').value.trim();
+  if (!prompt) { alert('请输入提示词（如：描述这张图片 / 图片里有什么文字）'); return; }
+  if (imgRefB64s.length === 0) { alert('图片理解模式请上传 1 张参考图'); return; }
+  if (imgRefB64s.some(x => !x)) { alert('参考图还在读取中，请稍候再试'); return; }
+  const model = document.getElementById('im').value;
+  if (!model) { alert('请选择模型'); return; }
+  const btn = document.getElementById('ib');
+  const ist = document.getElementById('ist');
+  btn.disabled = true; btn.textContent = '⏳ 理解中...';
+  setImgResult(`<div class="ph" style="margin:auto"><div style="font-size:48px;opacity:.5">🔍</div>
+    <div style="font-size:15px;color:var(--text2);font-weight:600">正在分析图片...</div>
+    <div class="ph-sub">视觉模型理解中，通常 10 ~ 60 秒</div></div>`);
+  const t0 = Date.now();
+  const timer = setInterval(() => { ist.textContent = '已等待 '+Math.floor((Date.now()-t0)/1000)+'s...'; }, 1000);
+  try {
+    const img = imgRefB64s[0];
+    const r = await fetch(api('/api/image/understand'), {
+      method: 'POST', headers: hdrs(),
+      body: JSON.stringify({ model, prompt, image_b64: img, max_tokens: 1024 }),
+    });
+    const j = await r.json().catch(() => ({}));
+    clearInterval(timer);
+    ist.textContent = '';
+    if (j.error) { setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, j.error, '')+'</div>'); return; }
+    const elapsed = Math.floor((Date.now()-t0)/1000);
+    setImgResult(`
+      <div style="display:flex;flex-direction:column;gap:14px;width:100%">
+        <div class="row" style="gap:12px;align-items:flex-start">
+          <img src="${img}" style="max-width:180px;border-radius:8px;border:1px solid var(--border)" alt="参考图">
+          <div style="flex:1">
+            <div class="bt-stats" style="margin-bottom:6px">
+              <div class="bt-stat"><span class="v ok">✓ 完成</span><span class="k">状态</span></div>
+              <div class="bt-stat"><span class="v">${j.ms}ms</span><span class="k">耗时</span></div>
+            </div>
+            <div class="ph-sub" style="line-height:1.6">${esc(model)}<br>${elapsed}s · ${esc(prompt.slice(0,60))}</div>
+          </div>
+        </div>
+        <div class="msg ai" style="margin:0"><div class="ava">🤖</div><div class="bubble">${md(j.text || '')}</div></div>
+        <details style="width:100%;margin-top:4px">
+          <summary style="cursor:pointer;font-size:11px;color:var(--muted2);user-select:none;font-weight:600">▸ 查看原始响应</summary>
+          <pre style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-size:11px;line-height:1.6;color:var(--text2);white-space:pre-wrap;word-break:break-all;max-height:240px;overflow:auto;margin:6px 0 0">${esc(prettyJson(JSON.stringify(j)))}</pre>
+        </details>
+      </div>`);
+  } catch(e) {
+    clearInterval(timer);
+    ist.textContent = '';
+    setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, e.message, '')+'</div>');
+  } finally {
+    btn.disabled = false; btn.textContent = '🔍 开始理解';
+  }
+}
+
 function copyImgPayload() {
   const prompt = document.getElementById('ip').value.trim();
   if (!prompt) { alert('请先输入提示词'); return; }
+  if (imgMode === 'mask') {
+    if (imgMaskB64s.length < 2) { alert('请先上传原图和蒙版'); return; }
+    const payload = {
+      model: document.getElementById('im').value,
+      image_b64: imgMaskB64s[0],
+      mask_b64:  imgMaskB64s[1],
+      prompt: prompt,
+      size: imgSize() || '1536x1024',
+      quality: chipVal('iq-g') || 'high',
+      output_format: 'png',
+      n: 1,
+    };
+    const full = JSON.stringify(payload, null, 2);
+    navigator.clipboard.writeText(full).then(() => {
+      const ist = document.getElementById('ist');
+      ist.textContent = '✅ 蒙版请求体已复制到剪贴板';
+      setTimeout(() => { if (ist.textContent === '✅ 蒙版请求体已复制到剪贴板') ist.textContent = ''; }, 2000);
+    }).catch(() => alert('复制失败，请手动复制'));
+    return;
+  }
   if (imgMode === 'i2i' && imgRefB64s.length === 0) { alert('图生图模式请至少上传 1 张参考图'); return; }
   const payload = buildImgPayload();
   const full = JSON.stringify(payload, null, 2);
@@ -3435,6 +4816,8 @@ function toggleImgPayloadPreview() {
 async function genImg() {
   if (!S.tok) { openModal(); return; }
   if (imgMode === 'json') { sendJsonReq(); return; }
+  if (imgMode === 'understand') { understandImg(); return; }
+  if (imgMode === 'mask') { genMask(); return; }
   const prompt = normalizePromptRefs(document.getElementById('ip').value.trim());
   if (!prompt) { alert('请输入提示词'); return; }
   if ((imgMode === 'i2i' || imgMode === 'edit') && imgRefB64s.length === 0) {
@@ -3442,6 +4825,9 @@ async function genImg() {
     return;
   }
   if (imgRefB64s.some(x => !x)) { alert('参考图还在读取中，请稍候再试'); return; }
+  let conc = imgConcurrency();
+  if (conc >= 2 && imgMode === 'edit') { alert('图像编辑暂不支持并发批量，已按单张生成'); conc = 1; }
+  if (conc >= 2) { await batchGenImg(conc); return; }
   const btn = document.getElementById('ib');
   const ist = document.getElementById('ist');
   btn.disabled = true; btn.textContent = '⏳ 生成中...';
@@ -3459,7 +4845,7 @@ async function genImg() {
       const m = document.getElementById('im').value.toLowerCase();
       return m.includes('gemini') && (m.includes('image') || m.includes('flash-preview'));
     })();
-    const sizeVal = chipVal('sz-g') || '1024x1024';
+    const sizeVal = imgSize() || '1024x1024';
     if (imgMode === 'edit') {
       // 图像编辑：multipart/form-data 上传参考图到 /v1/images/edits
       const fd = new FormData();
@@ -3473,7 +4859,7 @@ async function genImg() {
         fd.append('file', dataUriToBlob(u), 'ref' + (i + 1) + '.png'));
       res = await fetch(api('/api/image/edit'), {
         method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + S.tok, 'X-Site': S.site },
+        headers: { 'Authorization': normAuth(S.tok), 'X-Site': S.site },
         body: fd,
       });
     } else {
@@ -3557,6 +4943,253 @@ async function genImg() {
 }
 
 function setImgResult(html) { document.getElementById('ir').innerHTML = html; }
+
+// ============ 蒙版编辑（/api/test/image-mask） ============
+async function genMask() {
+  if (!S.tok) { openModal(); return; }
+  const prompt = document.getElementById('ip').value.trim();
+  if (!prompt) { alert('请输入编辑提示词'); return; }
+  if (imgMaskB64s.length < 2) { alert('请上传 2 张图：第 1 张原图，第 2 张蒙版'); return; }
+  if (imgMaskB64s.some(x => !x)) { alert('图片还在读取中，请稍候再试'); return; }
+  const model = document.getElementById('im').value;
+  if (!model) { alert('请选择模型'); return; }
+  // 蒙版要求与原图同尺寸：校验两张图的分辨率
+  const sizes = await Promise.all(imgMaskB64s.map(b64 => new Promise(res => {
+    const im = new Image();
+    im.onload = () => res(im.width + 'x' + im.height);
+    im.onerror = () => res('');
+    im.src = b64;
+  })));
+  if (sizes[0] && sizes[1] && sizes[0] !== sizes[1]) {
+    if (!confirm('⚠️ 原图 (' + sizes[0] + ') 与蒙版 (' + sizes[1] + ') 尺寸不一致，上游可能报错。仍继续？')) return;
+  }
+
+  const btn = document.getElementById('ib');
+  const ist = document.getElementById('ist');
+  btn.disabled = true; btn.textContent = '⏳ 蒙版编辑中...';
+  setImgResult(`<div class="ph" style="margin:auto"><div style="font-size:48px;opacity:.5">🎭</div>
+    <div style="font-size:15px;color:var(--text2);font-weight:600">正在蒙版编辑...</div>
+    <div class="ph-sub">约 30 ~ 120 秒，请勿关闭页面</div></div>`);
+  const t0 = Date.now();
+  const timer = setInterval(() => {
+    ist.textContent = '已等待 '+Math.floor((Date.now()-t0)/1000)+'s...';
+  }, 1000);
+  try {
+    const payload = {
+      model: model,
+      image_b64: imgMaskB64s[0],
+      mask_b64:  imgMaskB64s[1],
+      prompt: prompt,
+      size: imgSize() || '1536x1024',
+      quality: chipVal('iq-g') || 'high',
+      output_format: 'png',
+      n: 1,
+    };
+    const res = await fetch(api('/api/test/image-mask'), {
+      method: 'POST',
+      headers: { 'Authorization': normAuth(S.tok), 'Content-Type': 'application/json', 'X-Site': S.site },
+      body: JSON.stringify(payload),
+    });
+    const raw = await res.text();
+    clearInterval(timer);
+    let j;
+    try { j = JSON.parse(raw); } catch { j = null; }
+    if (!res.ok || (j && j.ok === false) || (j && j.status >= 400)) {
+      const msg = (j && (j.error || '')) || raw;
+      setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(res.status, fmtErr(msg), raw)+'</div>');
+      ist.textContent = '❌ HTTP ' + res.status;
+      return;
+    }
+    if (!j || !j.images || !j.images[0] || !j.images[0].data) {
+      setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, '上游未返回编辑结果图', raw)+'</div>');
+      ist.textContent = '❌ 未返回图像';
+      return;
+    }
+    const b64 = j.images[0].data;
+    const mime = j.images[0].media_type || detectMime(b64);
+    const src = `data:${mime};base64,${b64}`;
+    const ext = mime.split('/')[1];
+    const elapsed = Math.floor((Date.now()-t0)/1000);
+    const respDisplay = JSON.parse(JSON.stringify(j));
+    if (respDisplay.images) respDisplay.images.forEach(d => { if (d.data) d.data = d.data.slice(0, 80) + '...(truncated)'; });
+    const respJson = JSON.stringify(respDisplay, null, 2);
+    setImgResult(`
+      <div style="display:flex;flex-direction:column;gap:14px;align-items:center;width:100%">
+        <img class="r-img" src="${src}" alt="Mask Edit">
+        ${j.text ? `<div class="ph-sub" style="max-width:640px;line-height:1.7">${esc(j.text)}</div>` : ''}
+        <div class="row" style="gap:10px">
+          <a href="${src}" download="mask-edit-${Date.now()}.${ext}" class="btn btn-g btn-sm">⬇ 下载图像</a>
+          <span class="ph-sub">耗时 ${elapsed}s · ${payload.size} · ${payload.quality} · 蒙版编辑</span>
+        </div>
+        <details style="width:100%;max-width:660px;margin-top:4px">
+          <summary style="cursor:pointer;font-size:11px;color:var(--muted2);user-select:none;font-weight:600">▸ 查看响应 JSON</summary>
+          <div style="position:relative;margin-top:6px">
+            <button onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent).then(()=>{this.textContent='✅ 已复制';setTimeout(()=>this.textContent='📋 复制',1500)})" style="position:absolute;top:6px;right:6px;background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;cursor:pointer;color:var(--text2);z-index:1">📋 复制</button>
+            <pre style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-size:11px;line-height:1.6;color:var(--text2);white-space:pre-wrap;word-break:break-all;max-height:300px;overflow:auto;margin:0">${esc(respJson)}</pre>
+          </div>
+        </details>
+      </div>`);
+    ist.textContent = '✅ 蒙版编辑完成，耗时 '+elapsed+'s';
+  } catch(e) {
+    clearInterval(timer);
+    setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, e.message, '')+'</div>');
+    ist.textContent = '❌ 编辑失败';
+  } finally {
+    btn.disabled = false; btn.textContent = '🎭 蒙版编辑';
+  }
+}
+
+// ============ 图像并发批量（服务端控制并发，SSE 逐张上屏） ============
+// 并发数：chips（1/2/5/10/20/50/100）或数字输入框 0-100；0 / 1 = 单张生成
+function imgConcurrency() {
+  const chip = parseInt(chipVal('ic-g'), 10);
+  const num = parseInt(document.getElementById('ic-n').value, 10);
+  let v = Number.isFinite(num) ? num : (Number.isFinite(chip) ? chip : 1);
+  return Math.max(0, Math.min(100, v));
+}
+
+let batchReader = null;   // 当前批量 SSE 读取器（供停止按钮取消）
+let batchStopped = false; // 主动停止标记
+
+async function batchGenImg(N) {
+  const btn = document.getElementById('ib');
+  const ist = document.getElementById('ist');
+  btn.disabled = true; btn.textContent = '⏳ 并发生成中 (' + N + ')...';
+  batchStopped = false;
+  const payload = buildImgPayload();
+  const t0 = Date.now();
+  let okCnt = 0, failCnt = 0, doneCnt = 0;
+
+  setImgResult(`
+    <div style="width:100%;display:flex;flex-direction:column;gap:10px">
+      <div class="bimg-bar">
+        <span style="font-weight:700;color:var(--text2)" id="bimg-stat">0/${N} 完成</span>
+        <span id="bimg-ok" style="color:var(--green)">✅ 成功 0</span>
+        <span id="bimg-fail" style="color:var(--red)">❌ 失败 0</span>
+        <span id="bimg-time">总耗时 0s</span>
+        <button class="btn btn-sm" id="bimg-stop" onclick="batchStop()" style="margin-left:auto">⏹ 停止</button>
+      </div>
+      <div class="bimg-grid" id="bimg-grid"></div>
+    </div>`);
+
+  const grid = document.getElementById('bimg-grid');
+  const cardEls = [];
+  for (let i = 0; i < N; i++) {
+    const card = document.createElement('div');
+    card.className = 'bimg-card';
+    card.innerHTML = `<div class="bimg-top"><span class="bimg-idx">#${i + 1}</span><span class="bimg-tag" style="color:var(--muted2)">排队中</span></div>
+      <div class="bimg-ph"><div style="font-size:26px;opacity:.5">⏳</div><div>等待生成...</div></div>`;
+    grid.appendChild(card);
+    cardEls.push(card);
+  }
+
+  const statEl  = document.getElementById('bimg-stat');
+  const okEl    = document.getElementById('bimg-ok');
+  const failEl  = document.getElementById('bimg-fail');
+  const timeEl  = document.getElementById('bimg-time');
+  const tick = () => {
+    statEl.textContent = doneCnt + '/' + N + ' 完成';
+    okEl.textContent   = '✅ 成功 ' + okCnt;
+    failEl.textContent = '❌ 失败 ' + failCnt;
+    timeEl.textContent = '总耗时 ' + Math.floor((Date.now() - t0) / 1000) + 's';
+  };
+  const setCard = (i, html) => { const c = cardEls[i]; if (c) c.innerHTML = html; };
+  tick();
+
+  let res;
+  try {
+    res = await fetch(api('/api/image/batch'), {
+      method: 'POST', headers: hdrs(),
+      body: JSON.stringify({ concurrency: N, request: payload }),
+    });
+  } catch (e) {
+    setImgResult('<div style="display:flex;justify-content:center;padding:20px">' + errCard(null, '批量请求失败: ' + e.message, '') + '</div>');
+    ist.textContent = '❌ 批量请求失败';
+    btn.disabled = false; btn.textContent = '✨ 生成图像';
+    return;
+  }
+  if (!res.ok) {
+    const raw = await res.text();
+    setImgResult('<div style="display:flex;justify-content:center;padding:20px">' + errCard(res.status, fmtErr(raw), raw) + '</div>');
+    ist.textContent = '❌ HTTP ' + res.status;
+    btn.disabled = false; btn.textContent = '✨ 生成图像';
+    return;
+  }
+
+  const reader = res.body.getReader();
+  batchReader = reader;
+  const dec = new TextDecoder();
+  let buf = '';
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const d = line.slice(6).trim();
+        if (!d) continue;
+        let j; try { j = JSON.parse(d); } catch { continue; }
+        if (j.type === 'img') {
+          const i = j.index;
+          if (batchStopped || (cardEls[i] && cardEls[i].dataset.done)) continue;
+          doneCnt++;
+          if (j.ok) {
+            okCnt++;
+            const mime = j.mime || 'image/png';
+            const src  = 'data:' + mime + ';base64,' + j.b64;
+            const ext  = mime.split('/')[1] || 'png';
+            const secs = ((j.ms || 0) / 1000).toFixed(1);
+            setCard(i, `<div class="bimg-top"><span class="bimg-idx">#${i + 1}</span><span class="bimg-tag" style="color:var(--green)">✓ ${secs}s</span></div>
+              <img src="${src}" alt="img-${i + 1}" loading="lazy">
+              ${j.rev ? `<div style="padding:6px 10px;font-size:10.5px;color:var(--muted2);line-height:1.6;max-height:64px;overflow:auto">${esc(j.rev)}</div>` : ''}
+              <div class="bimg-foot"><a href="${src}" download="ai-batch-${Date.now()}-${i + 1}.${ext}" class="btn btn-g btn-sm" style="width:100%">⬇ 下载</a></div>`);
+          } else {
+            failCnt++;
+            const secs = ((j.ms || 0) / 1000).toFixed(1);
+            setCard(i, `<div class="bimg-top"><span class="bimg-idx">#${i + 1}</span><span class="bimg-tag" style="color:var(--red)">✗ ${secs}s</span></div>
+              <div class="bimg-err"><div style="font-weight:700">${j.status ? 'HTTP ' + j.status : '生成失败'}</div>
+              <div style="word-break:break-all">${esc(j.error || '未知错误')}</div></div>`);
+          }
+          cardEls[i].dataset.done = '1';
+          tick();
+        } else if (j.type === 'summary') {
+          if (j.totalMs) timeEl.textContent = '总耗时 ' + Math.round(j.totalMs / 1000) + 's';
+        }
+      }
+    }
+  } catch (e) {
+    // 客户端主动取消（batchStop）或连接中断
+  } finally {
+    batchReader = null;
+  }
+
+  if (batchStopped) {
+    for (let i = 0; i < N; i++) {
+      if (!cardEls[i].dataset.done) {
+        setCard(i, `<div class="bimg-top"><span class="bimg-idx">#${i + 1}</span><span class="bimg-tag" style="color:var(--yellow)">已停止</span></div>
+          <div class="bimg-ph"><div style="font-size:26px;opacity:.5">⏹</div><div>已停止</div></div>`);
+        cardEls[i].dataset.done = '1';
+      }
+    }
+    statEl.textContent = doneCnt + '/' + N + ' 完成（已停止）';
+    ist.textContent = '⏹ 已停止，完成 ' + doneCnt + '/' + N;
+  } else {
+    ist.textContent = '✅ 批量完成：成功 ' + okCnt + ' · 失败 ' + failCnt + ' · 总耗时 ' + Math.floor((Date.now() - t0) / 1000) + 's';
+  }
+  btn.disabled = false; btn.textContent = '✨ 生成图像';
+  const sb = document.getElementById('bimg-stop');
+  if (sb) sb.remove();
+}
+
+function batchStop() {
+  batchStopped = true;
+  if (batchReader) { try { batchReader.cancel(); } catch (e) {} }
+  const sb = document.getElementById('bimg-stop');
+  if (sb) sb.disabled = true;
+}
 
 // ============ @ 引用参考图 ============
 // 提示词里输入 @ 弹出已上传参考图，点选插入 图N；发送时把 @图N / @N 规范为 图N
@@ -3704,6 +5337,8 @@ function fillJsonFromCurrent() {
 // ============ VIDEO ============
 async function submitVid() {
   if (!S.tok) { openModal(); return; }
+  if (vidMode === 'json') { sendVidJson(); return; }
+  if (vidMode === 'vunder') { sendVidUnderstand(); return; }
   const prompt = document.getElementById('vp').value.trim();
   if (!prompt) { alert('请输入提示词'); return; }
   if (vidMode === 'i2v' && vidImgB64s.length === 0) { alert('图生视频模式请至少上传 1 张参考图'); return; }
@@ -3731,35 +5366,42 @@ async function submitVid() {
     let payload, endpoint = '/api/video/submit';
 
     if (vidMode === 'm2v') {
-      // 多模态参考：仅国际站 /v1/video/generations（metadata.content 数组）
-      const content = [];
-      m2vImgUrls.forEach(u => content.push({ type:'image_url', image_url:{ url:u }, role:'reference_image' }));
+      // 多模态参考（官方模板格式）：metadata.reference_images/videos/audios 数组
       const m2vVideo = (document.getElementById('vid-m2v-video')?.value || '').trim();
-      if (m2vVideo) content.push({ type:'video_url', video_url:{ url:m2vVideo }, role:'reference_video' });
       const m2vAudio = (document.getElementById('vid-m2v-audio')?.value || '').trim();
-      if (m2vAudio) content.push({ type:'audio_url', audio_url:{ url:m2vAudio }, role:'reference_audio' });
       payload = {
         model, prompt,
-        metadata: { content, generate_audio:audio, ratio, duration, watermark:wm }
+        metadata: {
+          reference_images: m2vImgUrls,
+          reference_videos: m2vVideo ? [m2vVideo] : [],
+          reference_audios: m2vAudio ? [m2vAudio] : [],
+          generate_audio: audio, ratio, duration, resolution: res_val, watermark: wm
+        }
       };
       endpoint = '/api/video/submit-intl';
     } else if (isIntl) {
-      // 国际站：参数包在 metadata 中（豆包多模态格式）
-      const content = [];
+      // 国际站（官方模板格式）：metadata.reference_images/videos/audios 数组
+      const referenceImages = [];
+      const referenceVideos = [];
+      const referenceAudios = [];
       if (vidMode === 'i2v') {
-        vidImgB64s.forEach(u => content.push({ type:'image_url', image_url:{ url:u }, role:'reference_image' }));
+        // 图生视频：本地上传的 base64 data URL
+        referenceImages.push(...vidImgB64s);
       }
       if (vidMode === 'v2v') {
-        content.push({ type:'video_url', video_url:{ url:vidRefUrl }, role:'reference_video' });
+        referenceVideos.push(vidRefUrl);
       }
-      if (vidMode === 'a2v') {
-        const assetId = document.getElementById('vid-asset-sel').value;
-        content.push({ type:'asset', asset_id: assetId });
-      }
-      payload = {
-        model, prompt,
-        metadata: { content, generate_audio:audio, ratio, duration, watermark:wm }
+      const intlMeta = {
+        reference_images: referenceImages,
+        reference_videos: referenceVideos,
+        reference_audios: referenceAudios,
+        generate_audio: audio, ratio, duration, resolution: res_val, watermark: wm
       };
+      if (vidMode === 'a2v') {
+        // 素材生成：asset_id 附加在 metadata（官方模板外追加字段）
+        intlMeta.asset_id = document.getElementById('vid-asset-sel').value;
+      }
+      payload = { model, prompt, metadata: intlMeta };
       endpoint = '/api/video/submit-intl';
     } else {
       // 国内站：扁平参数格式
@@ -3795,6 +5437,75 @@ async function submitVid() {
   } finally {
     btn.disabled = false; btn.textContent = '🎬 生成视频';
   }
+}
+
+// ============ 视频 JSON 直发发送 / 轮询（/v1/video/generations） ============
+async function sendVidJson() {
+  if (!S.tok) { openModal(); return; }
+  const ta = document.getElementById('vj');
+  const raw = ta.value.trim();
+  if (!raw) { alert('请填写请求 JSON（可点「📋 填入模板」生成骨架）'); return; }
+  let payload;
+  try { payload = JSON.parse(raw); } catch(e) { alert('请求体不是合法 JSON: ' + e.message); return; }
+  if (!payload.model) { alert('请求体缺少 model 字段'); return; }
+  const path = document.getElementById('vj-path')?.value || '/v1/video/generations';
+
+  const btn = document.getElementById('vsub');
+  btn.disabled = true; btn.textContent = '⏳ 提交中...';
+  setVidResult(`<div class="ph" style="margin:auto"><div style="font-size:48px;opacity:.5">📤</div>
+    <div style="font-size:15px;color:var(--text2);font-weight:600">正在提交视频任务...</div>
+    <div class="ph-sub">${esc(path)} · 素材引用原样透传</div></div>`);
+  try {
+    const r = await fetch(api('/api/test/video-generate'), {
+      method: 'POST',
+      headers: { 'Authorization': normAuth(S.tok), 'Content-Type': 'application/json', 'X-Site': S.site, 'X-Test-Path': path },
+      body: JSON.stringify(payload),
+    });
+    const resRaw = await r.text();
+    let j;
+    try { j = JSON.parse(resRaw); } catch { j = null; }
+    if (!r.ok || (j && j.ok === false) || (j && j.status >= 400)) {
+      const msg = (j && (j.error || '')) || resRaw;
+      setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(r.status, fmtErr(msg), resRaw)+'</div>');
+      return;
+    }
+    if (!j || !j.task_id) {
+      setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, '上游未返回 task_id（可能为同步响应，查看下方原始响应）', resRaw)+'</div>');
+      return;
+    }
+    showVidProgress(j.task_id, 'SUBMITTED', '0%');
+    pollVidV1(j.task_id);
+  } catch(e) {
+    setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, e.message, '')+'</div>');
+  } finally {
+    btn.disabled = false; btn.textContent = '📤 发送请求';
+  }
+}
+
+function pollVidV1(taskId) {
+  let n = 0;
+  S.vidTimer = setInterval(async () => {
+    if (++n > 200) { clearInterval(S.vidTimer); showVidProgress(taskId,'TIMEOUT','超时'); return; }
+    try {
+      const r = await fetch(api('/api/video/poll-v1/'+taskId), { headers: hdrs() });
+      const j = JSON.parse(await r.text());
+      // 上游响应结构可能为 {status, progress} 或 {data:{status, progress, data:{content:{video_url}}}}，统一兼容
+      const d = j.data || j;
+      const st = d.status || 'UNKNOWN';
+      const pg = d.progress || '0%';
+      showVidProgress(taskId, st, pg);
+      if (st === 'SUCCESS') {
+        clearInterval(S.vidTimer);
+        showVidDone(taskId, d?.data?.content?.video_url || d?.content?.video_url || d?.video_url, d);
+      } else if (st === 'FAILURE') {
+        clearInterval(S.vidTimer);
+        showVidFail(taskId, d.fail_reason || d.error?.message || '未知原因');
+      }
+    } catch(e) {
+      clearInterval(S.vidTimer);
+      setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, '轮询出错: '+e.message, '')+'</div>');
+    }
+  }, 3000);
 }
 
 function pollVid(taskId) {
@@ -4043,7 +5754,6 @@ async function loadAssets() {
 
   const sel = document.getElementById('vid-asset-sel');
   sel.innerHTML = '<option value="">加载中...</option>';
-
   try {
     const res = await fetch(api('/api/asset/list?page=1&page_size=100&sort_order=Desc'), {
       headers: hdrs()
@@ -4092,6 +5802,261 @@ async function loadAssets() {
     sel.innerHTML = '<option value="">加载出错</option>';
     console.error('Load assets error:', e);
   }
+}
+
+// ============ 视频 JSON 直发（/v1/video/generations） ============
+async function loadVidJsonAssets() {
+  const box = document.getElementById('vj-asset-list');
+  const cnt = document.getElementById('vj-asset-cnt');
+  if (!box) return;
+  box.innerHTML = '<div class="ph-sub" style="margin:0">加载素材库...</div>';
+  try {
+    const res = await fetch(api('/api/asset/list?page=1&page_size=100&sort_order=Desc'), { headers: hdrs() });
+    const raw = await res.text();
+    if (!res.ok) { box.innerHTML = '<div class="ph-sub" style="margin:0;color:var(--red)">素材库加载失败</div>'; return; }
+    const j = JSON.parse(raw);
+    const items = (j.success && j.data?.items) ? j.data.items : [];
+    ASSETS.list = items;
+    if (items.length === 0) {
+      box.innerHTML = '<div class="ph-sub" style="margin:0">暂无已审核素材，请到「素材库」上传</div>';
+      if (cnt) cnt.textContent = '';
+      return;
+    }
+    const icon = { image:'🖼', video:'🎬', audio:'🎵' };
+    box.innerHTML = items.map(a => `
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:6px;background:var(--bg4);font-size:11px">
+        <span>${icon[a.type]||'📄'}</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)">${esc(a.purpose)}</span>
+        <code style="font-size:10px;color:var(--muted2)">${esc(a.asset_id)}</code>
+        <button class="btn btn-g btn-sm" data-asset="${esc(a.asset_id)}" data-type="${esc(a.type)}" onclick="insertVidAssetRef(this.dataset.asset, this.dataset.type)" title="插入 asset://ID 到光标处">⤷ 引用</button>
+      </div>`).join('');
+    if (cnt) cnt.textContent = `(${items.length})`;
+  } catch(e) {
+    box.innerHTML = '<div class="ph-sub" style="margin:0;color:var(--red)">素材加载出错: '+esc(e.message)+'</div>';
+  }
+}
+
+function insertVidAssetRef(assetId, type) {
+  const ta = document.getElementById('vj');
+  const urlKey = type === 'video' ? 'video_url' : type === 'audio' ? 'audio_url' : 'image_url';
+  const role = type === 'video' ? 'reference_video' : type === 'audio' ? 'reference_audio' : 'reference_image';
+  const arrKey = type === 'video' ? 'reference_videos' : type === 'audio' ? 'reference_audios' : 'reference_images';
+  const refStr = `"asset://${assetId}"`;
+  const objBlock = `{"type":"${urlKey}","role":"${role}","${urlKey}":{"url":"asset://${assetId}"}}`;
+
+  let inserted = false;
+  let v = ta.value;
+
+  // 1) metadata 格式：找 "reference_images/videos/audios": [ 数组，插到头部（保持 JSON 合法）
+  const arrRe = new RegExp('"(' + arrKey + ')"\\s*:\\s*\\[');
+  const arrM = v.match(arrRe);
+  if (arrM) {
+    const open = arrM.index + arrM[0].length - 1;  // '[' 的位置
+    const close = v.indexOf(']', open);
+    if (close > open) {
+      const inner = v.slice(open + 1, close);
+      const insert = inner.trim() === '' ? refStr : refStr + ',' + inner;
+      v = v.slice(0, open + 1) + insert + v.slice(close);
+      inserted = true;
+    }
+  }
+
+  // 2) content 数组格式：找 "content": [ ，插入对象块到头部
+  if (!inserted) {
+    const cRe = /"content"\s*:\s*\[/;
+    const cM = v.match(cRe);
+    if (cM) {
+      const open = cM.index + cM[0].length - 1;
+      const close = v.indexOf(']', open);
+      if (close > open) {
+        const inner = v.slice(open + 1, close);
+        const insert = inner.trim() === '' ? objBlock : objBlock + ',' + inner;
+        v = v.slice(0, open + 1) + insert + v.slice(close);
+        inserted = true;
+      }
+    }
+  }
+
+  // 3) 找不到目标数组：按光标/末尾插入，并提示手动放入数组
+  if (!inserted) {
+    const focused = document.activeElement === ta && typeof ta.selectionStart === 'number';
+    if (focused) {
+      const start = ta.selectionStart, end = ta.selectionEnd;
+      v = v.slice(0, start) + objBlock + v.slice(end);
+      ta.focus();
+      ta.selectionStart = ta.selectionEnd = start + objBlock.length;
+    } else {
+      v = v ? v + '\n' + objBlock : objBlock;
+    }
+    alert('⚠️ 未找到 ' + arrKey + ' / content 数组，引用已插入到文本末尾，请手动移动到数组内');
+  }
+
+  ta.value = v;
+  ta.focus();
+  // 可见反馈：请求体已更新
+  const btn = document.querySelector('[data-asset="' + assetId + '"]');
+  if (btn) {
+    const old = btn.textContent;
+    btn.textContent = '✅ 已插入';
+    setTimeout(() => { btn.textContent = old; }, 1200);
+  }
+}
+
+function fillVidJsonTemplate() {
+  const sel = document.getElementById('vj-path');
+  const isFlat = sel && sel.value === '/api/v3/contents/generations/tasks';
+  const model = document.getElementById('vm').value || 'seed-2-vison';
+  if (isFlat) {
+    document.getElementById('vj').value = JSON.stringify({
+      model, prompt: '', generate_audio: true, ratio: '16:9',
+      duration: 5, resolution: '720p', watermark: false
+    }, null, 2);
+  } else {
+    document.getElementById('vj').value = JSON.stringify({
+      model, prompt: '',
+      metadata: {
+        reference_images: [],
+        reference_videos: [],
+        reference_audios: [],
+        generate_audio: true, ratio: '16:9', duration: 5, watermark: false
+      }
+    }, null, 2);
+  }
+}
+
+// ============ 视频理解（video_url 输入能力测试） ============
+let vuFileData = null;   // 本地上传视频的 data URL
+
+/** 模型候选：用当前站点拉到的全量模型列表填充 datalist */
+function loadVuModels() {
+  const dl = document.getElementById('vu-models');
+  if (!dl) return;
+  const list = S.allModels || [];
+  dl.innerHTML = list.map(m => `<option value="${esc(m)}"></option>`).join('');
+}
+
+function pickVuFile(e) {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  const mb = f.size / 1024 / 1024;
+  if (mb > 20 && !confirm('视频 ' + mb.toFixed(1) + 'MB，转 base64 后约 ' + (mb * 1.37).toFixed(1) + 'MB，可能被上游拒绝或超时。继续？')) {
+    e.target.value = '';
+    return;
+  }
+  const fr = new FileReader();
+  fr.onload = () => {
+    vuFileData = fr.result;
+    const el = document.getElementById('vu-file-name');
+    if (el) el.textContent = '· ' + f.name + ' (' + mb.toFixed(2) + 'MB)';
+  };
+  fr.onerror = () => alert('读取视频文件失败');
+  fr.readAsDataURL(f);
+}
+
+function dropVuFile(e) {
+  e.preventDefault();
+  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) pickVuFile({ target: { files: [f], value: '' } });
+}
+
+/** 用上方字段生成完整请求体（OpenAI video_url 内容块），填到直发文本框 */
+function fillVuTemplate() {
+  const model = (document.getElementById('vu-model').value || '').trim() || 'kimi-k3';
+  const prompt = (document.getElementById('vu-prompt').value || '').trim() || '总结这个视频';
+  const url = vuFileData || (document.getElementById('vu-url').value || '').trim();
+  if (!url) { alert('请先填写视频地址（ms:// 或 https://）或上传本地视频'); return; }
+  const mt = parseInt(document.getElementById('vu-mt').value) || 1024;
+  document.getElementById('vu-json').value = JSON.stringify({
+    model, max_tokens: mt, stream: false,
+    messages: [{ role: 'user', content: [
+      { type: 'video_url', video_url: { url } },
+      { type: 'text', text: prompt }
+    ]}]
+  }, null, 2);
+}
+
+function clearVu() {
+  vuFileData = null;
+  ['vu-url','vu-json'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const fn = document.getElementById('vu-file-name'); if (fn) fn.textContent = '';
+  const fi = document.getElementById('vu-file'); if (fi) fi.value = '';
+}
+
+async function sendVidUnderstand() {
+  const res = document.getElementById('vr');
+  const raw = (document.getElementById('vu-json').value || '').trim();
+  let payload;
+  if (raw) {
+    try { payload = JSON.parse(raw); }
+    catch (e) { res.innerHTML = errCard(0, '请求体 JSON 格式错误：' + e.message, raw); return; }
+  } else {
+    const model = (document.getElementById('vu-model').value || '').trim();
+    const prompt = (document.getElementById('vu-prompt').value || '').trim() || '总结这个视频';
+    const url = vuFileData || (document.getElementById('vu-url').value || '').trim();
+    if (!model) { res.innerHTML = errCard(0, '请填写模型 ID（如 kimi-k3）', ''); return; }
+    if (!url) { res.innerHTML = errCard(0, '请填写视频地址（ms:// 或 https://）或上传本地视频', ''); return; }
+    payload = {
+      model, prompt,
+      max_tokens: parseInt(document.getElementById('vu-mt').value) || 1024,
+    };
+    if (vuFileData) {
+      payload.video_b64 = vuFileData;
+      payload.mime = (vuFileData.match(/^data:([^;]+);/) || [])[1] || 'video/mp4';
+    } else {
+      payload.video_url = url;
+    }
+  }
+  res.innerHTML = '<div class="ph" style="margin:auto"><div class="ph-ic">🔍</div>'
+    + '<div class="ph-t">正在请求上游分析视频...</div>'
+    + '<div class="ph-s">video_url 直传 ' + upstreamBase() + '/v1/chat/completions，视频大时耗时较长</div></div>';
+  try {
+    const r = await fetch(api('/api/test/video-understand'), {
+      method: 'POST',
+      headers: { ...hdrs(), 'X-Test-Timeout': '300' },
+      body: JSON.stringify(payload),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || j.ok === false) {
+      res.innerHTML = errCard(j.status || r.status, j.error || '请求失败', j.raw || JSON.stringify(j, null, 2));
+      return;
+    }
+    renderVuResult(j);
+  } catch (e) {
+    res.innerHTML = errCard(0, '请求异常：' + e.message, '');
+  }
+}
+
+function renderVuResult(j) {
+  const res = document.getElementById('vr');
+  const meta = ['HTTP ' + (j.status || 200)];
+  if (j.ms) meta.push(j.ms + 'ms');
+  meta.push(j.mode === 'direct' ? '直发' : '字段构建');
+  meta.push('video 块 ' + (j.video_blocks || 0) + ' · text 块 ' + (j.text_blocks || 0));
+  if (j.ms_refs)   meta.push('ms:// ' + j.ms_refs);
+  if (j.http_refs) meta.push('http ' + j.http_refs);
+  if (j.data_refs) meta.push('data ' + j.data_refs);
+  const text = j.text || '';
+  const chips = meta.map(m =>
+    `<span style="background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 8px">${esc(m)}</span>`
+  ).join('');
+  const bodyCard = text
+    ? `<div style="background:var(--bg4);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;font-size:13px;line-height:1.75;white-space:pre-wrap;color:var(--text)">${esc(text)}</div>`
+    : `<div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-left:3px solid var(--red);border-radius:var(--r);padding:12px 14px;font-size:12.5px;color:var(--text2)">上游返回成功但未解析到文本${j.hint ? '：' + esc(j.hint) : ''}</div>`;
+  res.innerHTML = `
+    <div style="width:100%;max-width:780px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:11px;color:var(--muted2)">${chips}</div>
+      ${bodyCard}
+      ${j.hint && text ? `<div style="font-size:11.5px;color:var(--yellow)">⚠️ ${esc(j.hint)}</div>` : ''}
+      ${j.finish_reason ? `<div style="font-size:11px;color:var(--muted2)">finish_reason: ${esc(j.finish_reason)} · 文本 ${j.text_len || 0} 字</div>` : ''}
+      <details>
+        <summary style="cursor:pointer;font-size:11px;color:var(--muted2);user-select:none;list-style:none">▸ 查看原始响应${j.truncated ? '（已截断）' : ''}</summary>
+        <pre style="margin-top:8px;font-size:11px;color:var(--muted);white-space:pre-wrap;word-break:break-all;line-height:1.6;max-height:320px;overflow:auto;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px">${esc(j.raw || '')}</pre>
+      </details>
+      <details>
+        <summary style="cursor:pointer;font-size:11px;color:var(--muted2);user-select:none;list-style:none">▸ 查看实际发送的请求体</summary>
+        <pre style="margin-top:8px;font-size:11px;color:var(--muted);white-space:pre-wrap;word-break:break-all;line-height:1.6;max-height:240px;overflow:auto;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px">${esc(j.request_summary || '')}</pre>
+      </details>
+    </div>`;
 }
 
 // ============ MODEL PLAZA ============
@@ -4620,7 +6585,7 @@ function wfEnsureModels() {
   if (WF.modelsFetched) return;
   WF.modelsFetched = true;
   if (!S.tok) return;
-  fetch(api('/api/models'), { headers: { 'Authorization': 'Bearer ' + S.tok, 'X-Site': S.site } })
+  fetch(api('/api/models'), { headers: { 'Authorization': normAuth(S.tok), 'X-Site': S.site } })
     .then(r => r.json().catch(() => ({ data: [] })))
     .then(j => {
       const all = (j.data || []).map(m => (typeof m === 'string' ? m : (m && m.id) || '')).filter(Boolean);
