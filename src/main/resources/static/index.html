@@ -1231,6 +1231,39 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
 }
 .wf-sw-del:hover{border-color:var(--red);color:var(--red)}
 .wf-cfg-note{font-size:11px;color:var(--muted2);line-height:1.6;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 9px;margin-top:4px}
+
+/* ===== 多 Key 管理 ===== */
+/* 设置弹窗内容较多：加宽、限高、可滚动，避免超出视口被裁掉 */
+#ov .modal{width:min(600px,94vw);max-height:88vh;overflow-y:auto;overflow-x:hidden}
+/* 关键：限高后必须禁止子项被压缩，否则各区块会挤在一起重叠 */
+#ov .modal>*{flex-shrink:0}
+.key-list{display:flex;flex-direction:column;gap:7px;max-height:min(240px,34vh);overflow-y:auto;overflow-x:hidden;padding-right:2px}
+.key-row{
+  display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px 9px;padding:9px 10px;
+  border:1px solid var(--border);border-radius:9px;background:var(--bg2);flex:none;
+}
+.key-row.off{opacity:.5}
+.key-row.other{background:var(--bg)}
+.key-row.main{border-color:var(--primary);box-shadow:inset 0 0 0 1px rgba(99,102,241,.18)}
+.key-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:none;margin-top:6px}
+.key-row.off .key-dot{background:var(--muted2)}
+.key-row.bad .key-dot{background:var(--red)}
+.key-main{flex:1 1 150px;min-width:0}
+.key-name{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;font-size:12.5px;font-weight:600;line-height:1.4}
+.key-label{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.key-name .badge{flex:none;padding:1px 7px;font-size:10px;border-radius:6px;white-space:nowrap}
+.key-tok{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;
+}
+.key-meta{font-size:10px;color:var(--muted2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.key-acts{display:flex;flex-wrap:wrap;gap:5px;flex:none;margin-left:auto;max-width:100%}
+.key-acts .btn{padding:3px 8px!important;font-size:10.5px!important;white-space:nowrap;flex:none}
+.key-form{border:1px dashed var(--border2);border-radius:9px;padding:10px;margin:8px 0;background:var(--bg2)}
+.key-empty{font-size:11.5px;color:var(--muted);line-height:1.7;padding:8px 2px}
+.nt-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px;font-size:12px;color:var(--text2)}
+.nt-row label{display:flex;align-items:center;gap:6px;cursor:pointer;margin:0;font-weight:400}
+.nt-row input[type=checkbox]{width:14px;height:14px;accent-color:var(--primary);cursor:pointer}
 </style>
 
 <script>
@@ -1833,6 +1866,15 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
             <span class="chip" data-v="480p">480p</span>
             <span class="chip on" data-v="720p">720p</span>
             <span class="chip" data-v="1080p">1080p</span>
+            <span class="chip" data-v="4k">4K</span>
+            <span class="chip" data-v="custom">✏️ 自定义</span>
+          </div>
+          <div id="vres-custom-zone" style="display:none;align-items:center;gap:6px;margin-top:6px">
+            <input type="text" id="vres-custom" placeholder="4k / 2160p / 3840x2160 / 5404x3040"
+              title="原样透传给上游 resolution，不做校验">
+          </div>
+          <div class="ph-sub" style="margin-top:4px">
+            4K 与自定义值原样透传上游 <code>resolution</code>（不做本地校验）；上游不支持时会在提交阶段报错 —— 用于验证视频模型是否支持 4K 输出
           </div>
         </div>
 
@@ -2065,6 +2107,8 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
           <button class="btn btn-p" style="flex:1" onclick="cacheRun()">▶ 开始测试</button>
           <button class="btn btn-g" style="flex:1" onclick="cacheLoadSample()">📄 示例文档</button>
         </div>
+        <button class="btn btn-g btn-full" id="cc-export-btn" style="margin-top:8px" onclick="cacheExportBodies()">📤 导出请求体</button>
+        <div class="ph-sub" style="margin-top:2px">只构建不发请求、不消耗额度；导出内容与实际测试发出的请求体完全一致</div>
         <div class="res-msg" id="cc-msg" style="text-align:left;min-height:20px"></div>
       </div>
       <div class="cache-main">
@@ -2106,7 +2150,8 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
             <input type="number" id="sc-conc" value="5" min="1" max="10"></div>
         </div>
         <button class="btn btn-p btn-full" onclick="scanRun()">🔍 巡检全部模型</button>
-        <div class="ph-sub">巡检会遍历当前 Token 下全部模型逐条发请求<br>并发 5，耗时取决于模型数量</div>
+        <div class="ph-sub">遍历「主 Key」下全部模型逐条发请求<br>并发 5，耗时取决于模型数量</div>
+        <div class="ph-sub" id="sc-keyhint" style="margin-top:6px;color:var(--text2)"></div>
         <div class="res-msg" id="sc-msg" style="text-align:left;min-height:20px"></div>
       </div>
       <div class="cache-main">
@@ -2114,7 +2159,7 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
           <div class="ph" style="margin:auto">
             <div class="ph-ic">🔍</div>
             <div style="font-size:15px;color:var(--text2);font-weight:600">全模型巡检</div>
-            <div class="ph-sub">对当前 Token 下全部模型发短提示<br>一键查看哪些模型可用、哪些失败、各自耗时<br><br>想要站点对比：先巡检「国内站」，再切到「国际站」巡检，两次结果都会保留展示</div>
+            <div class="ph-sub">对「主 Key」下全部模型发短提示<br>一键查看哪些模型可用、哪些失败、各自耗时<br><br>想要站点对比：先巡检「国内站」，再切到「国际站」巡检，两次结果都会保留展示</div>
           </div>
         </div>
       </div>
@@ -2276,20 +2321,35 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
   <div class="modal" onclick="event.stopPropagation()">
     <div>
       <div class="modal-title">⚙ API 配置</div>
-      <div class="modal-sub">配置后端地址和 Bearer Token 以开始使用</div>
+      <div class="modal-sub">每个站点有一个「主 Key」：全站功能默认都用它的模型与额度；要用别的模型，在这里把另一个 Key 设为主 Key 即可</div>
     </div>
     <div class="fg">
-      <label>后端地址（留空则使用当前域名）</label>
-      <input type="text" id="s-url" placeholder="http://localhost:8080">
-    </div>
-    <div class="fg">
-      <label>🇨🇳 国内站 Token</label>
-      <input type="password" id="s-tok" placeholder="sk-...">
-    </div>
-    <div class="fg">
-      <label>🌍 国际站 Token</label>
-      <input type="password" id="s-tok-intl" placeholder="sk-...">
-      <div class="ph-sub" style="margin-top:2px">两站 Token 相互独立，图像/视频按当前所选站点自动使用对应 Token。填 <code>sk-xxx</code> 即可；若连同 <code>Bearer </code> 前缀一起粘贴也会自动纠正，不会重复拼接</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px">
+        <label style="margin:0">🔑 API Key <span class="ph-sub" style="font-weight:400" id="key-count"></span></label>
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-g btn-sm" onclick="keyRefreshModelsAll()" title="为所有已启用 Key 重新拉取可用模型">🔄 刷新模型</button>
+          <button class="btn btn-p btn-sm" onclick="keyAddToggle()">＋ 添加 Key</button>
+        </div>
+      </div>
+      <div class="key-form" id="key-form" style="display:none">
+        <div class="row" style="gap:8px">
+          <input type="text" id="kf-label" placeholder="备注名，如 家用-1 / 公司-2" style="flex:1">
+          <select id="kf-site" style="width:112px">
+            <option value="cn">🇨🇳 国内站</option>
+            <option value="intl">🌍 国际站</option>
+          </select>
+        </div>
+        <input type="password" id="kf-token" placeholder="sk-...（可带 Bearer 前缀，会自动纠正）" style="margin-top:8px">
+        <div class="row" style="gap:8px;margin-top:8px">
+          <button class="btn btn-p btn-sm" style="flex:1" onclick="keyAddSave()">保存并拉取模型</button>
+          <button class="btn btn-g btn-sm" style="flex:1" onclick="keyAddToggle(false)">取消</button>
+        </div>
+        <div class="ph-sub" style="margin-top:6px;line-height:1.6">
+          保存后立即拉取该 Key 的可用模型。若该站点还没有主 Key，新加的这个会自动成为主 Key；否则它只作备用，需要时点它那行的「设为主 Key」。
+        </div>
+      </div>
+      <div class="key-list" id="key-list"></div>
+      <div class="ph-sub" id="key-route-hint" style="margin-top:6px;line-height:1.7"></div>
     </div>
     <div class="fg">
       <label>测试站点（测试连接 / 图像 / 视频 / 模型列表使用）</label>
@@ -2298,6 +2358,18 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
         <span class="chip" data-v="intl">🌍 国际站</span>
       </div>
       <div class="ph-sub" style="margin-top:2px">当前将请求：<span class="site-url"></span>/v1/models</div>
+    </div>
+    <div class="fg">
+      <label>🔔 完成通知（图像 / 视频 / 批量 / 工作流 / 对话）</label>
+      <div class="nt-row">
+        <label><input type="checkbox" id="nt-desk" onchange="notifySet('desk', this.checked)"> 桌面通知</label>
+        <label><input type="checkbox" id="nt-sound" onchange="notifySet('sound', this.checked)"> 提示音</label>
+        <label><input type="checkbox" id="nt-title" onchange="notifySet('title', this.checked)"> 标题未读角标</label>
+        <button class="btn btn-g btn-sm" onclick="notifyTest()">测试通知</button>
+      </div>
+      <div class="ph-sub" style="margin-top:6px;line-height:1.6" id="nt-hint">
+        页面切到后台时用系统通知提醒；页面在前台用底部提示 + 提示音。仅在本页面打开期间有效。
+      </div>
     </div>
     <div class="row">
       <button class="btn btn-g" style="flex:1" onclick="testConn()">🔌 测试连接</button>
@@ -2442,14 +2514,13 @@ input:focus,textarea:focus,select:focus{box-shadow:0 0 0 3px var(--pri-glow);bor
 <script>
 // ============ STATE ============
 const S = {
-  url: localStorage.getItem('ai_url') || '',
   site: localStorage.getItem('ai_site') || 'cn',   // 'cn' 国内站 | 'intl' 国际站
   tokCn:   localStorage.getItem('ai_tok')      || '',   // 国内站 Token
   tokIntl: localStorage.getItem('ai_tok_intl') || '',   // 国际站 Token
   chatMsgs: [],
   chatBusy: false,
   vidTimer: null,
-  // 当前站点的 Token（对话固定国内站，用 tokCn）
+  // 当前站点的 Token（由多 Key 路由自动同步，见 syncLegacyTokens）
   get tok() { return this.site === 'intl' ? this.tokIntl : this.tokCn; },
 };
 
@@ -2457,17 +2528,533 @@ const S = {
 const UPSTREAM_BASES = { cn: 'https://ai-api.kkidc.com', intl: 'https://www.aiide.com' };
 function upstreamBase() { return UPSTREAM_BASES[S.site] || UPSTREAM_BASES.cn; }
 
+// ==================== 多 Key 管理 ====================
+// 存储：localStorage.ai_keys_v1 = [{id,label,site,token,enabled,main,models[],checkedAt,fail,uses,lastError}]
+// 规则：每个站点有且仅有一个「主 Key」——全站功能的模型清单与请求都由它提供；
+//       其他 Key 平时不参与，需要在配置里「设为主 Key」手动切换；
+//       唯一的例外是主 Key 返回 401/403/429 时，自动用同样支持该模型的备用 Key 兜底。
+const KEY_STORE = 'ai_keys_v1';
+const FAILOVER_STATUS = new Set([401, 403, 429]);
+
+function keyNormalize(raw) {
+  const k = raw || {};
+  return {
+    id: k.id || ('k' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)),
+    label: String(k.label || '').trim() || '未命名 Key',
+    site: k.site === 'intl' ? 'intl' : 'cn',
+    token: String(k.token || '').trim(),
+    enabled: k.enabled !== false,
+    main: !!k.main,
+    models: Array.isArray(k.models) ? k.models.filter(Boolean) : [],
+    checkedAt: k.checkedAt || 0,
+    fail: k.fail || 0,
+    uses: k.uses || 0,
+    lastError: k.lastError || '',
+  };
+}
+
+function loadKeys() {
+  try {
+    const arr = JSON.parse(localStorage.getItem(KEY_STORE) || 'null');
+    if (Array.isArray(arr)) return arr.map(keyNormalize).filter(k => k.token);
+  } catch (e) { /* 解析失败则走迁移 */ }
+  // 首次升级：把旧的单 Key 配置（ai_tok / ai_tok_intl）迁移成两条记录
+  const out = [];
+  const t1 = String(localStorage.getItem('ai_tok') || '').trim();
+  const t2 = String(localStorage.getItem('ai_tok_intl') || '').trim();
+  if (t1) out.push(keyNormalize({ label: '国内站主 Key', site: 'cn', token: t1 }));
+  if (t2) out.push(keyNormalize({ label: '国际站主 Key', site: 'intl', token: t2 }));
+  // 迁移结果立即落盘（此时 KEYS 还在 TDZ，不能调用 saveKeys）
+  if (out.length) { try { localStorage.setItem(KEY_STORE, JSON.stringify(out)); } catch (e) {} }
+  return out;
+}
+
+let KEYS = loadKeys();
+ensureMainKeys();
+
+function saveKeys() {
+  try { localStorage.setItem(KEY_STORE, JSON.stringify(KEYS)); } catch (e) {}
+}
+
+/** 某站点的 Key 列表（默认只要启用的） */
+function keysOf(site, includeDisabled) {
+  const s = site || S.site;
+  return KEYS.filter(k => k.site === s && k.token && (includeDisabled ? true : k.enabled));
+}
+
+/** 每个站点保证有一个主 Key：没有就取该站第一个启用 Key */
+function ensureMainKeys() {
+  let changed = false;
+  ['cn', 'intl'].forEach(s => {
+    const list = keysOf(s);
+    if (!list.length) return;
+    const mains = list.filter(k => k.main);
+    if (mains.length === 1) return;
+    if (mains.length > 1) {
+      // 多个主 Key：只保留第一个
+      mains.slice(1).forEach(k => { k.main = false; });
+    } else {
+      list[0].main = true;
+    }
+    changed = true;
+  });
+  // 站点间不冲突；但有 Key 被停用后主 Key 可能失效，这里补一次
+  if (changed) saveKeys();
+  return changed;
+}
+
+/** 某站点的主 Key（全站功能默认使用） */
+function mainKey(site) {
+  const s = site || S.site;
+  const list = keysOf(s);
+  if (!list.length) return null;
+  return list.find(k => k.main) || list[0];
+}
+
+/** 把某个 Key 设为该站点主 Key */
+function setMainKey(id) {
+  const k = KEYS.find(x => x.id === id);
+  if (!k) return;
+  if (!k.enabled) { toast('该 Key 已停用，请先启用'); return; }
+  KEYS.forEach(x => { if (x.site === k.site) x.main = false; });
+  k.main = true;
+  saveKeys();
+  keyRender();
+  const sameSite = k.site === S.site;
+  if (sameSite) loadModels();
+  toast(`✅「${k.label}」已设为${keySiteName(k.site)}主 Key${sameSite ? '，模型列表已更新' : ''}`);
+}
+
+function keyModelsKnown(k) { return !!(k.models && k.models.length); }
+
+/**
+ * 候选 Key：主 Key 永远排第一；其余只作为主 Key 失败时的兜底，
+ * 且只挑「模型清单里也有该模型（或清单未知）」的 Key，避免切到必然失败的 Key。
+ */
+function candidateKeys(site, model) {
+  const mk = mainKey(site);
+  let rest = keysOf(site).filter(k => !mk || k.id !== mk.id);
+  if (model) {
+    const known = rest.filter(k => keyModelsKnown(k));
+    rest = known.filter(k => k.models.includes(model)).concat(rest.filter(k => !keyModelsKnown(k)));
+  }
+  rest.sort((a, b) => (a.fail || 0) - (b.fail || 0) || (a.uses || 0) - (b.uses || 0));
+  return mk ? [mk, ...rest] : rest;
+}
+
+/** 选一个 Key：一律是主 Key（没有主 Key 时才退回候选第一个） */
+function pickKey(site) {
+  return mainKey(site) || candidateKeys(site, null)[0] || null;
+}
+
+function markKeyFail(k) { if (k) k.fail = (k.fail || 0) + 1; }
+
+/** 让 S.tokCn / S.tokIntl 始终等于各站主 Key，兼容旧代码里的 !S.tok 判断 */
+function syncLegacyTokens() {
+  const cn = mainKey('cn'), it = mainKey('intl');
+  S.tokCn = cn ? cn.token : '';
+  S.tokIntl = it ? it.token : '';
+}
+
+// ---------------- Key 列表 UI ----------------
+function keyMask(tok) {
+  const t = normAuth(tok || '').replace(/^Bearer\s+/i, '');
+  if (!t) return '';
+  if (t.length <= 10) return t.slice(0, 2) + '***';
+  return t.slice(0, 5) + '…' + t.slice(-4) + '（' + t.length + ' 位）';
+}
+
+function keySiteName(s) { return s === 'intl' ? '🌍 国际站' : '🇨🇳 国内站'; }
+
+/** 概况：主 Key 是谁、备用几个、其他 Key 有哪些主 Key 没有的模型 */
+function keyUpdateRouteHint() {
+  const el = document.getElementById('key-route-hint');
+  if (!el) return;
+  const keys = keysOf(S.site);
+  const mk = mainKey(S.site);
+  if (!keys.length || !mk) { el.textContent = ''; return; }
+  const others = keys.filter(k => k.id !== mk.id);
+  const mainSet = new Set(mk.models || []);
+  const extra = [...new Set(others.flatMap(k => (k.models || []).filter(m => !mainSet.has(m))))];
+  const parts = [
+    `主 Key：${mk.label}（${keyModelsKnown(mk) ? mk.models.length + ' 个模型' : '模型列表未拉取'}）`,
+    others.length ? `备用 ${others.length} 个（仅主 Key 失败时兜底）` : '暂无备用 Key',
+  ];
+  if (extra.length) {
+    parts.push(`其他 Key 独有模型 ${extra.length} 个：${extra.slice(0, 4).join('、')}${extra.length > 4 ? '…' : ''}（设为主 Key 后可用）`);
+  }
+  el.textContent = parts.join(' · ');
+}
+
+function keyRender() {
+  syncLegacyTokens();
+  notifySyncUI();
+  const box = document.getElementById('key-list');
+  const cnt = document.getElementById('key-count');
+  if (!box) return;
+  ensureMainKeys();
+  if (cnt) cnt.textContent = KEYS.length ? `· 共 ${KEYS.length} 个 / 当前站点 ${keysOf(S.site).length} 个启用` : '';
+  keyUpdateRouteHint();
+  if (!KEYS.length) {
+    box.innerHTML = '<div class="key-empty">还没有 Key。点右上「＋ 添加 Key」添加（国内站 / 国际站各可加多个；当前站点的「主 Key」决定全站使用的模型与额度）。</div>';
+    return;
+  }
+  // 主 Key 排最前，其余按「当前站点优先 → 启用优先 → 备注名」排序
+  const list = KEYS.slice().sort((a, b) =>
+    (b.main ? 1 : 0) - (a.main ? 1 : 0) ||
+    (a.site === S.site ? 0 : 1) - (b.site === S.site ? 0 : 1) ||
+    (b.enabled ? 1 : 0) - (a.enabled ? 1 : 0) ||
+    String(a.label).localeCompare(String(b.label), 'zh-CN'));
+  box.innerHTML = list.map(k => {
+    const isMain = !!k.main;
+    const curSite = k.site === S.site;
+    const cls = 'key-row' + (k.enabled ? '' : ' off') + (k.lastError ? ' bad' : '') + (isMain ? ' main' : '')
+      + (curSite ? '' : ' other');
+    const meta = (keyModelsKnown(k)
+      ? `${k.models.length} 个模型` + (k.checkedAt ? ' · ' + new Date(k.checkedAt).toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }) : '')
+      : '模型列表未拉取') + (k.uses ? ' · 本次用 ' + k.uses + ' 次' : '');
+    const err = k.lastError ? ' · ⚠ ' + k.lastError : '';
+    return `<div class="${cls}">
+      <span class="key-dot" title="${k.enabled ? '已启用' : '已停用'}"></span>
+      <div class="key-main">
+        <div class="key-name"><span class="key-label" title="${esc(k.label)}">${esc(k.label)}</span>${isMain ? '<span class="badge b-g">主 Key</span>' : ''}<span class="badge b-b">${keySiteName(k.site)}</span></div>
+        <div class="key-tok">${esc(keyMask(k.token))}</div>
+        <div class="key-meta">${esc(meta)}${esc(err)}</div>
+      </div>
+      <div class="key-acts">
+        ${isMain ? '' : `<button class="btn btn-p btn-sm" onclick="setMainKey('${k.id}')" title="设为该站点主 Key，全站模型随之切换">设为主 Key</button>`}
+        <button class="btn btn-g btn-sm" onclick="keyTest('${k.id}')" title="用这个 Key 验证连通性">测试</button>
+        <button class="btn btn-g btn-sm" onclick="keyToggle('${k.id}')" title="启用 / 停用">${k.enabled ? '停用' : '启用'}</button>
+        <button class="btn btn-g btn-sm" onclick="keyDelete('${k.id}')" title="删除">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function keyAddToggle(show) {
+  const f = document.getElementById('key-form');
+  if (!f) return;
+  const open = show === undefined ? f.style.display === 'none' : !!show;
+  f.style.display = open ? 'block' : 'none';
+  if (open) {
+    const sel = document.getElementById('kf-site');
+    if (sel) sel.value = S.site || 'cn';
+    const lb = document.getElementById('kf-label');
+    if (lb) lb.focus();
+  } else {
+    const t = document.getElementById('kf-token');
+    if (t) t.value = '';
+  }
+}
+
+function keyAddSave() {
+  const label = document.getElementById('kf-label').value.trim();
+  const site = document.getElementById('kf-site').value;
+  const token = document.getElementById('kf-token').value.trim();
+  if (!token) { setRes('❌ 请填写 Token', 'var(--red)'); return; }
+  const dup = KEYS.find(k => k.token === token && k.site === site);
+  if (dup) { setRes('⚠ 这个 Key 已经在列表里了', 'var(--yellow)'); return; }
+  const k = keyNormalize({ label: label || ('Key-' + (KEYS.filter(x => x.site === site).length + 1)), site, token });
+  // 该站点还没有主 Key 时，新加的这个直接当主 Key
+  const hadMain = !!mainKey(site);
+  if (!hadMain) k.main = true;
+  KEYS.push(k);
+  saveKeys();
+  keyAddToggle(false);
+  keyRender();
+  setRes('🔄 已保存，正在拉取该 Key 的模型列表...', 'var(--yellow)');
+  refreshKeyModels(k).then(n => {
+    keyRender();
+    const tail = hadMain ? '（当前站点主 Key 仍是「' + mainKey(site).label + '」）' : '，已设为主 Key';
+    setRes(n >= 0 ? `✅ 该 Key 可用模型 ${n} 个` + tail : '⚠️ 模型列表拉取失败：' + (k.lastError || '未知错误'),
+      n >= 0 ? 'var(--green)' : 'var(--red)');
+    return loadModels();
+  });
+}
+
+function keyToggle(id) {
+  const k = KEYS.find(x => x.id === id);
+  if (!k) return;
+  k.enabled = !k.enabled;
+  // 停用了主 Key：主 Key 身份交给同站其他启用 Key
+  if (!k.enabled && k.main) {
+    k.main = false;
+    const next = keysOf(k.site)[0];
+    if (next) next.main = true;
+  }
+  saveKeys(); keyRender(); loadModels();
+  if (!k.enabled && !mainKey(k.site)) toast('该站点已没有启用的 Key，请添加或启用一个');
+}
+
+function keyDelete(id) {
+  const k = KEYS.find(x => x.id === id);
+  if (!k) return;
+  const extra = k.main ? '（它是当前站点的主 Key，删除后会自动换一个）' : '';
+  if (!confirm('删除 Key「' + k.label + '」？该 Key 的模型列表缓存一并移除。' + extra)) return;
+  const site = k.site;
+  KEYS = KEYS.filter(x => x.id !== id);
+  if (k.main) {
+    const next = keysOf(site)[0];
+    if (next) next.main = true;
+  }
+  saveKeys(); keyRender(); loadModels();
+}
+
+async function keyTest(id) {
+  const k = KEYS.find(x => x.id === id);
+  if (!k) return;
+  setRes(`🔄 正在测试「${k.label}」...`, 'var(--yellow)');
+  try {
+    const r = await fetch(api('/api/verify'), {
+      method: 'POST',
+      headers: { 'Authorization': normAuth(k.token), 'X-Site': k.site },
+    });
+    const body = await r.text().catch(() => '');
+    if (r.ok) {
+      let cnt = 0;
+      try { cnt = (JSON.parse(body).data || []).length; } catch (e) {}
+      k.fail = 0; k.lastError = '';
+      saveKeys(); keyRender();
+      setRes(`✅「${k.label}」可用${cnt ? '，' + cnt + ' 个模型' : ''}`, 'var(--green)');
+      // 顺带刷新它的模型清单，方便判断「切过去能用哪些模型」
+      refreshKeyModels(k).then(() => { keyRender(); if (mainKey(k.site) === k) loadModels(); });
+    } else {
+      let detail = body.slice(0, 120);
+      try {
+        const j = JSON.parse(body);
+        detail = (j && j.error && (j.error.message || j.error.msg)) || (j && (j.message || j.msg)) || detail;
+      } catch (e) {}
+      k.lastError = 'HTTP ' + r.status;
+      saveKeys(); keyRender();
+      setRes(`❌「${k.label}」HTTP ${r.status}：${detail}`, 'var(--red)');
+    }
+  } catch (e) {
+    k.lastError = e.message;
+    saveKeys(); keyRender();
+    setRes(`❌「${k.label}」无法连接后端：${e.message}`, 'var(--red)');
+  }
+}
+
+/** 拉取单 Key 的模型列表，返回数量（-1 失败） */
+async function refreshKeyModels(k) {
+  try {
+    const res = await fetch(api('/api/models'), {
+      headers: { 'Authorization': normAuth(k.token), 'X-Site': k.site },
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    const ids = (j.data || []).map(m => (typeof m === 'string' ? m : m.id) || '').filter(Boolean);
+    if (!ids.length) throw new Error('模型列表为空');
+    k.models = ids; k.checkedAt = Date.now(); k.lastError = ''; k.fail = 0;
+    saveKeys();
+    return ids.length;
+  } catch (e) {
+    k.lastError = e.message;
+    saveKeys();
+    return -1;
+  }
+}
+
+async function keyRefreshModelsAll() {
+  const list = KEYS.filter(k => k.enabled && k.token);
+  if (!list.length) { setRes('❌ 没有已启用的 Key，请先添加', 'var(--red)'); return; }
+  setRes(`🔄 正在为 ${list.length} 个 Key 拉取模型列表...`, 'var(--yellow)');
+  const rs = await Promise.all(list.map(k => refreshKeyModels(k)));
+  const okN = rs.filter(n => n >= 0).length;
+  keyRender();
+  await loadModels();
+  const mk = mainKey(S.site);
+  setRes(`${okN === list.length ? '✅' : '⚠️'} ${okN}/${list.length} 个 Key 拉取成功` + (mk ? ` · 主 Key「${mk.label}」` : ''),
+    okN ? 'var(--green)' : 'var(--red)');
+}
+
+/**
+ * 带 Key 路由 + 故障切换的 fetch。
+ * opts.headers 里的 Authorization 会被候选 Key 覆盖；body 为字符串时自动补 Content-Type。
+ * @param {object} options {site, model, retries}
+ */
+async function apiFetch(path, opts, options) {
+  opts = opts || {};
+  const o = options || {};
+  const site = o.site || S.site;
+  const cands = candidateKeys(site, o.model);
+  if (!cands.length) throw new Error('当前站点还没有可用 Key，请到「⚙ API 配置」添加');
+  // 指定了 Key（如视频任务必须用提交时的那个 Key 轮询）则提到最前
+  if (o.keyId) {
+    const i = cands.findIndex(k => k.id === o.keyId);
+    if (i > 0) cands.unshift(cands.splice(i, 1)[0]);
+  }
+  const limit = Math.max(1, Math.min(cands.length, o.retries || cands.length, 4));
+  let lastRes = null, lastErr = null;
+  for (let i = 0; i < limit; i++) {
+    const k = cands[i];
+    const headers = Object.assign({}, opts.headers || {});
+    headers['Authorization'] = normAuth(k.token);
+    headers['X-Site'] = site;
+    if (typeof opts.body === 'string' && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+    let res;
+    try {
+      res = await fetch(path, Object.assign({}, opts, { headers }));
+    } catch (e) {
+      lastErr = e; markKeyFail(k);
+      continue;
+    }
+    try { res.__key = k; } catch (e) { /* Response 不可扩展时忽略 */ }
+    k.uses = (k.uses || 0) + 1;
+    if (!FAILOVER_STATUS.has(res.status)) {
+      if (res.ok) k.fail = 0;
+      return res;
+    }
+    markKeyFail(k);
+    lastRes = res;
+    if (i < limit - 1 && res.status === 429) await new Promise(r => setTimeout(r, 400));
+  }
+  if (lastRes) return lastRes;
+  throw lastErr || new Error('请求失败');
+}
+
+/** 记住异步任务（视频）是由哪个 Key 提交的，轮询必须复用同一个 Key */
+function rememberTaskKey(taskId, res) {
+  if (!taskId) return;
+  S.taskKey = S.taskKey || {};
+  const k = res && res.__key;
+  if (k) S.taskKey[taskId] = k.id;
+}
+
+function taskKeyId(taskId) { return (S.taskKey || {})[taskId]; }
+
+// ==================== 完成通知 ====================
+// 默认：提示音 + 标题角标开，桌面通知关（需要用户显式开启并授权）。
+const NT_STORE = { desk: 'nt_desk', sound: 'nt_sound', title: 'nt_title' };
+const NOTIFY = {
+  desk: localStorage.getItem(NT_STORE.desk) === '1',
+  sound: localStorage.getItem(NT_STORE.sound) !== '0',
+  title: localStorage.getItem(NT_STORE.title) !== '0',
+  baseTitle: document.title,
+  unread: 0,
+  blinkTimer: null,
+};
+
+function notifySyncUI() {
+  const d = document.getElementById('nt-desk');
+  const s = document.getElementById('nt-sound');
+  const t = document.getElementById('nt-title');
+  if (d) d.checked = NOTIFY.desk;
+  if (s) s.checked = NOTIFY.sound;
+  if (t) t.checked = NOTIFY.title;
+  const hint = document.getElementById('nt-hint');
+  if (hint) {
+    hint.textContent = (typeof Notification !== 'undefined' && Notification.permission === 'denied')
+      ? '⚠ 浏览器已拒绝通知权限，桌面通知不可用；可在地址栏站点设置里重新允许。'
+      : '页面切到后台时用系统通知提醒；页面在前台用底部提示 + 提示音。仅在本页面打开期间有效。';
+  }
+}
+
+function notifySet(kind, on) {
+  NOTIFY[kind] = !!on;
+  localStorage.setItem(NT_STORE[kind], on ? '1' : '0');
+  if (kind === 'desk' && on) {
+    if (typeof Notification === 'undefined') { toast('当前浏览器不支持桌面通知'); notifySyncUI(); return; }
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then(p => {
+        notifySyncUI();
+        toast(p === 'granted' ? '✅ 桌面通知已开启' : '⚠ 未授权，桌面通知不可用');
+      }).catch(() => notifySyncUI());
+      return;
+    }
+    if (Notification.permission === 'denied') toast('⚠ 浏览器已拒绝通知权限，请在站点设置里允许');
+  }
+  notifySyncUI();
+}
+
+function ensureNotifyReady() {
+  if (typeof Notification !== 'undefined' && NOTIFY.desk && Notification.permission === 'default') {
+    try { Notification.requestPermission().catch(() => {}); } catch (e) {}
+  }
+}
+
+/** 两声短提示音（WebAudio 合成，不依赖音频文件） */
+function notifyBeep() {
+  if (!NOTIFY.sound) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    const ctx = notifyBeep._ctx || (notifyBeep._ctx = new AC());
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    [[0, 660], [0.16, 990]].forEach(pair => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = pair[1];
+      const at = ctx.currentTime + pair[0];
+      g.gain.setValueAtTime(0.0001, at);
+      g.gain.exponentialRampToValueAtTime(0.16, at + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, at + 0.15);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(at); o.stop(at + 0.16);
+    });
+  } catch (e) {}
+}
+
+function notifyBlink() {
+  if (!NOTIFY.title || NOTIFY.blinkTimer) return;
+  let flip = false;
+  NOTIFY.blinkTimer = setInterval(() => {
+    flip = !flip;
+    document.title = flip ? '🔔 (' + NOTIFY.unread + ') 任务完成' : NOTIFY.baseTitle;
+  }, 1100);
+}
+
+function notifyClearUnread() {
+  NOTIFY.unread = 0;
+  if (NOTIFY.blinkTimer) { clearInterval(NOTIFY.blinkTimer); NOTIFY.blinkTimer = null; }
+  document.title = NOTIFY.baseTitle;
+}
+
+/**
+ * 任务完成通知。
+ * 前台：底部 toast（可 quiet 抑制）+ 可选提示音；后台：系统通知 + 标题角标闪烁 + 提示音。
+ * @param {string} title 简短标题
+ * @param {string} body  补充说明
+ * @param {{quiet?:boolean, force?:boolean, kind?:'ok'|'fail'}} opts
+ */
+function notifyDone(title, body, opts) {
+  opts = opts || {};
+  const away = document.hidden || !document.hasFocus();
+  if (away) {
+    NOTIFY.unread++;
+    notifyBlink();
+  }
+  const canDesk = NOTIFY.desk && typeof Notification !== 'undefined' && Notification.permission === 'granted';
+  if (canDesk && (away || opts.force)) {
+    try {
+      const n = new Notification(title, { body: body || '', tag: 'ai-studio', renotify: true });
+      n.onclick = () => { window.focus(); n.close(); notifyClearUnread(); };
+    } catch (e) {}
+  }
+  if (!away && !opts.quiet) toast((opts.kind === 'fail' ? '⚠ ' : '✅ ') + title);
+  if (away || opts.force) notifyBeep();
+}
+
+window.addEventListener('focus', notifyClearUnread);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) notifyClearUnread(); });
+
+function notifyTest() {
+  ensureNotifyReady();
+  notifyDone('通知测试 — 任务完成时会这样提醒你', '图像 / 视频 / 批量 / 工作流 / 对话完成时触发', { force: true });
+}
+
 // ============ INIT ============
 window.onload = () => {
-  document.getElementById('s-url').value = S.url;
-  document.getElementById('s-tok').value = S.tokCn;
-  document.getElementById('s-tok-intl').value = S.tokIntl;
+  syncLegacyTokens();
+  keyRender();
+  notifySyncUI();
   updateDot();
   renderSiteToggles();
   updateVidResZone();
   const savedTheme = localStorage.getItem('theme') || 'light';
   setTheme(savedTheme);
-  if (!S.tok) { openModal(); return; }
+  // 一个可用 Key 都没有时（首次使用）直接弹配置
+  if (!KEYS.some(k => k.token && k.enabled)) { openModal(); return; }
   initChips();
   loadModels();
   sessLoad();
@@ -2522,6 +3109,18 @@ function initChips() {
     szg.addEventListener('click', syncSz);
     syncSz();
   }
+  // 视频分辨率：选中「✏️ 自定义」chip 时显示 resolution 文本框（4K 等越界值原样透传）
+  const vrg = document.getElementById('vres-g');
+  const vrz = document.getElementById('vres-custom-zone');
+  if (vrg && vrz && !vrg.dataset.bound) {
+    vrg.dataset.bound = '1';
+    const syncVr = () => {
+      const c = vrg.querySelector('.chip.on');
+      vrz.style.display = (c && c.dataset.v === 'custom') ? 'inline-flex' : 'none';
+    };
+    vrg.addEventListener('click', syncVr);
+    syncVr();
+  }
 }
 function chipVal(groupId) {
   const el = document.querySelector('#'+groupId+' .chip.on');
@@ -2545,55 +3144,57 @@ function go(name) {
 }
 
 // ============ SETTINGS ============
-function openModal()  { document.getElementById('ov').classList.add('show'); }
+function openModal()  {
+  keyRender();
+  notifySyncUI();
+  document.getElementById('ov').classList.add('show');
+}
 function closeModal() { document.getElementById('ov').classList.remove('show'); }
 function bgClose(e)   { if (e.target === document.getElementById('ov')) closeModal(); }
 
 function saveSettings() {
-  S.url = document.getElementById('s-url').value.trim();
-  S.tokCn = document.getElementById('s-tok').value.trim();
-  S.tokIntl = document.getElementById('s-tok-intl').value.trim();
-  localStorage.setItem('ai_url', S.url);
-  localStorage.setItem('ai_tok', S.tokCn);
-  localStorage.setItem('ai_tok_intl', S.tokIntl);
+  syncLegacyTokens();
   updateDot();
   initChips();
-  setRes('✅ 已保存，正在加载模型...', 'var(--green)');
-  loadModels().then(() => setTimeout(closeModal, 500));
+  if (!KEYS.some(k => k.token && k.enabled)) {
+    setRes('⚠ 还没有启用中的 API Key，请先「＋ 添加 Key」', 'var(--yellow)');
+    return;
+  }
+  setRes('✅ 已保存，正在加载主 Key 的模型...', 'var(--green)');
+  loadModels().then(() => setTimeout(closeModal, 600));
 }
 
 async function testConn() {
   const siteName = S.site === 'intl' ? '🌍 国际站' : '🇨🇳 国内站';
-  setRes('🔄 正在测试'+siteName+' Token ...', 'var(--yellow)');
-  const url = document.getElementById('s-url').value.trim();
-  // 按当前所选站点取对应输入框的 Token 进行验证
-  const rawTok = (S.site === 'intl'
-    ? document.getElementById('s-tok-intl').value
-    : document.getElementById('s-tok').value).trim();
-  if (!rawTok) { setRes('❌ 请先填写 '+siteName+' Token', 'var(--red)'); return; }
-  // 规范化：若粘贴的 Token 自带 "Bearer " 前缀，避免拼成 "Bearer Bearer xxx" 被上游拒绝
-  const auth = normAuth(rawTok);
-  try {
-    const r = await fetch(api('/api/verify', url), {
-      method: 'POST',
-      headers: { 'Authorization': auth, 'X-Site': S.site },
-    });
-    const upstream = r.headers.get('X-Upstream') || S.site;
-    if (r.ok) {
-      const j = await r.json().catch(() => ({}));
-      const cnt = (j.data || []).length;
-      setRes('✅ '+siteName+' Token 有效，共 '+cnt+' 个可用模型（'+upstream+'）', 'var(--green)');
-    } else {
+  const keys = keysOf(S.site);
+  if (!keys.length) { setRes(`❌ ${siteName}还没有启用的 Key，请先添加`, 'var(--red)'); return; }
+  setRes(`🔄 正在测试 ${siteName} ${keys.length} 个 Key ...`, 'var(--yellow)');
+  let okN = 0;
+  const lines = [];
+  for (const k of keys) {
+    try {
+      const r = await fetch(api('/api/verify'), {
+        method: 'POST',
+        headers: { 'Authorization': normAuth(k.token), 'X-Site': k.site },
+      });
       const body = await r.text().catch(() => '');
-      let detail = body;
-      try {
-        const j = JSON.parse(body);
-        detail = j?.error?.message || j?.error?.msg || j?.message || j?.msg || body;
-      } catch {}
-      setRes('❌ '+siteName+' Token 无效 ('+r.status+') · 上游 '+upstream+' · '+detail, 'var(--red)');
-      console.warn('verify failed:', r.status, upstream, '| 发送头:', auth.slice(0, 15) + '...', '| 响应:', body);
+      if (r.ok) {
+        let cnt = 0;
+        try { cnt = (JSON.parse(body).data || []).length; } catch (e) {}
+        k.fail = 0; k.lastError = ''; okN++;
+        lines.push(`✅ ${k.label}：可用${cnt ? '，' + cnt + ' 个模型' : ''}`);
+      } else {
+        k.lastError = 'HTTP ' + r.status;
+        lines.push(`❌ ${k.label}：HTTP ${r.status}`);
+      }
+    } catch (e) {
+      k.lastError = e.message;
+      lines.push(`❌ ${k.label}：${e.message}`);
     }
-  } catch(e) { setRes('❌ 无法连接后端: '+e.message, 'var(--red)'); }
+  }
+  saveKeys(); keyRender();
+  setRes(`${okN ? '✅' : '❌'} ${okN}/${keys.length} 个 Key 可用 — ` + lines.join(' · '),
+    okN === keys.length ? 'var(--green)' : okN ? 'var(--yellow)' : 'var(--red)');
 }
 
 function setRes(msg, color) {
@@ -2602,18 +3203,27 @@ function setRes(msg, color) {
 }
 
 function updateDot() {
+  const mk = mainKey(S.site);
+  const n = keysOf(S.site).length;
   document.getElementById('tdot').className = 'dot '+(S.tok ? 'ok' : 'err');
-  document.getElementById('tlabel').textContent = S.tok
-    ? (S.site === 'intl' ? '🌍 国际站 Token 已配置' : '🇨🇳 国内站 Token 已配置')
-    : '未配置 Token（当前站点）';
+  document.getElementById('tlabel').textContent = mk
+    ? (S.site === 'intl' ? '🌍 国际站' : '🇨🇳 国内站') + ' · ' + mk.label + (n > 1 ? ` +${n - 1}` : '')
+    : '未配置 Key（当前站点）';
 }
 
 function api(path, base) {
-  return (base !== undefined ? base : S.url) + path;
+  // 后端地址固定为当前域名（同源部署），不再提供自定义后端地址
+  return (base || '') + path;
 }
-function hdrs(site) {
+
+/**
+ * 构造鉴权头：一律使用当前站点的「主 Key」。
+ * 保留 model 参数仅为兼容既有调用点（模型清单已由主 Key 决定，无需再按模型挑 Key）。
+ */
+function hdrs(site, model) {
   const s = site || S.site;
-  const tok = s === 'intl' ? S.tokIntl : S.tokCn;
+  const k = pickKey(s, model);
+  const tok = k ? k.token : (s === 'intl' ? S.tokIntl : S.tokCn);
   // normAuth：Token 已带 "Bearer " 前缀时不再重复拼接（否则 "Bearer Bearer xxx" 会被上游判为 Invalid token）
   return { 'Authorization': normAuth(tok), 'Content-Type': 'application/json', 'X-Site': s };
 }
@@ -2626,8 +3236,8 @@ function setSite(site) {
   renderSiteToggles();
   updateVidResZone();
   updateDot();
-  // 切站后模型列表可能不同，重新加载
-  if (S.tok) loadModels();
+  // 切站后模型列表不同：重新合并该站所有 Key 的模型（没有 Key 时回退默认列表）
+  loadModels();
 }
 function renderSiteToggles() {
   document.querySelectorAll('.site-g .chip').forEach(c => {
@@ -2653,34 +3263,40 @@ function populateSel(selId, ids, prefer) {
   if (!ids.includes(prefer)) sel.selectedIndex = 0;
 }
 
+/** 模型列表只取当前站点「主 Key」的（换 Key = 在配置里改主 Key） */
 async function loadModels() {
-  if (!S.tok) return;
+  const site = S.site;
   ['cm','im','vm'].forEach(id => {
-    document.getElementById(id).innerHTML = '<option value="">加载中...</option>';
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<option value="">加载中...</option>';
   });
-  try {
-    const res = await fetch(api('/api/models'), {
-      headers: { 'Authorization': normAuth(S.tok), 'X-Site': S.site },
-    });
-    if (!res.ok) throw new Error('HTTP '+res.status);
-    const j = await res.json();
-    const all = (j.data || [])
-      .map(m => (typeof m === 'string' ? m : m.id) || '')
-      .filter(Boolean);
-    if (!all.length) throw new Error('模型列表为空');
-    S.allModels = all;   // 供「视频理解」模型候选等复用
-    populateSel('cm', all, 'claude-sonnet-4-6');
-    populateSel('im', all, 'gpt-image-2');
-    populateSel('vm', all, 'doubao-seedance-2-0-260128');
-    console.log(`Models loaded: ${all.length} total →`, all);
-  } catch(e) {
-    console.warn('loadModels failed, using defaults:', e.message);
-    const fallback = [...new Set([...DEFAULTS.chat, ...DEFAULTS.image, ...DEFAULTS.video])];
-    S.allModels = fallback;
-    populateSel('cm', fallback, 'claude-sonnet-4-6');
-    populateSel('im', fallback, 'gpt-image-2');
-    populateSel('vm', fallback, 'doubao-seedance-2-0-260128');
+  const mk = mainKey(site);
+  if (!mk) { applyModelFallback(); keyRender(); return; }
+
+  // 5 分钟内已拉过就不重复请求（手动「🔄 刷新模型」可强制刷新）
+  const stale = !keyModelsKnown(mk) || (Date.now() - (mk.checkedAt || 0) > 5 * 60 * 1000);
+  if (stale) await refreshKeyModels(mk);
+  keyRender();
+
+  if (!keyModelsKnown(mk)) {
+    console.warn(`主 Key「${mk.label}」模型列表拉取失败 →`, mk.lastError || '未知错误');
+    applyModelFallback();
+    return;
   }
+  const all = mk.models;
+  S.allModels = all;   // 供「视频理解」模型候选等复用
+  populateSel('cm', all, 'claude-sonnet-4-6');
+  populateSel('im', all, 'gpt-image-2');
+  populateSel('vm', all, 'doubao-seedance-2-0-260128');
+  console.log(`Models: ${all.length} 个（主 Key：${mk.label}）→`, all);
+}
+
+function applyModelFallback() {
+  const fallback = [...new Set([...DEFAULTS.chat, ...DEFAULTS.image, ...DEFAULTS.video])];
+  S.allModels = fallback;
+  populateSel('cm', fallback, 'claude-sonnet-4-6');
+  populateSel('im', fallback, 'gpt-image-2');
+  populateSel('vm', fallback, 'doubao-seedance-2-0-260128');
 }
 
 // ============ 多会话管理 ============
@@ -2945,10 +3561,10 @@ async function sendChat() {
     S.chatAttach = [];
     renderChatAttach();
     try {
-      const res = await fetch(api('/api/chat/attach'), {
-        method: 'POST', headers: { ...hdrs(S.site), 'X-Chat-Api': chatApi },
+      const res = await apiFetch(api('/api/chat/attach'), {
+        method: 'POST', headers: { 'X-Chat-Api': chatApi },
         body: JSON.stringify({ model, messages: S.chatMsgs, max_tokens: maxTok }),
-      });
+      }, { site: S.site, model });
       const j = await res.json().catch(() => ({}));
       if (j.error) { bc.innerHTML = errCard(null, j.error, ''); return; }
       aiText = j.text || '';
@@ -2957,6 +3573,7 @@ async function sendChat() {
         S.chatMsgs.push({ role:'assistant', content: aiText });
         sessAppend('assistant', aiText);
         addCopyBtn(aiBubble, aiText);
+        notifyDone('对话回复完成', model, { quiet: true });
       }
       updateScrollBtn();
     } catch(e) {
@@ -2974,10 +3591,10 @@ async function sendChat() {
     const toolMode = document.getElementById('ctool').checked;
     if (toolMode) {
       // 工具调用模式：非流式，后端自动执行工具循环
-      const res = await fetch(api('/api/chat/tools'), {
-        method: 'POST', headers: hdrs(S.site),
+      const res = await apiFetch(api('/api/chat/tools'), {
+        method: 'POST',
         body: JSON.stringify({ model, messages: S.chatMsgs, max_tokens: maxTok, max_rounds: 4 }),
-      });
+      }, { site: S.site, model });
       if (!res.ok) {
         const raw = await res.text();
         bc.innerHTML = errCard(res.status, fmtErr(raw), raw);
@@ -2998,6 +3615,7 @@ async function sendChat() {
         S.chatMsgs.push({ role:'assistant', content: aiText });
         sessAppend('assistant', aiText);
         addCopyBtn(aiBubble, aiText);
+        notifyDone('对话回复完成', model, { quiet: true });
       } else {
         bc.innerHTML = errCard(null, '模型未返回任何内容（工具已执行但无最终文本）', '');
       }
@@ -3006,10 +3624,10 @@ async function sendChat() {
       return;
     }
     const bodyParams = chatParams(chatApi, model);
-    const res = await fetch(api('/api/chat'), {
-      method: 'POST', headers: { ...hdrs(S.site), 'X-Chat-Api': chatApi },
+    const res = await apiFetch(api('/api/chat'), {
+      method: 'POST', headers: { 'X-Chat-Api': chatApi },
       body: JSON.stringify(Object.assign({ model, messages: S.chatMsgs, max_tokens: maxTok, stream: true }, bodyParams)),
-    });
+    }, { site: S.site, model });
     if (!res.ok) {
       const raw = await res.text();
       bc.innerHTML = errCard(res.status, fmtErr(raw), raw);
@@ -3102,6 +3720,7 @@ async function sendChat() {
     }
     sessSyncCompressBtn();
     updateScrollBtn();
+    if (aiText) notifyDone('对话回复完成', model, { quiet: true });
   } catch(e) {
     S.streamAborted = true;
     if (aiText) {
@@ -3188,7 +3807,7 @@ function chatCurl() {
   if (!model) { toast('请先选择模型'); return; }
   if (!S.chatMsgs.length) { toast('当前会话为空，先发一条消息'); return; }
   const body = Object.assign({ model, messages: S.chatMsgs, max_tokens: maxTok, stream: true }, chatParams(chatApi, model));
-  const base = S.url || window.location.origin;
+  const base = window.location.origin;
   const curl = "curl -sS -X POST '" + base + "/api/chat' \\\n"
     + "  -H 'Authorization: Bearer " + S.tok + "' \\\n"
     + "  -H 'Content-Type: application/json' \\\n"
@@ -3200,16 +3819,17 @@ function chatCurl() {
 }
 
 // ============ 批量 / 压测 ============
-// 按当前站点 Token 拉取模型列表（带缓存；站点/Token 变更自动刷新），供测试面板使用
+// 模型列表一律取当前站点「主 Key」的（与聊天下拉同源，切主 Key 自动跟着变）
 let _tokModels = { key: '', list: null };
 async function tokenModels(force) {
-  const key = S.site + '|' + S.tok;
+  const mk = mainKey(S.site);
+  const key = S.site + '|' + (mk ? mk.id + '|' + mk.checkedAt : '');
   if (!force && _tokModels.key === key && _tokModels.list) return _tokModels.list;
-  let list = [];
-  if (S.tok) {
+  let list = mk && keyModelsKnown(mk) ? mk.models.slice() : [];
+  if (!list.length && S.tok) {
     try {
       const res = await fetch(api('/api/models'), {
-        headers: { 'Authorization': normAuth(S.tok), 'X-Site': S.site },
+        headers: hdrs(S.site),
       });
       if (res.ok) {
         const j = await res.json();
@@ -3642,6 +4262,104 @@ function renderCacheResults(res, j) {
   res.innerHTML = h;
 }
 
+// ============ 缓存测试 · 导出请求体（dryRun：只构建，不发上游） ============
+let cacheExportData = null;
+async function cacheExportBodies() {
+  const model = document.getElementById('cc-model').value;
+  const msg = document.getElementById('cc-msg');
+  const res = document.getElementById('cc-res');
+  const repeat = parseInt(document.getElementById('cc-repeat').value) || 3;
+  const mt = parseInt(document.getElementById('cc-mt').value) || 16;
+  const ttl = document.getElementById('cc-ttl').value.trim();
+  const doc = document.getElementById('cc-doc').value;
+  const questions = document.getElementById('cc-questions').value.split('\n').map(s => s.trim()).filter(Boolean);
+  if (!model) { msg.innerHTML = '<span style="color:var(--red)">请选择模型</span>'; return; }
+  if (!doc.trim()) { msg.innerHTML = '<span style="color:var(--red)">请输入固定前缀文档</span>'; return; }
+  const btn = document.getElementById('cc-export-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ 生成中...'; }
+  msg.innerHTML = '';
+  try {
+    const body = { model, systemDoc: doc, repeat, max_tokens: mt, protocol: cacheProto + '-' + cacheMode, dryRun: true };
+    if (ttl) body.ttl = ttl;
+    if (questions.length) body.questions = questions;
+    const r = await fetch(api('/api/test/cache'), {
+      method: 'POST', headers: hdrs(S.site),
+      body: JSON.stringify(body),
+    });
+    const j = await r.json();
+    if (j.error) { msg.innerHTML = errCard(null, j.error, ''); res.innerHTML = ''; return; }
+    if (!j.dry_run) {
+      // 兼容旧后端（未重启）：dryRun 会被当成真实测试跑完，这里提示而不是静默展示空结果
+      msg.innerHTML = errCard(null, '服务端未加载「导出请求体」新版逻辑，本次请求被当作真实缓存测试执行了；请重启后端后再导出', '');
+      res.innerHTML = '';
+      return;
+    }
+    cacheExportData = j;
+    renderCacheBodies(res, j);
+  } catch (e) {
+    msg.innerHTML = errCard(null, e.message, '');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📤 导出请求体'; }
+  }
+}
+// 渲染导出的请求体列表：每条可复制 body / cURL，顶部可复制或下载全部
+function renderCacheBodies(res, j) {
+  const reqs = j.requests || [];
+  let h = '<div class="ch-note" style="margin-top:0">导出请求体 · 站点 <b>'
+    + esc(j.site === 'intl' ? '🌍 国际站' : '🇨🇳 国内站') + '</b> · 协议 <b>' + esc(j.protocol || '') + '</b> · 模型 <b>' + esc(j.model || '') + '</b>'
+    + ' · 共 <b>' + reqs.length + '</b> 条 · 前缀约 <b>' + (j.prefix_tokens_est || 0) + '</b> token（' + (j.prefix_chars || 0) + ' 字符）'
+    + '</div>'
+    + '<div class="ch-note">上游基址 <code>' + esc(j.upstream || '') + '</code> · 未发任何请求（不消耗额度）'
+    + (j.note ? '<br>' + esc(j.note) : '') + '</div>'
+    + '<div class="row" style="gap:8px">'
+    + '<button class="btn btn-g btn-sm" style="flex:1" onclick="cacheCopyAllBodies(this)">📋 复制全部 JSON</button>'
+    + '<button class="btn btn-g btn-sm" style="flex:1" onclick="cacheDownloadBodies()">⬇ 下载 JSON</button>'
+    + '</div>'
+    + '<div class="bt-list">';
+  reqs.forEach((q, i) => {
+    const tag = q.round ? '<span class="bt-idx">#' + q.round + '</span>' : '<span class="bt-idx">①</span>';
+    h += '<div class="bt-item ok">'
+      + '<div class="bt-head">' + tag
+      + '<span style="flex:1;min-width:120px;color:var(--muted);font-size:11px;word-break:break-all">' + esc(q.method + ' ' + q.url) + '</span>'
+      + '<button class="btn btn-g btn-sm" onclick="cacheCopyOneBody(' + i + ',this)">📋 body</button>'
+      + '<button class="btn btn-g btn-sm" onclick="cacheCopyCurl(' + i + ',this)">🔗 cURL</button>'
+      + '</div>'
+      + '<div class="bt-body">'
+      + (q.step ? '<div style="color:var(--muted2);font-size:11px;margin-bottom:4px">' + esc(q.step) + '</div>' : '')
+      + (q.question ? '<div style="color:var(--muted);font-size:11px;margin-bottom:4px">问题：' + esc(q.question) + '</div>' : '')
+      + '<pre style="max-height:260px;overflow:auto;margin:0">' + esc(JSON.stringify(q.body, null, 2)) + '</pre>'
+      + '</div></div>';
+  });
+  h += '</div>';
+  res.innerHTML = h;
+}
+function cacheCopyOneBody(i, btn) {
+  const q = ((cacheExportData && cacheExportData.requests) || [])[i];
+  if (!q) return;
+  copyBtn(JSON.stringify(q.body, null, 2), btn);
+}
+function cacheCopyAllBodies(btn) {
+  if (!cacheExportData) return;
+  copyBtn(JSON.stringify(cacheExportData, null, 2), btn);
+}
+function cacheCopyCurl(i, btn) {
+  const q = ((cacheExportData && cacheExportData.requests) || [])[i];
+  if (!q) return;
+  const data = JSON.stringify(q.body).replace(/'/g, "'\\''");
+  copyBtn("curl -X POST '" + q.url + "' \\\n  -H 'Authorization: Bearer $TOKEN' \\\n"
+    + "  -H 'Content-Type: application/json' \\\n  -d '" + data + "'", btn);
+}
+function cacheDownloadBodies() {
+  if (!cacheExportData) return;
+  const blob = new Blob([JSON.stringify(cacheExportData, null, 2)], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'cache-request-bodies-' + (cacheExportData.protocol || 'body') + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+
 // ============ 模型巡检（全模型巡检 + 站点对比） ============
 let scanSite = 'cn';
 let scanResultCn = null;   // 保留两次巡检结果用于站点对比
@@ -3649,10 +4367,24 @@ let scanResultIntl = null;
 function scanSetSite(el, site) {
   scanSite = site;
   document.querySelectorAll('#tab-scan .chips .chip').forEach(c => c.classList.toggle('active', c.getAttribute('data-v') === site));
+  scanSyncHint();
 }
 function scanInit() {
+  scanSite = S.site;   // 默认跟着当前站点（主 Key 所在站点）
   document.querySelectorAll('#tab-scan .chips .chip').forEach(c => c.classList.toggle('active', c.getAttribute('data-v') === scanSite));
+  scanSyncHint();
 }
+
+/** 巡检面板顶部提示：说明用的是哪个主 Key */
+function scanSyncHint() {
+  const el = document.getElementById('sc-keyhint');
+  if (!el) return;
+  const mk = mainKey(scanSite);
+  el.textContent = mk
+    ? `将使用${scanSite === 'intl' ? '🌍 国际站' : '🇨🇳 国内站'}主 Key「${mk.label}」的模型与接口`
+    : `${scanSite === 'intl' ? '🌍 国际站' : '🇨🇳 国内站'}还没有可用的 Key`;
+}
+
 async function scanRun() {
   const btn = document.querySelector('#tab-scan .btn-p');
   const msg = document.getElementById('sc-msg');
@@ -3660,15 +4392,16 @@ async function scanRun() {
   const prompt = document.getElementById('sc-prompt').value.trim();
   const maxTok = parseInt(document.getElementById('sc-mt').value) || 16;
   const conc = parseInt(document.getElementById('sc-conc').value) || 5;
-  if (!S.tokCn && !S.tokIntl) { msg.innerHTML = '<span style="color:var(--red)">请先配置 API Token</span>'; return; }
+  const mk = mainKey(scanSite);
+  if (!mk) { msg.innerHTML = '<span style="color:var(--red)">该站点还没有可用的 Key，请先到「⚙ API 配置」添加</span>'; return; }
   btn.disabled = true; btn.textContent = '⏳ 巡检中...';
-  msg.innerHTML = '<span style="color:var(--muted)">正在拉取模型列表并逐模型巡检（并发 ' + conc + '）...</span>';
+  msg.innerHTML = '<span style="color:var(--muted)">正在用主 Key「' + esc(mk.label) + '」拉取模型列表并逐模型巡检（并发 ' + conc + '）...</span>';
   res.innerHTML = '<div class="ph" style="margin:auto"><div class="ph-ic">⏳</div><div style="font-size:15px;color:var(--text2);font-weight:600">巡检进行中...</div></div>';
   try {
-    const r = await fetch(api('/api/test/scan'), {
-      method: 'POST', headers: hdrs(scanSite),
+    const r = await apiFetch(api('/api/test/scan'), {
+      method: 'POST',
       body: JSON.stringify({ prompt, max_tokens: maxTok, concurrency: conc }),
-    });
+    }, { site: scanSite });
     const j = await r.json();
     if (j.error) { msg.innerHTML = errCard(null, j.error, ''); res.innerHTML = ''; return; }
     if (scanSite === 'cn') scanResultCn = j; else scanResultIntl = j;
@@ -3683,7 +4416,9 @@ async function scanRun() {
 function renderScan(j) {
   const res = document.getElementById('sc-res');
   const siteName = j.site === 'intl' ? '🌍 国际站' : '🇨🇳 国内站';
-  let h = '<div class="ch-note" style="font-size:12px">' + siteName + ' · 共 ' + j.total + ' 个模型 · 成功 <b style="color:var(--green)">' + j.ok + '</b> · 失败 <b style="color:var(--red)">' + j.fail + '</b> · 平均 ' + j.avgMs + 'ms · 最快 ' + j.minMs + 'ms · 最慢 ' + j.maxMs + 'ms</div>'
+  const mk = mainKey(j.site);
+  let h = '<div class="ch-note" style="font-size:12px">' + siteName + (mk ? ' · 主 Key：' + esc(mk.label) : '')
+    + ' · 共 ' + j.total + ' 个模型 · 成功 <b style="color:var(--green)">' + j.ok + '</b> · 失败 <b style="color:var(--red)">' + j.fail + '</b> · 平均 ' + j.avgMs + 'ms · 最快 ' + j.minMs + 'ms · 最慢 ' + j.maxMs + 'ms</div>'
     + '<div class="bt-list">';
   (j.results || []).forEach(r => {
     h += '<div class="bt-item ' + (r.ok ? 'ok' : 'fail') + '">'
@@ -3973,7 +4708,7 @@ async function ttCurl() {
   const model = document.getElementById('tt-model').value;
   const prompt = document.getElementById('tt-prompt').value.trim();
   if (!model || !prompt) { document.getElementById('tt-msg').innerHTML = '<span style="color:var(--red)">请先填好模型与提示词</span>'; return; }
-  const base = (S.url || window.location.origin);
+  const base = window.location.origin;
   const tok = S.tok;
   let body;
   if (ttMode === 'json') {
@@ -4490,10 +5225,10 @@ async function submitMinimax() {
     <div style="font-size:15px;color:var(--text2);font-weight:600">正在提交 MiniMax 视频任务...</div></div>`);
   try {
     if (S.vidTimer) { clearInterval(S.vidTimer); S.vidTimer = null; }
-    const r = await fetch(api('/api/video/submit-minimax'), {
-      method: 'POST', headers: hdrs(),
+    const r = await apiFetch(api('/api/video/submit-minimax'), {
+      method: 'POST',
       body: JSON.stringify(payload),
-    });
+    }, { site: S.site, model: payload.model });
     const raw = await r.text();
     if (!r.ok) {
       setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(r.status, fmtErr(raw), raw)+'</div>');
@@ -4504,6 +5239,7 @@ async function submitMinimax() {
       setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, fmtErr(j), raw)+'</div>');
       return;
     }
+    rememberTaskKey(j.task_id, r);
     showVidProgress(j.task_id, 'SUBMITTED', '0%');
     pollMinimax(j.task_id);
   } catch(e) {
@@ -4518,7 +5254,7 @@ function pollMinimax(taskId) {
   S.vidTimer = setInterval(async () => {
     if (++n > 200) { clearInterval(S.vidTimer); showVidProgress(taskId,'TIMEOUT','超时'); return; }
     try {
-      const r = await fetch(api('/api/video/poll-minimax/'+taskId), { headers: hdrs() });
+      const r = await apiFetch(api('/api/video/poll-minimax/'+taskId), {}, { site: S.site, keyId: taskKeyId(taskId) });
       const j = JSON.parse(await r.text());
       // MiniMax V2 返回格式：{ task_id, status, file_id, base_resp:{status_code, status_msg} }
       const st = (j.status || 'UNKNOWN').toUpperCase();
@@ -4725,10 +5461,10 @@ async function understandImg() {
   const timer = setInterval(() => { ist.textContent = '已等待 '+Math.floor((Date.now()-t0)/1000)+'s...'; }, 1000);
   try {
     const img = imgRefB64s[0];
-    const r = await fetch(api('/api/image/understand'), {
-      method: 'POST', headers: hdrs(),
+    const r = await apiFetch(api('/api/image/understand'), {
+      method: 'POST',
       body: JSON.stringify({ model, prompt, image_b64: img, max_tokens: 1024 }),
-    });
+    }, { site: S.site, model });
     const j = await r.json().catch(() => ({}));
     clearInterval(timer);
     ist.textContent = '';
@@ -4857,17 +5593,16 @@ async function genImg() {
       fd.append('stream', 'true');
       imgRefB64s.forEach((u, i) =>
         fd.append('file', dataUriToBlob(u), 'ref' + (i + 1) + '.png'));
-      res = await fetch(api('/api/image/edit'), {
+      res = await apiFetch(api('/api/image/edit'), {
         method: 'POST',
-        headers: { 'Authorization': normAuth(S.tok), 'X-Site': S.site },
         body: fd,
-      });
+      }, { site: S.site, model: document.getElementById('im').value });
     } else {
       const payload = buildImgPayload();
-      res = await fetch(api('/api/image'), {
-        method:'POST', headers: hdrs(),
+      res = await apiFetch(api('/api/image'), {
+        method:'POST',
         body: JSON.stringify(payload),
-      });
+      }, { site: S.site, model: payload.model });
     }
     const raw = await res.text();
     clearInterval(timer);
@@ -4933,6 +5668,7 @@ async function genImg() {
         </details>
       </div>`);
     ist.textContent = '✅ 生成完成，耗时 '+elapsed+'s';
+    notifyDone('图像生成完成', elapsed + 's · ' + size + ' · ' + quality);
   } catch(e) {
     clearInterval(timer);
     setImgResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, e.message, '')+'</div>');
@@ -4985,11 +5721,10 @@ async function genMask() {
       output_format: 'png',
       n: 1,
     };
-    const res = await fetch(api('/api/test/image-mask'), {
+    const res = await apiFetch(api('/api/test/image-mask'), {
       method: 'POST',
-      headers: { 'Authorization': normAuth(S.tok), 'Content-Type': 'application/json', 'X-Site': S.site },
       body: JSON.stringify(payload),
-    });
+    }, { site: S.site, model: payload.model });
     const raw = await res.text();
     clearInterval(timer);
     let j;
@@ -5098,10 +5833,10 @@ async function batchGenImg(N) {
 
   let res;
   try {
-    res = await fetch(api('/api/image/batch'), {
-      method: 'POST', headers: hdrs(),
+    res = await apiFetch(api('/api/image/batch'), {
+      method: 'POST',
       body: JSON.stringify({ concurrency: N, request: payload }),
-    });
+    }, { site: S.site, model: payload.model });
   } catch (e) {
     setImgResult('<div style="display:flex;justify-content:center;padding:20px">' + errCard(null, '批量请求失败: ' + e.message, '') + '</div>');
     ist.textContent = '❌ 批量请求失败';
@@ -5178,6 +5913,8 @@ async function batchGenImg(N) {
     ist.textContent = '⏹ 已停止，完成 ' + doneCnt + '/' + N;
   } else {
     ist.textContent = '✅ 批量完成：成功 ' + okCnt + ' · 失败 ' + failCnt + ' · 总耗时 ' + Math.floor((Date.now() - t0) / 1000) + 's';
+    notifyDone('批量生成完成', '成功 ' + okCnt + ' · 失败 ' + failCnt + ' · 耗时 ' + Math.floor((Date.now() - t0) / 1000) + 's',
+      { kind: okCnt ? 'ok' : 'fail' });
   }
   btn.disabled = false; btn.textContent = '✨ 生成图像';
   const sb = document.getElementById('bimg-stop');
@@ -5353,7 +6090,14 @@ async function submitVid() {
   const model    = document.getElementById('vm').value;
   const ratio    = chipVal('vr-g') || '16:9';
   const duration = parseInt(document.getElementById('vd').value);
-  const res_val  = chipVal('vres-g') || '720p';
+  const resChip  = chipVal('vres-g') || '720p';
+  const resCustom = (document.getElementById('vres-custom')?.value || '').trim();
+  if (resChip === 'custom' && !resCustom) {
+    alert('已选「自定义分辨率」，请填写取值（如 4k / 2160p / 3840x2160 / 5404x3040）');
+    return;
+  }
+  // 自定义值原样透传，不做本地校验（用于验证模型是否支持 4K 等越界值）
+  const res_val  = resChip === 'custom' ? resCustom : resChip;
   const audio    = document.getElementById('vau').checked;
   const wm       = document.getElementById('vwm').checked;
   const btn      = document.getElementById('vsub');
@@ -5416,10 +6160,10 @@ async function submitVid() {
         payload.asset_id = assetId;
       }
     }
-    const r = await fetch(api(endpoint), {
-      method:'POST', headers: hdrs(),
+    const r = await apiFetch(api(endpoint), {
+      method:'POST',
       body: JSON.stringify(payload),
-    });
+    }, { site: S.site, model: payload.model });
     const raw = await r.text();
     if (!r.ok) {
       setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(r.status, fmtErr(raw), raw)+'</div>');
@@ -5430,6 +6174,7 @@ async function submitVid() {
       setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, fmtErr(j), raw)+'</div>');
       return;
     }
+    rememberTaskKey(j.task_id, r);
     showVidProgress(j.task_id, 'SUBMITTED', '0%');
     pollVid(j.task_id);
   } catch(e) {
@@ -5456,11 +6201,11 @@ async function sendVidJson() {
     <div style="font-size:15px;color:var(--text2);font-weight:600">正在提交视频任务...</div>
     <div class="ph-sub">${esc(path)} · 素材引用原样透传</div></div>`);
   try {
-    const r = await fetch(api('/api/test/video-generate'), {
+    const r = await apiFetch(api('/api/test/video-generate'), {
       method: 'POST',
-      headers: { 'Authorization': normAuth(S.tok), 'Content-Type': 'application/json', 'X-Site': S.site, 'X-Test-Path': path },
+      headers: { 'X-Test-Path': path },
       body: JSON.stringify(payload),
-    });
+    }, { site: S.site, model: payload.model });
     const resRaw = await r.text();
     let j;
     try { j = JSON.parse(resRaw); } catch { j = null; }
@@ -5473,6 +6218,7 @@ async function sendVidJson() {
       setVidResult('<div style="display:flex;justify-content:center;padding:20px">'+errCard(null, '上游未返回 task_id（可能为同步响应，查看下方原始响应）', resRaw)+'</div>');
       return;
     }
+    rememberTaskKey(j.task_id, r);
     showVidProgress(j.task_id, 'SUBMITTED', '0%');
     pollVidV1(j.task_id);
   } catch(e) {
@@ -5487,7 +6233,7 @@ function pollVidV1(taskId) {
   S.vidTimer = setInterval(async () => {
     if (++n > 200) { clearInterval(S.vidTimer); showVidProgress(taskId,'TIMEOUT','超时'); return; }
     try {
-      const r = await fetch(api('/api/video/poll-v1/'+taskId), { headers: hdrs() });
+      const r = await apiFetch(api('/api/video/poll-v1/'+taskId), {}, { site: S.site, keyId: taskKeyId(taskId) });
       const j = JSON.parse(await r.text());
       // 上游响应结构可能为 {status, progress} 或 {data:{status, progress, data:{content:{video_url}}}}，统一兼容
       const d = j.data || j;
@@ -5513,7 +6259,7 @@ function pollVid(taskId) {
   S.vidTimer = setInterval(async () => {
     if (++n > 200) { clearInterval(S.vidTimer); showVidProgress(taskId,'TIMEOUT','超时'); return; }
     try {
-      const r = await fetch(api('/api/video/poll/'+taskId), { headers: hdrs() });
+      const r = await apiFetch(api('/api/video/poll/'+taskId), {}, { site: S.site, keyId: taskKeyId(taskId) });
       const j = JSON.parse(await r.text());
       const d = j.data || {};
       const st = d.status || 'UNKNOWN';
@@ -5545,6 +6291,7 @@ function statusBadge(st) {
 }
 
 function showVidProgress(taskId, st, pg) {
+  if (st === 'TIMEOUT') notifyDone('视频生成超时', '任务 ' + taskId + ' 达到轮询上限，可稍后到上游控制台查看', { kind: 'fail' });
   const pct = parseInt(pg) || 0;
   setVidResult(`
     <div style="width:100%;max-width:460px;display:flex;flex-direction:column;gap:16px">
@@ -5565,6 +6312,8 @@ function showVidProgress(taskId, st, pg) {
 
 function showVidDone(taskId, videoUrl, data) {
   data = data || {};
+  notifyDone('视频生成完成', videoUrl ? '视频已就绪，可预览/下载' : '任务完成，但上游未返回视频地址',
+    { kind: videoUrl ? 'ok' : 'fail' });
   setVidResult(`
     <div style="width:100%;max-width:660px;display:flex;flex-direction:column;gap:16px">
       <div class="info-card">
@@ -5587,6 +6336,7 @@ function showVidDone(taskId, videoUrl, data) {
 }
 
 function showVidFail(taskId, reason) {
+  notifyDone('视频生成失败', reason || '上游返回失败', { kind: 'fail' });
   setVidResult(`
     <div style="width:100%;max-width:460px;display:flex;flex-direction:column;gap:16px">
       <div class="info-card">
@@ -6585,7 +7335,7 @@ function wfEnsureModels() {
   if (WF.modelsFetched) return;
   WF.modelsFetched = true;
   if (!S.tok) return;
-  fetch(api('/api/models'), { headers: { 'Authorization': normAuth(S.tok), 'X-Site': S.site } })
+  fetch(api('/api/models'), { headers: hdrs(S.site) })
     .then(r => r.json().catch(() => ({ data: [] })))
     .then(j => {
       const all = (j.data || []).map(m => (typeof m === 'string' ? m : (m && m.id) || '')).filter(Boolean);
@@ -7466,6 +8216,9 @@ async function wfPoll() {
       clearInterval(WF.timer); WF.timer = null;
       wfSetBusy(false);
       wfResultFrom(j);
+      notifyDone(j.status === 'DONE' ? '工作流完成' : '工作流失败',
+        '耗时 ' + (j.elapsed || 0) + 's' + (j.error ? ' · ' + j.error : ''),
+        { kind: j.status === 'DONE' ? 'ok' : 'fail' });
     }
   } catch (e) { /* 暂时性错误，继续轮询 */ }
 }

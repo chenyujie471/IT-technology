@@ -641,24 +641,15 @@ public class TestService {
                 ? "/v1beta/models/" + model + ":generateContent"
                 : (chat ? "/v1/chat/completions" : "/v1/messages");
 
+        // 导出模式（dryRun）：只构建请求体、不发上游，供前端「导出请求体」使用。
+        // gemini 显式不真的创建缓存对象，cachedContent 用占位符表示，避免为了看一眼请求体就消耗一次创建。
+        boolean dryRun = req.path("dryRun").asBoolean(false);
+
         // Gemini 显式：先创建 cachedContents 缓存对象
         String cacheName = null;
-        if (gemini && explicit) {
-            ObjectNode ccBody = mapper.createObjectNode();
-            ccBody.put("model", model);
-            ArrayNode ccContents = mapper.createArrayNode();
-            ObjectNode ccMsg = mapper.createObjectNode();
-            ccMsg.put("role", "user");
-            ArrayNode ccParts = mapper.createArrayNode();
-            ObjectNode ccT = mapper.createObjectNode();
-            ccT.put("text", systemText);
-            ccParts.add(ccT);
-            ccMsg.set("parts", ccParts);
-            ccContents.add(ccMsg);
-            ccBody.set("contents", ccContents);
-            ccBody.put("ttl", ttl.isEmpty() ? "3600s" : ttl);
-
-            FetchResult cr = proxy.postJson(site, "/v1beta/cachedContents", auth, ccBody.toString(), Duration.ofSeconds(60));
+        ObjectNode ccCreateBody = (gemini && explicit) ? buildCachedContentsBody(model, systemText, ttl) : null;
+        if (gemini && explicit && !dryRun) {
+            FetchResult cr = proxy.postJson(site, "/v1beta/cachedContents", auth, ccCreateBody.toString(), Duration.ofSeconds(60));
             if (cr.status() >= 400) {
                 throw new IllegalStateException("创建 cachedContents 失败（上游 " + cr.status()
                         + "，中继站可能不支持显式缓存接口）: " + truncate(cr.body(), 300));
@@ -668,6 +659,16 @@ public class TestService {
             if (cacheName.isEmpty()) {
                 throw new IllegalStateException("创建缓存响应缺少 name: " + truncate(cr.body(), 300));
             }
+        }
+        String cacheRef = cacheName;
+        if (gemini && explicit && dryRun) {
+            cacheRef = "<cachedContents 创建后返回的 name>";
+        }
+
+        // 导出请求体：返回每一轮将要实际发出的 URL + body（不调用上游）
+        if (dryRun) {
+            return exportCacheRequests(site, model, protoLabel, path, systemText, rounds,
+                    chat, gemini, explicit, cacheRef, systemArr, questions, maxTok, ccCreateBody);
         }
 
         // 逐轮请求（串行，间隔 delay）
@@ -681,76 +682,8 @@ public class TestService {
             o.put("round", i + 1);
             o.put("question", questions.get(i));
             try {
-                ObjectNode body = mapper.createObjectNode();
-                body.put("model", model);
-                body.put("max_tokens", maxTok);
-                body.put("stream", false);
-                ArrayNode messages = mapper.createArrayNode();
-                if (gemini) {
-                    // generateContent 不接收 model/max_tokens/stream 字段，全部移除。
-                    body.remove("model");
-                    body.remove("max_tokens");
-                    body.remove("stream");
-                    ArrayNode contents = mapper.createArrayNode();
-                    if (explicit && cacheName != null) {
-                        // 显式：contents 只放变化的问题，前缀由 cachedContent 引用提供
-                        ObjectNode q = mapper.createObjectNode();
-                        q.put("role", "user");
-                        ArrayNode qParts = mapper.createArrayNode();
-                        ObjectNode qT = mapper.createObjectNode();
-                        qT.put("text", questions.get(i));
-                        qParts.add(qT);
-                        q.set("parts", qParts);
-                        contents.add(q);
-                        body.put("cachedContent", cacheName);
-                    } else {
-                        // 隐式：固定前缀作为第一条 user 消息 + 变化的问题作为第二条
-                        ObjectNode pre = mapper.createObjectNode();
-                        pre.put("role", "user");
-                        ArrayNode preParts = mapper.createArrayNode();
-                        ObjectNode preT = mapper.createObjectNode();
-                        preT.put("text", systemText);
-                        preParts.add(preT);
-                        pre.set("parts", preParts);
-                        contents.add(pre);
-                        ObjectNode q = mapper.createObjectNode();
-                        q.put("role", "user");
-                        ArrayNode qParts = mapper.createArrayNode();
-                        ObjectNode qT = mapper.createObjectNode();
-                        qT.put("text", questions.get(i));
-                        qParts.add(qT);
-                        q.set("parts", qParts);
-                        contents.add(q);
-                    }
-                    body.set("contents", contents);
-                    ObjectNode gc = mapper.createObjectNode();
-                    gc.put("maxOutputTokens", maxTok);
-                    body.set("generationConfig", gc);
-                } else if (chat) {
-                    // OpenAI：system 角色承载固定前缀（自动前缀缓存）；问题放 messages 末尾
-                    // 官方无显式缓存 API，显式/隐式请求体一致（仅标注用途）
-                    ObjectNode sys = mapper.createObjectNode();
-                    sys.put("role", "system");
-                    sys.put("content", systemText);
-                    messages.add(sys);
-                    ObjectNode user = mapper.createObjectNode();
-                    user.put("role", "user");
-                    user.put("content", questions.get(i));
-                    messages.add(user);
-                    body.set("messages", messages);
-                } else {
-                    // Anthropic：显式=system 数组带 cache_control 断点；隐式=system 纯文本（观察中继站自动前缀缓存）
-                    if (explicit) {
-                        body.set("system", systemArr);
-                    } else {
-                        body.put("system", systemText);
-                    }
-                    ObjectNode user = mapper.createObjectNode();
-                    user.put("role", "user");
-                    user.put("content", questions.get(i));
-                    messages.add(user);
-                    body.set("messages", messages);
-                }
+                ObjectNode body = buildCacheBody(model, chat, gemini, explicit, systemText,
+                        systemArr, cacheName, questions.get(i), maxTok);
 
                 FetchResult r = proxy.postJson(site, path, auth, body.toString(), TIMEOUT);
                 if (r.status() >= 400) throw new IllegalStateException("上游 " + r.status() + ": " + truncate(r.body(), 300));
@@ -862,16 +795,154 @@ public class TestService {
             out.put("steady_hit_rate", 0.0);
         }
         // 前缀 token 粗估（无 tiktoken：ASCII≈4字符/token，中文≈1字/token）
-        int ascii = 0, cjk = 0;
-        for (int k = 0; k < systemText.length(); k++) {
-            if (systemText.charAt(k) < 128) ascii++; else cjk++;
-        }
-        long estTokens = Math.round(ascii / 4.0 + cjk * 1.0);
+        long estTokens = estimateTokens(systemText);
         out.put("prefix_chars", systemText.length());
         out.put("prefix_tokens_est", estTokens);
         out.put("prefix_min_ok", estTokens >= 1024);
         out.set("results", results);
         return out;
+    }
+
+    /**
+     * 构建单轮缓存测试的上游请求体。
+     *
+     * 抽出来供「正式测试」与「导出请求体」共用，保证导出的内容就是实际会发出的内容：
+     *   messages：{model,max_tokens,stream, system(显式=带 cache_control 的数组 / 隐式=纯文本), messages:[user]}
+     *   chat    ：{model,max_tokens,stream, messages:[system(前缀), user(问题)]}
+     *   gemini  ：{contents:[...], generationConfig:{maxOutputTokens}}；显式额外带 cachedContent，隐式把前缀放进 contents
+     */
+    private ObjectNode buildCacheBody(String model, boolean chat, boolean gemini, boolean explicit,
+                                      String systemText, JsonNode systemArr, String cacheName,
+                                      String question, int maxTok) {
+        ObjectNode body = mapper.createObjectNode();
+        body.put("model", model);
+        body.put("max_tokens", maxTok);
+        body.put("stream", false);
+        ArrayNode messages = mapper.createArrayNode();
+        if (gemini) {
+            // generateContent 不接收 model/max_tokens/stream 字段，全部移除。
+            body.remove("model");
+            body.remove("max_tokens");
+            body.remove("stream");
+            ArrayNode contents = mapper.createArrayNode();
+            if (explicit && cacheName != null) {
+                // 显式：contents 只放变化的问题，前缀由 cachedContent 引用提供
+                contents.add(geminiTextPart(question));
+                body.put("cachedContent", cacheName);
+            } else {
+                // 隐式：固定前缀作为第一条 user 消息 + 变化的问题作为第二条
+                contents.add(geminiTextPart(systemText));
+                contents.add(geminiTextPart(question));
+            }
+            body.set("contents", contents);
+            ObjectNode gc = mapper.createObjectNode();
+            gc.put("maxOutputTokens", maxTok);
+            body.set("generationConfig", gc);
+        } else if (chat) {
+            // OpenAI：system 角色承载固定前缀（自动前缀缓存）；问题放 messages 末尾
+            // 官方无显式缓存 API，显式/隐式请求体一致（仅标注用途）
+            ObjectNode sys = mapper.createObjectNode();
+            sys.put("role", "system");
+            sys.put("content", systemText);
+            messages.add(sys);
+            ObjectNode user = mapper.createObjectNode();
+            user.put("role", "user");
+            user.put("content", question);
+            messages.add(user);
+            body.set("messages", messages);
+        } else {
+            // Anthropic：显式=system 数组带 cache_control 断点；隐式=system 纯文本（观察中继站自动前缀缓存）
+            if (explicit) {
+                body.set("system", systemArr);
+            } else {
+                body.put("system", systemText);
+            }
+            ObjectNode user = mapper.createObjectNode();
+            user.put("role", "user");
+            user.put("content", question);
+            messages.add(user);
+            body.set("messages", messages);
+        }
+        return body;
+    }
+
+    /** Gemini 的 contents 元素：{role:user, parts:[{text}]} */
+    private ObjectNode geminiTextPart(String text) {
+        ObjectNode msg = mapper.createObjectNode();
+        msg.put("role", "user");
+        ArrayNode parts = mapper.createArrayNode();
+        ObjectNode t = mapper.createObjectNode();
+        t.put("text", text);
+        parts.add(t);
+        msg.set("parts", parts);
+        return msg;
+    }
+
+    /** Gemini 显式缓存的创建请求体：{model, contents:[{role:user,parts:[{text:前缀}]}], ttl} */
+    private ObjectNode buildCachedContentsBody(String model, String systemText, String ttl) {
+        ObjectNode ccBody = mapper.createObjectNode();
+        ccBody.put("model", model);
+        ArrayNode ccContents = mapper.createArrayNode();
+        ccContents.add(geminiTextPart(systemText));
+        ccBody.set("contents", ccContents);
+        ccBody.put("ttl", ttl.isEmpty() ? "3600s" : ttl);
+        return ccBody;
+    }
+
+    /**
+     * 导出请求体（dryRun）：按当前配置构建每一轮实际会发出的请求，不调用上游、不消耗额度。
+     * 返回 {dry_run, site, model, protocol, rounds, prefix_*, requests:[{round,step?,method,url,question?,body}]}，
+     * gemini 显式额外含 first=创建缓存请求（cachedContents），其 cachedContent 为占位符。
+     */
+    private ObjectNode exportCacheRequests(String site, String model, String protoLabel, String path,
+                                           String systemText, int rounds, boolean chat, boolean gemini,
+                                           boolean explicit, String cacheRef, JsonNode systemArr,
+                                           List<String> questions, int maxTok, ObjectNode ccCreateBody) {
+        ObjectNode out = mapper.createObjectNode();
+        out.put("dry_run", true);
+        out.put("site", site);
+        out.put("upstream", proxy.resolveBase(site));
+        out.put("model", model);
+        out.put("protocol", protoLabel);
+        out.put("rounds", rounds);
+        out.put("prefix_chars", systemText.length());
+        long estT = estimateTokens(systemText);
+        out.put("prefix_tokens_est", estT);
+        out.put("prefix_min_ok", estT >= 1024);
+        if (gemini && explicit) {
+            out.put("note", "gemini 显式：先 POST /v1beta/cachedContents 创建缓存，再用返回的 name 作为后续请求的 cachedContent（此处为占位符）");
+        }
+        ArrayNode reqs = mapper.createArrayNode();
+        if (ccCreateBody != null) {
+            ObjectNode c = mapper.createObjectNode();
+            c.put("step", "创建缓存（后续请求依赖它返回的 name）");
+            c.put("round", 0);
+            c.put("method", "POST");
+            c.put("url", proxy.resolveBase(site) + "/v1beta/cachedContents");
+            c.set("body", ccCreateBody);
+            reqs.add(c);
+        }
+        for (int i = 0; i < rounds; i++) {
+            ObjectNode r = mapper.createObjectNode();
+            r.put("round", i + 1);
+            r.put("method", "POST");
+            r.put("url", proxy.resolveBase(site) + path);
+            r.put("question", questions.get(i));
+            r.set("body", buildCacheBody(model, chat, gemini, explicit, systemText,
+                    systemArr, cacheRef, questions.get(i), maxTok));
+            reqs.add(r);
+        }
+        out.set("requests", reqs);
+        return out;
+    }
+
+    /** 前缀 token 粗估（无 tiktoken：ASCII≈4字符/token，中文≈1字/token） */
+    private long estimateTokens(String text) {
+        int ascii = 0, cjk = 0;
+        for (int k = 0; k < text.length(); k++) {
+            if (text.charAt(k) < 128) ascii++; else cjk++;
+        }
+        return Math.round(ascii / 4.0 + cjk * 1.0);
     }
 
     /**

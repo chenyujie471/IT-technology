@@ -9,10 +9,18 @@ spring:
       max-file-size: 20MB       # 图像编辑参考图单文件上限
       max-request-size: 80MB    # 4 张参考图的总上限
   # 请求日志持久化数据源
-  # 默认：H2 文件模式（零配置，重启不丢，文件在 ./data/reqlog）
+  # 默认：H2 文件模式（零配置，重启不丢，库文件为 ./data/db.mv.db）
+  # ⚠️ 相对路径按「进程工作目录」解析：工作目录不可写时启动就失败（常见于部署到服务器）：
+  #     Caused by: java.nio.file.AccessDeniedException: /www/AIstudio/data
+  #     即进程用户对该目录没有写权限（目录属 root / 只读挂载 / 用户不匹配），需先建目录并授权：
+  #     mkdir -p /www/AIstudio/data && chown <运行用户>: /www/AIstudio/data     # 或改为下方任一种覆盖方式
+  # 覆盖方式（无需重新打包，优先级 高→低）：
+  #   1) 启动参数： --spring.datasource.url="jdbc:h2:file:/var/lib/ittechnology/db;AUTO_RECONNECT=TRUE"
+  #   2) 环境变量： SPRING_DATASOURCE_URL="jdbc:h2:file:/var/lib/ittechnology/db;AUTO_RECONNECT=TRUE"
+  #   3) 环境变量： AI_DB_PATH=/var/lib/ittechnology/db            # 只换库文件路径，保留其余 H2 参数
   # 使用 MySQL：--spring.profiles.active=mysql，并在下方覆盖 url/username/password
   datasource:
-    url: jdbc:h2:file:./data/db;AUTO_RECONNECT=TRUE
+    url: jdbc:h2:file:${AI_DB_PATH:./data/db};AUTO_RECONNECT=TRUE
     driver-class-name: org.h2.Driver
     username: sa
     password:
